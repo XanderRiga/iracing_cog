@@ -13,6 +13,7 @@ from .storage import *
 import copy
 import discord
 from redbot.core.bot import Red
+from datetime import datetime
 
 dotenv.load_dotenv()
 
@@ -82,7 +83,7 @@ def print_leaderboard(user_data_list, guild, category, yearly=False):
     for item in user_data_list:
         member = discord.utils.find(lambda m: m.id == int(item[0]), guild.members)
         if yearly:
-            stats_list = list(map(lambda x: YearlyStats(x), item[-1]['yearly_stats']))
+            stats_list = get_current_year_stats(list(map(lambda x: YearlyStats(x), item[-1]['yearly_stats'])))
         else:
             stats_list = list(map(lambda x: CareerStats(x), item[-1]['career_stats']))
 
@@ -124,6 +125,13 @@ def print_leaderboard(user_data_list, guild, category, yearly=False):
                       str(career_stats.avgIncPerRace).ljust(15) + '\n'
 
     return add_backticks(string)
+
+
+def get_current_year_stats(yearly_stats_list):
+    """This takes the massive list of a user's yearly stats
+    and returns just the yearly stats from the current year"""
+    current_year = str(datetime.now().year)
+    return filter(lambda x: x.year == current_year, yearly_stats_list)
 
 
 def print_career_stats(career_stats, iracing_id):
