@@ -14,6 +14,9 @@ import copy
 import discord
 from redbot.core.bot import Red
 from datetime import datetime
+from discord.ext import tasks
+from .storage import folder
+from datetime import datetime
 
 dotenv.load_dotenv()
 
@@ -169,8 +172,10 @@ class Iracing(commands.Cog):
         super().__init__()
         self.irw = iRWebStats(os.getenv("IRACING_USERNAME"), os.getenv("IRACING_PASSWORD"))
         self.all_series = []
+        self.update.start()
 
     async def initialize(self):
+        print('Initializing irw')
         if not self.irw.logged:
             await self.irw.login()
 
@@ -179,6 +184,27 @@ class Iracing(commands.Cog):
 
     async def force_login(self):
         await self.irw.login()
+
+    @tasks.loop(hours=1, reconnect=False)
+    async def update(self):
+        """Update all users career stats and iratings for building a current leaderboard"""
+        now = datetime.now()
+        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+        print('========= Updating all user stats: ' + dt_string + ' ================')
+        await self.initialize()
+
+        guilds = []
+        for file in os.scandir(folder):
+            if file.path.endswith('.json'):
+                guilds.append(os.path.basename(file.path)[:-5])
+
+        for guild_id in guilds:
+            guild_dict = get_dict_of_data(guild_id)
+            for user_id in guild_dict:
+                if 'iracing_id' in guild_dict[user_id]:
+                    guild_dict = await self.update_user_in_dict(user_id, guild_dict)
+
+            set_guild_data(guild_id, guild_dict)
 
     @commands.command()
     async def getseriesdata(self, ctx):
@@ -284,22 +310,6 @@ class Iracing(commands.Cog):
         elif category == 'dirtoval':
             sorted_list = sorted(guild_dict.items(), key=lambda x: int(x[1]['dirt_oval_irating']), reverse=True)
             await ctx.send(print_leaderboard(sorted_list, ctx.guild, category, is_yearly))
-
-    @commands.command()
-    async def update(self, ctx):
-        """Update all users career stats and iratings for building a current leaderboard"""
-        await self.initialize()
-
-        await ctx.send('Updating all user data, this might take a few minutes')
-        guild_id = ctx.guild.id
-        guild_dict = get_dict_of_data(guild_id)
-        for user_id in guild_dict:
-            if 'iracing_id' in guild_dict[user_id]:
-                guild_dict = await self.update_user_in_dict(user_id, guild_dict)
-
-        set_guild_data(guild_id, guild_dict)
-
-        await ctx.send('Successfully updated user data')
 
     async def update_user_in_dict(self, user_id, guild_dict):
         """This updates a user inside the dict without saving to any files"""
