@@ -75,10 +75,10 @@ def print_leaderboard(user_data_list, guild, category, yearly=False):
               'iRating'.ljust(16) + \
               'Wins'.ljust(8) + \
               'Top 5s'.ljust(8) + \
+              'Laps Led'.ljust(10) + \
               'Win %'.ljust(9) + \
               'Top 5 %'.ljust(9) + \
-              'Avg Start'.ljust(12) + \
-              'Avg Finish'.ljust(12) + \
+              'Laps Led %'.ljust(12) + \
               'Avg Incidents'.ljust(15) + '\n'
     string += '----------------------------------------------------------------------------------------------------' \
               '-----------\n'
@@ -121,10 +121,10 @@ def print_leaderboard(user_data_list, guild, category, yearly=False):
                       str(irating).ljust(16) + \
                       str(career_stats.wins).ljust(8) + \
                       str(career_stats.top5).ljust(8) + \
+                      str(career_stats.lapsLed).ljust(10) + \
                       str(career_stats.winPerc).ljust(9) + \
                       str(career_stats.top5Perc).ljust(9) + \
-                      str(career_stats.avgStart).ljust(12) + \
-                      str(career_stats.avgFinish).ljust(12) + \
+                      str(career_stats.lapsLedPerc).ljust(12) + \
                       str(career_stats.avgIncPerRace).ljust(15) + '\n'
 
     return add_backticks(string)
