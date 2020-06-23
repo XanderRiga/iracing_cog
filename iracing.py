@@ -186,8 +186,8 @@ class Iracing(commands.Cog):
     @tasks.loop(hours=1, reconnect=False)
     async def update_all_servers(self):
         """Update all users career stats and iratings for building a current leaderboard"""
-        now = datetime.now()
-        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+        start_time = datetime.now()
+        dt_string = start_time.strftime("%d/%m/%Y %H:%M:%S")
         log.info('=============== Updating all user stats: ' + dt_string + ' ======================')
         await self.initialize()
 
@@ -205,12 +205,14 @@ class Iracing(commands.Cog):
             set_guild_data(guild_id, guild_dict)
 
         log.info('=============== Finished update that started at: ' + dt_string + ' ======================')
+        finish_time = datetime.now()
+        log.info('=============== Auto update took ' + str((finish_time - start_time).total_seconds()) + ' seconds =================')
 
     @commands.command()
     async def update(self, ctx):
         """Update all users career stats and iratings for building a current leaderboard"""
-        now = datetime.now()
-        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+        start_time = datetime.now()
+        dt_string = start_time.strftime("%d/%m/%Y %H:%M:%S")
         log.info('=============== Manual update started at: ' + dt_string + ' ======================')
         await self.initialize()
 
@@ -223,6 +225,8 @@ class Iracing(commands.Cog):
 
         set_guild_data(guild_id, guild_dict)
         log.info('=============== Manual update finished that started at: ' + dt_string + ' ======================')
+        finish_time = datetime.now()
+        log.info('=============== Manual update took ' + str((finish_time - start_time).total_seconds()) + ' seconds ===============')
         await ctx.send("Successfully updated this server")
 
     @commands.command()
