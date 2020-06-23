@@ -172,7 +172,7 @@ class Iracing(commands.Cog):
         super().__init__()
         self.irw = iRWebStats(os.getenv("IRACING_USERNAME"), os.getenv("IRACING_PASSWORD"))
         self.all_series = []
-        self.update.start()
+        self.update_all_servers.start()
 
     async def initialize(self):
         print('Initializing irw')
@@ -186,11 +186,11 @@ class Iracing(commands.Cog):
         await self.irw.login()
 
     @tasks.loop(hours=1, reconnect=False)
-    async def update(self):
+    async def update_all_servers(self):
         """Update all users career stats and iratings for building a current leaderboard"""
         now = datetime.now()
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-        print('========= Updating all user stats: ' + dt_string + ' ================')
+        print('=============== Updating all user stats: ' + dt_string + ' ======================')
         await self.initialize()
 
         guilds = []
@@ -205,6 +205,27 @@ class Iracing(commands.Cog):
                     guild_dict = await self.update_user_in_dict(user_id, guild_dict)
 
             set_guild_data(guild_id, guild_dict)
+
+        print('=============== Finished update that started at: ' + dt_string + ' ======================')
+
+    @commands.command()
+    async def update(self, ctx):
+        """Update all users career stats and iratings for building a current leaderboard"""
+        now = datetime.now()
+        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+        print('=============== Manual update started at: ' + dt_string + ' ======================')
+        await self.initialize()
+
+        await ctx.send("Updating all users in this server, this may take a few minutes")
+        guild_id = str(ctx.guild.id)
+        guild_dict = get_dict_of_data(guild_id)
+        for user_id in guild_dict:
+            if 'iracing_id' in guild_dict[user_id]:
+                guild_dict = await self.update_user_in_dict(user_id, guild_dict)
+
+        set_guild_data(guild_id, guild_dict)
+        print('=============== Manual update finished that started at: ' + dt_string + ' ======================')
+        await ctx.send("Successfully updated this server")
 
     @commands.command()
     async def getseriesdata(self, ctx):
