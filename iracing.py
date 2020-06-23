@@ -10,7 +10,12 @@ import discord
 from discord.ext import tasks
 from .storage import folder
 from datetime import datetime
+import logging
+import sys
 
+logging.basicConfig(stream=sys.stdout, level=logging.INFO, datefmt="%Y-%m-%d %H:%M:%S",
+                    format="%(asctime)s;%(levelname)s;%(message)s")
+log = logging.getLogger()
 dotenv.load_dotenv()
 
 
@@ -168,7 +173,7 @@ class Iracing(commands.Cog):
         self.update_all_servers.start()
 
     async def initialize(self):
-        print('Initializing irw')
+        log.info('Initializing irw')
         if not self.irw.logged:
             await self.irw.login()
 
@@ -183,7 +188,7 @@ class Iracing(commands.Cog):
         """Update all users career stats and iratings for building a current leaderboard"""
         now = datetime.now()
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-        print('=============== Updating all user stats: ' + dt_string + ' ======================')
+        log.info('=============== Updating all user stats: ' + dt_string + ' ======================')
         await self.initialize()
 
         guilds = []
@@ -199,14 +204,14 @@ class Iracing(commands.Cog):
 
             set_guild_data(guild_id, guild_dict)
 
-        print('=============== Finished update that started at: ' + dt_string + ' ======================')
+        log.info('=============== Finished update that started at: ' + dt_string + ' ======================')
 
     @commands.command()
     async def update(self, ctx):
         """Update all users career stats and iratings for building a current leaderboard"""
         now = datetime.now()
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-        print('=============== Manual update started at: ' + dt_string + ' ======================')
+        log.info('=============== Manual update started at: ' + dt_string + ' ======================')
         await self.initialize()
 
         await ctx.send("Updating all users in this server, this may take a few minutes")
@@ -217,7 +222,7 @@ class Iracing(commands.Cog):
                 guild_dict = await self.update_user_in_dict(user_id, guild_dict)
 
         set_guild_data(guild_id, guild_dict)
-        print('=============== Manual update finished that started at: ' + dt_string + ' ======================')
+        log.info('=============== Manual update finished that started at: ' + dt_string + ' ======================')
         await ctx.send("Successfully updated this server")
 
     @commands.command()
@@ -360,8 +365,8 @@ class Iracing(commands.Cog):
 
         iratings = Iratings(oval_irating, road_irating, dirt_road_irating, dirt_oval_irating)
 
-        print('iRatings found for: ' + str(iracing_id))
-        print(json.dumps(iratings.__dict__))
+        log.info('iRatings found for: ' + str(iracing_id))
+        log.info(json.dumps(iratings.__dict__))
 
         save_irating(user_id, guild_id, iratings)
 
@@ -372,7 +377,7 @@ class Iracing(commands.Cog):
     async def update_last_races(self, user_id, guild_id, iracing_id):
         races_stats_list = await self.irw.lastrace_stats(iracing_id)
         if races_stats_list:
-            print('found a races stats list for user: ' + str(iracing_id))
+            log.info('found a races stats list for user: ' + str(iracing_id))
             update_user(user_id, guild_id, None, None, copy.deepcopy(races_stats_list))
             return races_stats_list
 
