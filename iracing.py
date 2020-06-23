@@ -1,19 +1,12 @@
 from redbot.core import commands
-import os
-import sys
 import dotenv
 from .ir_webstats_rc.client import iRWebStats
-from .ir_webstats_rc.constants import IRATING_DIRT_OVAL_CHART, IRATING_ROAD_CHART, IRATING_OVAL_CHART, \
-    IRATING_DIRT_ROAD_CHART
-from .ir_webstats_rc.responses.last_races_stats import LastRacesStats
 from .ir_webstats_rc.responses.yearly_stats import YearlyStats
 from .ir_webstats_rc.responses.career_stats import CareerStats
 from .ir_webstats_rc.responses.iratings import Iratings
 from .storage import *
 import copy
 import discord
-from redbot.core.bot import Red
-from datetime import datetime
 from discord.ext import tasks
 from .storage import folder
 from datetime import datetime
