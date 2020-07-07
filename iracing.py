@@ -302,6 +302,12 @@ class Iracing(commands.Cog):
         """Save your iRacing ID with to your Discord ID"""
         await self.initialize()
 
+        if not iracing_id.isdigit():
+            await ctx.send('Oops, this ID does not seem to be valid. '
+                           + 'Make sure you only write the numbers and not any symbols with the ID.'
+                           + 'Your ID can be found by the top right of your account page under "Customer ID".')
+            return
+
         user_id = str(ctx.author.id)
         guild_id = str(ctx.guild.id)
 
