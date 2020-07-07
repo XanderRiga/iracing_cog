@@ -1,4 +1,5 @@
 # iRacing Cog
+This is a cog for the Red-Discord Bot that allows users to view and compare their iRacing data directly inside of discord.
 
 ## Commands
 ### !saveid <iRacing Client ID\>
