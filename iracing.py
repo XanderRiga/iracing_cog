@@ -210,7 +210,8 @@ class Iracing(commands.Cog):
 
     @commands.command()
     async def update(self, ctx):
-        """Update all users career stats and iratings for building a current leaderboard"""
+        """Update all users career and yearly stats and iratings for building a current leaderboard.
+        This is run every hour anyways, so it isn't necessary most of the time to run manually"""
         start_time = datetime.now()
         dt_string = start_time.strftime("%d/%m/%Y %H:%M:%S")
         log.info('=============== Manual update started at: ' + dt_string + ' ======================')
@@ -236,7 +237,8 @@ class Iracing(commands.Cog):
 
     @commands.command()
     async def recentraces(self, ctx, *, iracing_id=None):
-        """Gives the recent race data from the iRacing ID passed in"""
+        """Shows the recent race data for the given iracing id. If no iracing id is provided it will attempt
+        to use the stored iracing id for the user who called the command."""
         await self.initialize()
 
         user_id = str(ctx.author.id)
@@ -257,7 +259,8 @@ class Iracing(commands.Cog):
 
     @commands.command()
     async def yearlystats(self, ctx, *, iracing_id=None):
-        """Gives the yearly data from the iRacing ID passed in"""
+        """Shows the yearly stats for the given iracing id. If no iracing id is provided it will attempt
+        to use the stored iracing id for the user who called the command."""
         await self.initialize()
 
         user_id = str(ctx.author.id)
@@ -278,7 +281,8 @@ class Iracing(commands.Cog):
 
     @commands.command()
     async def careerstats(self, ctx, *, iracing_id=None):
-        """Gives the career data from the iRacing ID passed in"""
+        """Shows the career stats for the given iracing id. If no iracing id is provided it will attempt
+        to use the stored iracing id for the user who called the command."""
         await self.initialize()
 
         user_id = str(ctx.author.id)
@@ -299,7 +303,8 @@ class Iracing(commands.Cog):
 
     @commands.command()
     async def saveid(self, ctx, *, iracing_id):
-        """Save your iRacing ID with to your Discord ID"""
+        """Save your iRacing ID to be placed on the leaderboard.
+        Your ID can be found by the top right of your account page under "Customer ID"."""
         await self.initialize()
 
         if not iracing_id.isdigit():
@@ -319,7 +324,7 @@ class Iracing(commands.Cog):
         """Displays a leaderboard of the users who have used `!saveid`.
         If the data is not up to date, try `!update` first.
         The categories are `road`, `oval`, `dirtroad`, and `dirtoval` and
-        the types are `career` and `yearly`"""
+        the types are `career` and `yearly`. Default is `road` `career`"""
         is_yearly = (type != 'career')
 
         if category not in ['road', 'oval', 'dirtroad', 'dirtoval']:
