@@ -24,3 +24,14 @@ and `yearly` will only show data from the current year.
 
 **NOTE:** This can be called with a category and no type, but if you want to call with a type, you need to pass a category.
 For instance, I can call `!leaderboard oval`, but if I want the road leaderboard yearly I need to specify: `!leaderboard road yearly`, `!leaderboard yearly` is **NOT** valid.
+
+### !careerstats <iRacing Client ID\>
+This will give an overview of the career stats of the player with the given iRacing Client ID.
+If an iRacing Client ID is not provided, then it will use the saved ID for the user who called the command.
+If the user has not saved their ID, they must provide an iRacing Client ID.
+
+### !yearlystats <iRacing Client ID\>
+This will give an overview of the yearly stats of the player with the given iRacing Client ID.
+If an iRacing Client ID is not provided, then it will use the saved ID for the user who called the command.
+If the user has not saved their ID, they must provide an iRacing Client ID.
+
