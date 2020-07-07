@@ -34,4 +34,3 @@ If the user has not saved their ID, they must provide an iRacing Client ID.
 This will give an overview of the yearly stats of the player with the given iRacing Client ID.
 If an iRacing Client ID is not provided, then it will use the saved ID for the user who called the command.
 If the user has not saved their ID, they must provide an iRacing Client ID.
-
