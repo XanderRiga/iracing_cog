@@ -10,13 +10,17 @@ import discord
 from discord.ext import tasks
 from .storage import folder
 from datetime import datetime
-import logging
 import sys
+import logging
+from logdna import LogDNAHandler
 
-logging.basicConfig(stream=sys.stdout, level=logging.INFO, datefmt="%Y-%m-%d %H:%M:%S",
-                    format="%(asctime)s;%(levelname)s;%(message)s")
-log = logging.getLogger()
 dotenv.load_dotenv()
+
+logdna_key = os.getenv("LOGDNA_INGESTION_KEY")
+log = logging.getLogger('logdna')
+log.setLevel(logging.INFO)
+handler = LogDNAHandler(logdna_key, {})
+log.addHandler(handler)
 
 
 def add_backticks(string):
@@ -168,7 +172,11 @@ class Iracing(commands.Cog):
 
     def __init__(self):
         super().__init__()
-        self.irw = iRWebStats(os.getenv("IRACING_USERNAME"), os.getenv("IRACING_PASSWORD"))
+        self.irw = iRWebStats(
+            os.getenv("IRACING_USERNAME"),
+            os.getenv("IRACING_PASSWORD"),
+            log
+        )
         self.all_series = []
         self.update_all_servers.start()
 
