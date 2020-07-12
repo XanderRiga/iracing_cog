@@ -52,7 +52,7 @@ def print_yearly_stats(yearly_stats, iracing_id):
     string += '--------------------------------------------------------------------' \
               '---------------------------\n'
 
-    for yearly_stat in yearly_stats:
+    for yearly_stat in yearly_stats[:16]:
         string += str(yearly_stat.year).ljust(6) + \
                   yearly_stat.category.ljust(11) + \
                   str(yearly_stat.starts).ljust(8) + \
