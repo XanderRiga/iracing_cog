@@ -1,16 +1,15 @@
 from redbot.core import commands
 import dotenv
-from .ir_webstats_rc.client import iRWebStats
-from .ir_webstats_rc.responses.yearly_stats import YearlyStats
-from .ir_webstats_rc.responses.career_stats import CareerStats
-from .ir_webstats_rc.responses.iratings import Iratings
+from pyracing import client as pyracing
+from pyracing.responses.yearly_stats import YearlyStats
+from pyracing.responses.career_stats import CareerStats
+from pyracing.constants import Category
 from .storage import *
 import copy
 import discord
 from discord.ext import tasks
 from .storage import folder
 from datetime import datetime
-import sys
 import logging
 from logdna import LogDNAHandler
 
@@ -172,7 +171,7 @@ class Iracing(commands.Cog):
 
     def __init__(self):
         super().__init__()
-        self.irw = iRWebStats(
+        self.pyracing = pyracing.Client(
             os.getenv("IRACING_USERNAME"),
             os.getenv("IRACING_PASSWORD"),
             log
@@ -180,24 +179,12 @@ class Iracing(commands.Cog):
         self.all_series = []
         self.update_all_servers.start()
 
-    async def initialize(self):
-        log.info('Initializing irw')
-        if not self.irw.logged:
-            await self.irw.login()
-
-        if not self.all_series:
-            self.all_series = await self.irw.all_seasons()
-
-    async def force_login(self):
-        await self.irw.login()
-
     @tasks.loop(hours=1, reconnect=False)
     async def update_all_servers(self):
         """Update all users career stats and iratings for building a current leaderboard"""
         start_time = datetime.now()
         dt_string = start_time.strftime("%d/%m/%Y %H:%M:%S")
         log.info('=============== Updating all user stats: ' + dt_string + ' ======================')
-        await self.initialize()
 
         guilds = []
         for file in os.scandir(folder):
@@ -216,6 +203,9 @@ class Iracing(commands.Cog):
         finish_time = datetime.now()
         log.info('=============== Auto update took ' + str((finish_time - start_time).total_seconds()) + ' seconds =================')
 
+        self.all_series = await self.pyracing.current_seasons(series_id=True)
+        log.info('Successfully got all current season data')
+
     @commands.command()
     async def update(self, ctx):
         """Update all users career and yearly stats and iratings for building a current leaderboard.
@@ -223,7 +213,6 @@ class Iracing(commands.Cog):
         start_time = datetime.now()
         dt_string = start_time.strftime("%d/%m/%Y %H:%M:%S")
         log.info('=============== Manual update started at: ' + dt_string + ' ======================')
-        await self.initialize()
 
         await ctx.send("Updating all users in this server, this may take a few minutes")
         guild_id = str(ctx.guild.id)
@@ -239,15 +228,9 @@ class Iracing(commands.Cog):
         await ctx.send("Successfully updated this server")
 
     @commands.command()
-    async def getseriesdata(self, ctx):
-        self.all_series = await self.irw.all_seasons()
-        await ctx.send('Successfully got all current series data')
-
-    @commands.command()
     async def recentraces(self, ctx, *, iracing_id=None):
         """Shows the recent race data for the given iracing id. If no iracing id is provided it will attempt
         to use the stored iracing id for the user who called the command."""
-        await self.initialize()
 
         user_id = str(ctx.author.id)
         guild_id = str(ctx.guild.id)
@@ -269,7 +252,6 @@ class Iracing(commands.Cog):
     async def yearlystats(self, ctx, *, iracing_id=None):
         """Shows the yearly stats for the given iracing id. If no iracing id is provided it will attempt
         to use the stored iracing id for the user who called the command."""
-        await self.initialize()
 
         user_id = str(ctx.author.id)
         guild_id = str(ctx.guild.id)
@@ -291,7 +273,6 @@ class Iracing(commands.Cog):
     async def careerstats(self, ctx, *, iracing_id=None):
         """Shows the career stats for the given iracing id. If no iracing id is provided it will attempt
         to use the stored iracing id for the user who called the command."""
-        await self.initialize()
 
         user_id = str(ctx.author.id)
         guild_id = str(ctx.guild.id)
@@ -313,7 +294,6 @@ class Iracing(commands.Cog):
     async def saveid(self, ctx, *, iracing_id):
         """Save your iRacing ID to be placed on the leaderboard.
         Your ID can be found by the top right of your account page under "Customer ID"."""
-        await self.initialize()
 
         if not iracing_id.isdigit():
             await ctx.send('Oops, this ID does not seem to be valid. '
@@ -356,40 +336,38 @@ class Iracing(commands.Cog):
     async def update_user_in_dict(self, user_id, guild_dict):
         """This updates a user inside the dict without saving to any files"""
         iracing_id = guild_dict[user_id]['iracing_id']
-        career_stats_list = await self.irw.career_stats(iracing_id)
+        career_stats_list = await self.pyracing.career_stats(iracing_id)
         if career_stats_list:
             guild_dict[user_id]['career_stats'] = list(map(lambda x: x.__dict__, career_stats_list))
 
-        yearly_stats_list = await self.irw.yearly_stats(iracing_id)
+        yearly_stats_list = await self.pyracing.yearly_stats(iracing_id)
         if yearly_stats_list:
             guild_dict[user_id]['yearly_stats'] = list(map(lambda x: x.__dict__, yearly_stats_list))
 
-        oval_irating = await self.get_irating(iracing_id, IRATING_OVAL_CHART)
-        road_irating = await self.get_irating(iracing_id, IRATING_ROAD_CHART)
-        dirt_oval_irating = await self.get_irating(iracing_id, IRATING_DIRT_OVAL_CHART)
-        dirt_road_irating = await self.get_irating(iracing_id, IRATING_DIRT_ROAD_CHART)
-
-        iratings = Iratings(oval_irating, road_irating, dirt_road_irating, dirt_oval_irating)
-
-        guild_dict[user_id]['oval_irating'] = iratings.oval
-        guild_dict[user_id]['road_irating'] = iratings.road
-        guild_dict[user_id]['dirt_road_irating'] = iratings.dirt
-        guild_dict[user_id]['dirt_oval_irating'] = iratings.dirtoval
+        guild_dict[user_id]['oval_irating'] = await self.get_irating(iracing_id, Category.oval)
+        guild_dict[user_id]['road_irating'] = await self.get_irating(iracing_id, Category.road)
+        guild_dict[user_id]['dirt_road_irating'] = await self.get_irating(iracing_id, Category.dirt_road)
+        guild_dict[user_id]['dirt_oval_irating'] = await self.get_irating(iracing_id, Category.dirt_oval)
 
         return guild_dict
 
     async def save_iratings(self, user_id, guild_id):
         iracing_id = get_user_iracing_id(user_id, guild_id)
 
-        oval_irating = await self.get_irating(iracing_id, IRATING_OVAL_CHART)
-        road_irating = await self.get_irating(iracing_id, IRATING_ROAD_CHART)
-        dirt_oval_irating = await self.get_irating(iracing_id, IRATING_DIRT_OVAL_CHART)
-        dirt_road_irating = await self.get_irating(iracing_id, IRATING_DIRT_ROAD_CHART)
+        oval_irating = await self.get_irating(iracing_id, Category.oval)
+        road_irating = await self.get_irating(iracing_id, Category.road)
+        dirt_oval_irating = await self.get_irating(iracing_id, Category.dirt_oval)
+        dirt_road_irating = await self.get_irating(iracing_id, Category.dirt_road)
 
-        iratings = Iratings(oval_irating, road_irating, dirt_road_irating, dirt_oval_irating)
+        iratings = {
+            'oval': oval_irating,
+            'road': road_irating,
+            'dirt': dirt_road_irating,
+            'dirtoval': dirt_oval_irating
+        }
 
         log.info('iRatings found for: ' + str(iracing_id))
-        log.info(json.dumps(iratings.__dict__))
+        log.info(json.dumps(iratings))
 
         save_irating(user_id, guild_id, iratings)
 
@@ -398,36 +376,37 @@ class Iracing(commands.Cog):
         await self.save_iratings(user_id, guild_id)
 
     async def update_last_races(self, user_id, guild_id, iracing_id):
-        races_stats_list = await self.irw.lastrace_stats(iracing_id)
+        races_stats_list = await self.pyracing.last_race_stats(iracing_id)
         if races_stats_list:
             log.info('found a races stats list for user: ' + str(iracing_id))
             update_user(user_id, guild_id, None, None, copy.deepcopy(races_stats_list))
             return races_stats_list
 
     async def update_yearly_stats(self, user_id, guild_id, iracing_id):
-        yearly_stats_list = await self.irw.yearly_stats(iracing_id)
+        yearly_stats_list = await self.pyracing.yearly_stats(iracing_id)
         if yearly_stats_list:
             update_user(user_id, guild_id, None, copy.deepcopy(yearly_stats_list), None)
             return yearly_stats_list
 
     async def update_career_stats(self, user_id, guild_id, iracing_id):
-        career_stats_list = await self.irw.career_stats(iracing_id)
+        career_stats_list = await self.pyracing.career_stats(iracing_id)
         if career_stats_list:
             update_user(user_id, guild_id, copy.deepcopy(career_stats_list), None, None)
             return career_stats_list
 
     async def get_irating(self, user_id, category):
-        chart = await self.irw.iratingchart(user_id, category)
-        if not chart or not isinstance(chart, list) or not isinstance(chart[-1], list):
+        chart_data = await self.pyracing.get_irating(category, user_id)
+        if not chart_data.current():
             return 0
-        return str(chart[-1][-1])
+        return str(chart_data.current().value)
 
     def get_series_name(self, series_id):
         for series in self.all_series:
-            if series.seriesId == series_id:
-                return series.name
+            if str(series.series_id) == str(series_id):
+                # We want to truncate the series name to 35 because some of them are massive
+                return series.series_short_name[:33] + '..' if len(series.series_short_name) > 35 else series.series_short_name
 
-        return ""
+        return "Unknown Series"
 
     def print_recent_races(self, recent_races, iracing_id):
         string = 'Recent Races Data for user: ' + str(iracing_id) + '\n\n'

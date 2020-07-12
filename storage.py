@@ -1,6 +1,5 @@
 import json
 import os
-from .ir_webstats_rc.client import IRATING_DIRT_OVAL_CHART, IRATING_ROAD_CHART, IRATING_OVAL_CHART, IRATING_DIRT_ROAD_CHART
 
 folder = './data/'
 
