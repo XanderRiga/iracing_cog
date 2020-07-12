@@ -1,6 +1,8 @@
 # iRacing Cog
 This is a cog for the Red-Discord Bot that allows users to view and compare their iRacing data directly inside of discord.
 
+This uses [pyracing](https://github.com/Esterni/pyracing) under the hood, which I also contribute to.
+
 ## Commands
 ### !saveid <iRacing Client ID\>
 Use this command to save your iRacing ID to your discord ID.
