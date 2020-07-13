@@ -17,7 +17,7 @@ dotenv.load_dotenv()
 
 logdna_key = os.getenv("LOGDNA_INGESTION_KEY")
 log = logging.getLogger('logdna')
-log.setLevel(logging.INFO)
+log.setLevel(logging.DEBUG)
 handler = LogDNAHandler(logdna_key, {'hostname': os.getenv("LOG_LOCATION")})
 log.addHandler(handler)
 
