@@ -4,14 +4,26 @@ import os
 folder = './data/'
 
 
-def save_irating(user_id, guild_id, iratings):
+def store_iratings(user_id, guild_id, iratings):
     ensure_file_exists(guild_id)
     user_data = get_user_data(user_id, guild_id) or {}
 
-    user_data['oval_irating'] = iratings.oval
-    user_data['road_irating'] = iratings.road
-    user_data['dirt_road_irating'] = iratings.dirt
-    user_data['dirt_oval_irating'] = iratings.dirtoval
+    user_data['oval_irating'] = iratings['oval']
+    user_data['road_irating'] = iratings['road']
+    user_data['dirt_road_irating'] = iratings['dirt']
+    user_data['dirt_oval_irating'] = iratings['dirtoval']
+
+    set_user_data(user_id, guild_id, user_data)
+
+
+def store_license_classes(user_id, guild_id, license_classes):
+    ensure_file_exists(guild_id)
+    user_data = get_user_data(user_id, guild_id) or {}
+
+    user_data['oval_license_class'] = license_classes['oval']
+    user_data['road_license_class'] = license_classes['road']
+    user_data['dirt_road_license_class'] = license_classes['dirt']
+    user_data['dirt_oval_license_class'] = license_classes['dirtoval']
 
     set_user_data(user_id, guild_id, user_data)
 

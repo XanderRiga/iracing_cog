@@ -73,7 +73,8 @@ def print_leaderboard(user_data_list, guild, category, yearly=False):
     string = 'iRacing ' + lowercase_to_readable_categories(category) + ' ' + type_string + ' Leaderboard' + '\n\n'
     string += 'Racer'.ljust(16) + \
               'Starts'.ljust(8) + \
-              'iRating'.ljust(16) + \
+              'iRating'.ljust(9) + \
+              'License'.ljust(13) + \
               'Wins'.ljust(8) + \
               'Top 5s'.ljust(8) + \
               'Laps Led'.ljust(10) + \
@@ -101,6 +102,16 @@ def print_leaderboard(user_data_list, guild, category, yearly=False):
         elif category == 'dirtoval':
             irating = item[-1]['dirt_oval_irating']
 
+        license_class = 'N/A'
+        if category == 'road':
+            license_class = item[-1]['road_license_class']
+        elif category == 'oval':
+            license_class = item[-1]['oval_license_class']
+        elif category == 'dirtroad':
+            license_class = item[-1]['dirt_road_license_class']
+        elif category == 'dirtoval':
+            license_class = item[-1]['dirt_oval_license_class']
+
         career_stats = None
         for stat in stats_list:
             if category == 'road':
@@ -119,7 +130,8 @@ def print_leaderboard(user_data_list, guild, category, yearly=False):
         if career_stats:
             string += member.name.ljust(16) + \
                       str(career_stats.starts).ljust(8) + \
-                      str(irating).ljust(16) + \
+                      str(irating).ljust(9) + \
+                      str(license_class).ljust(13) + \
                       str(career_stats.wins).ljust(8) + \
                       str(career_stats.top5).ljust(8) + \
                       str(career_stats.lapsLed).ljust(10) + \
@@ -349,31 +361,12 @@ class Iracing(commands.Cog):
         guild_dict[user_id]['dirt_road_irating'] = await self.get_irating(iracing_id, Category.dirt_road)
         guild_dict[user_id]['dirt_oval_irating'] = await self.get_irating(iracing_id, Category.dirt_oval)
 
+        guild_dict[user_id]['oval_license_class'] = await self.get_license_class(iracing_id, Category.oval)
+        guild_dict[user_id]['road_license_class'] = await self.get_license_class(iracing_id, Category.road)
+        guild_dict[user_id]['dirt_oval_license_class'] = await self.get_license_class(iracing_id, Category.dirt_oval)
+        guild_dict[user_id]['dirt_road_license_class'] = await self.get_license_class(iracing_id, Category.dirt_road)
+
         return guild_dict
-
-    async def save_iratings(self, user_id, guild_id):
-        iracing_id = get_user_iracing_id(user_id, guild_id)
-
-        oval_irating = await self.get_irating(iracing_id, Category.oval)
-        road_irating = await self.get_irating(iracing_id, Category.road)
-        dirt_oval_irating = await self.get_irating(iracing_id, Category.dirt_oval)
-        dirt_road_irating = await self.get_irating(iracing_id, Category.dirt_road)
-
-        iratings = {
-            'oval': oval_irating,
-            'road': road_irating,
-            'dirt': dirt_road_irating,
-            'dirtoval': dirt_oval_irating
-        }
-
-        log.info('iRatings found for: ' + str(iracing_id))
-        log.info(json.dumps(iratings))
-
-        save_irating(user_id, guild_id, iratings)
-
-    async def update_leaderboard_data(self, user_id, guild_id, iracing_id):
-        await self.update_career_stats(user_id, guild_id, iracing_id)
-        await self.save_iratings(user_id, guild_id)
 
     async def update_last_races(self, user_id, guild_id, iracing_id):
         races_stats_list = await self.pyracing.last_race_stats(iracing_id)
@@ -399,6 +392,12 @@ class Iracing(commands.Cog):
         if not chart_data.current():
             return 0
         return str(chart_data.current().value)
+
+    async def get_license_class(self, user_id, category):
+        chart_data = await self.pyracing.get_license_class(category, user_id)
+        if not chart_data.current():
+            return 'N/A'
+        return str(chart_data.current().class_letter()) + ' ' + str(chart_data.current().safety_rating)
 
     def get_series_name(self, series_id):
         for series in self.all_series:
