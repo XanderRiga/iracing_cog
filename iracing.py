@@ -74,7 +74,7 @@ def print_leaderboard(user_data_list, guild, category, yearly=False):
     string += 'Racer'.ljust(16) + \
               'Starts'.ljust(8) + \
               'iRating'.ljust(9) + \
-              'License'.ljust(13) + \
+              'License'.ljust(9) + \
               'Wins'.ljust(8) + \
               'Top 5s'.ljust(8) + \
               'Laps Led'.ljust(10) + \
@@ -131,7 +131,7 @@ def print_leaderboard(user_data_list, guild, category, yearly=False):
             string += member.name.ljust(16) + \
                       str(career_stats.starts).ljust(8) + \
                       str(irating).ljust(9) + \
-                      str(license_class).ljust(13) + \
+                      str(license_class).ljust(9) + \
                       str(career_stats.wins).ljust(8) + \
                       str(career_stats.top5).ljust(8) + \
                       str(career_stats.lapsLed).ljust(10) + \
