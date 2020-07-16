@@ -1,8 +1,7 @@
 from redbot.core import commands
 import dotenv
 from pyracing import client as pyracing
-from pyracing.responses.yearly_stats import YearlyStats
-from pyracing.responses.career_stats import CareerStats
+from pyracing.response_objects.career_stats import YearlyStats, CareerStats
 from pyracing.constants import Category
 from .storage import *
 import copy
@@ -369,7 +368,7 @@ class Iracing(commands.Cog):
         return guild_dict
 
     async def update_last_races(self, user_id, guild_id, iracing_id):
-        races_stats_list = await self.pyracing.last_race_stats(iracing_id)
+        races_stats_list = await self.pyracing.last_races_stats(iracing_id)
         if races_stats_list:
             log.info('found a races stats list for user: ' + str(iracing_id))
             update_user(user_id, guild_id, None, None, copy.deepcopy(races_stats_list))
@@ -388,13 +387,13 @@ class Iracing(commands.Cog):
             return career_stats_list
 
     async def get_irating(self, user_id, category):
-        chart_data = await self.pyracing.get_irating(category, user_id)
+        chart_data = await self.pyracing.irating(category, user_id)
         if not chart_data.current():
             return 0
         return str(chart_data.current().value)
 
     async def get_license_class(self, user_id, category):
-        chart_data = await self.pyracing.get_license_class(category, user_id)
+        chart_data = await self.pyracing.license_class(category, user_id)
         if not chart_data.current():
             return 'N/A'
         return str(chart_data.current().class_letter()) + ' ' + str(chart_data.current().safety_rating)
