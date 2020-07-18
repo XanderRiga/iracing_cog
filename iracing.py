@@ -85,59 +85,63 @@ def print_leaderboard(user_data_list, guild, category, yearly=False):
               '-----------\n'
 
     for item in user_data_list:
-        member = discord.utils.find(lambda m: m.id == int(item[0]), guild.members)
-        if yearly:
-            stats_list = get_current_year_stats(list(map(lambda x: YearlyStats(x), item[-1]['yearly_stats'])))
-        else:
-            stats_list = list(map(lambda x: CareerStats(x), item[-1]['career_stats']))
+        try:
+            member = discord.utils.find(lambda m: m.id == int(item[0]), guild.members)
+            if yearly:
+                stats_list = get_current_year_stats(list(map(lambda x: YearlyStats(x), item[-1]['yearly_stats'])))
+            else:
+                stats_list = list(map(lambda x: CareerStats(x), item[-1]['career_stats']))
 
-        irating = 0
-        if category == 'road':
-            irating = item[-1]['road_irating']
-        elif category == 'oval':
-            irating = item[-1]['oval_irating']
-        elif category == 'dirtroad':
-            irating = item[-1]['dirt_road_irating']
-        elif category == 'dirtoval':
-            irating = item[-1]['dirt_oval_irating']
-
-        license_class = 'N/A'
-        if category == 'road':
-            license_class = item[-1]['road_license_class']
-        elif category == 'oval':
-            license_class = item[-1]['oval_license_class']
-        elif category == 'dirtroad':
-            license_class = item[-1]['dirt_road_license_class']
-        elif category == 'dirtoval':
-            license_class = item[-1]['dirt_oval_license_class']
-
-        career_stats = None
-        for stat in stats_list:
+            irating = 0
             if category == 'road':
-                if stat.category == 'Road':
-                    career_stats = stat
+                irating = item[-1]['road_irating']
             elif category == 'oval':
-                if stat.category == 'Oval':
-                    career_stats = stat
+                irating = item[-1]['oval_irating']
             elif category == 'dirtroad':
-                if stat.category == 'Dirt Road':
-                    career_stats = stat
+                irating = item[-1]['dirt_road_irating']
             elif category == 'dirtoval':
-                if stat.category == 'Dirt Oval':
-                    career_stats = stat
+                irating = item[-1]['dirt_oval_irating']
 
-        if career_stats:
-            string += member.name.ljust(16) + \
-                      str(career_stats.starts).ljust(8) + \
-                      str(irating).ljust(9) + \
-                      str(license_class).ljust(9) + \
-                      str(career_stats.wins).ljust(8) + \
-                      str(career_stats.top5).ljust(8) + \
-                      str(career_stats.lapsLed).ljust(10) + \
-                      str(career_stats.winPerc).ljust(9) + \
-                      str(career_stats.top5Perc).ljust(9) + \
-                      str(career_stats.lapsLedPerc).ljust(12) + \
-                      str(career_stats.avgIncPerRace).ljust(15) + '\n'
+            license_class = 'N/A'
+            if category == 'road':
+                license_class = item[-1]['road_license_class']
+            elif category == 'oval':
+                license_class = item[-1]['oval_license_class']
+            elif category == 'dirtroad':
+                license_class = item[-1]['dirt_road_license_class']
+            elif category == 'dirtoval':
+                license_class = item[-1]['dirt_oval_license_class']
+
+            career_stats = None
+            for stat in stats_list:
+                if category == 'road':
+                    if stat.category == 'Road':
+                        career_stats = stat
+                elif category == 'oval':
+                    if stat.category == 'Oval':
+                        career_stats = stat
+                elif category == 'dirtroad':
+                    if stat.category == 'Dirt Road':
+                        career_stats = stat
+                elif category == 'dirtoval':
+                    if stat.category == 'Dirt Oval':
+                        career_stats = stat
+
+            if career_stats:
+                string += member.name.ljust(16) + \
+                          str(career_stats.starts).ljust(8) + \
+                          str(irating).ljust(9) + \
+                          str(license_class).ljust(9) + \
+                          str(career_stats.wins).ljust(8) + \
+                          str(career_stats.top5).ljust(8) + \
+                          str(career_stats.lapsLed).ljust(10) + \
+                          str(career_stats.winPerc).ljust(9) + \
+                          str(career_stats.top5Perc).ljust(9) + \
+                          str(career_stats.lapsLedPerc).ljust(12) + \
+                          str(career_stats.avgIncPerRace).ljust(15) + '\n'
+        except Exception as e:
+            log.error(f'Error printing leaderboard data for user: {item}')
+            continue
 
     return add_backticks(string)
 
