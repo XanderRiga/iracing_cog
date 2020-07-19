@@ -66,10 +66,25 @@ def print_yearly_stats(yearly_stats, iracing_id):
     return add_backticks(string)
 
 
+def minutes_since_last_update(guild_id):
+    try:
+        last_update = get_last_update_datetime(guild_id)
+        if not last_update:
+            return None
+        return round((datetime.now() - last_update).seconds / 60, 1)
+    except Exception as e:
+        log.warning('datetime parsing exploded')
+        log.warning(e)
+        return None
+
+
 def print_leaderboard(user_data_list, guild, category, yearly=False):
     type_string = 'Yearly' if yearly else 'Career'
+    minutes_since_update = minutes_since_last_update(guild.id)
+    time_since_update_string = f' - Last updated {minutes_since_update} minute(s) ago' if minutes_since_update else ''
 
-    string = 'iRacing ' + lowercase_to_readable_categories(category) + ' ' + type_string + ' Leaderboard' + '\n\n'
+    string = 'iRacing ' + lowercase_to_readable_categories(category) + ' ' + \
+             type_string + ' Leaderboard' + time_since_update_string + '\n\n'
     string += 'Racer'.ljust(16) + \
               'Starts'.ljust(8) + \
               'iRating'.ljust(9) + \

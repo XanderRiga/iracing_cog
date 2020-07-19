@@ -1,7 +1,9 @@
+from datetime import datetime
 import json
 import os
 
 folder = './data/'
+datetime_format = '%Y-%m-%d %H:%M:%S'
 
 
 def store_iratings(user_id, guild_id, iratings):
@@ -58,6 +60,7 @@ def update_user(user_id, guild_id, career_stats_list, yearly_stats_list, recent_
 
 
 def set_guild_data(guild_id, guild_dict):
+    guild_dict['last_update'] = datetime.now().strftime(datetime_format)
     with open(file_path(guild_id), 'w') as file:
         json.dump(guild_dict, file)
 
@@ -95,6 +98,14 @@ def get_user_iracing_id(user_id, guild_id):
         return None
 
     return user_data['iracing_id']
+
+
+def get_last_update_datetime(guild_id):
+    guild_dict = get_guild_dict(guild_id)
+    if not guild_dict.get('last_update'):
+        return None
+
+    return datetime.strptime(guild_dict.get('last_update'), datetime_format)
 
 
 def ensure_file_exists(guild_id):
