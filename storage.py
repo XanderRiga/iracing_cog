@@ -31,8 +31,8 @@ def store_license_classes(user_id, guild_id, license_classes):
 def save_iracing_id(user_id, guild_id, iracing_id):
     ensure_file_exists(guild_id)
 
-    user_data = get_user_data(user_id, guild_id) or {}
-    user_data['iracing_id'] = iracing_id
+    # We want to override any data saved here because this is a new ID
+    user_data = {'iracing_id': iracing_id}
 
     set_user_data(user_id, guild_id, user_data)
 

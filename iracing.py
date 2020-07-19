@@ -181,6 +181,35 @@ def print_career_stats(career_stats, iracing_id):
     return add_backticks(string)
 
 
+def get_relevant_leaderboard_data(guild_dict, category):
+    if category == 'road':
+        valid_guild_dict = dict(filter(
+            lambda x: 'road_irating' in x[1],
+            guild_dict.items()
+        ))
+        return sorted(valid_guild_dict.items(), key=lambda x: int(x[1]['road_irating']), reverse=True)
+    elif category == 'oval':
+        valid_guild_dict = dict(filter(
+            lambda x: 'oval_irating' in x[1],
+            guild_dict.items()
+        ))
+        return sorted(valid_guild_dict.items(), key=lambda x: int(x[1]['oval_irating']), reverse=True)
+    elif category == 'dirtroad':
+        valid_guild_dict = dict(filter(
+            lambda x: 'dirt_road_irating' in x[1],
+            guild_dict.items()
+        ))
+        return sorted(valid_guild_dict.items(), key=lambda x: int(x[1]['dirt_road_irating']), reverse=True)
+    elif category == 'dirtoval':
+        valid_guild_dict = dict(filter(
+            lambda x: 'dirt_oval_irating' in x[1],
+            guild_dict.items()
+        ))
+        return sorted(valid_guild_dict.items(), key=lambda x: int(x[1]['dirt_oval_irating']), reverse=True)
+
+    return []
+
+
 class Iracing(commands.Cog):
     """A cog that can give iRacing data about users"""
 
@@ -320,7 +349,7 @@ class Iracing(commands.Cog):
         guild_id = str(ctx.guild.id)
 
         save_iracing_id(user_id, guild_id, iracing_id)
-        await ctx.send('iRacing ID successfully saved')
+        await ctx.send('iRacing ID successfully saved. Use `!update` to see this user on the leaderboard.')
 
     @commands.command()
     async def leaderboard(self, ctx, category='road', type='career'):
@@ -335,18 +364,8 @@ class Iracing(commands.Cog):
             return
 
         guild_dict = get_dict_of_data(ctx.guild.id)
-        if category == 'road':
-            sorted_list = sorted(guild_dict.items(), key=lambda x: int(x[1]['road_irating']), reverse=True)
-            await ctx.send(print_leaderboard(sorted_list, ctx.guild, category, is_yearly))
-        elif category == 'oval':
-            sorted_list = sorted(guild_dict.items(), key=lambda x: int(x[1]['oval_irating']), reverse=True)
-            await ctx.send(print_leaderboard(sorted_list, ctx.guild, category, is_yearly))
-        elif category == 'dirtroad':
-            sorted_list = sorted(guild_dict.items(), key=lambda x: int(x[1]['dirt_road_irating']), reverse=True)
-            await ctx.send(print_leaderboard(sorted_list, ctx.guild, category, is_yearly))
-        elif category == 'dirtoval':
-            sorted_list = sorted(guild_dict.items(), key=lambda x: int(x[1]['dirt_oval_irating']), reverse=True)
-            await ctx.send(print_leaderboard(sorted_list, ctx.guild, category, is_yearly))
+        leaderboard_data = get_relevant_leaderboard_data(guild_dict, category)
+        await ctx.send(print_leaderboard(leaderboard_data, ctx.guild, category, is_yearly))
 
     async def update_user_in_dict(self, user_id, guild_dict):
         """This updates a user inside the dict without saving to any files"""
