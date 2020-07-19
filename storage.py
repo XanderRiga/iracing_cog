@@ -6,7 +6,7 @@ folder = './data/'
 
 def store_iratings(user_id, guild_id, iratings):
     ensure_file_exists(guild_id)
-    user_data = get_user_data(user_id, guild_id)
+    user_data = get_user_dict(user_id, guild_id)
 
     user_data['oval_irating'] = iratings['oval']
     user_data['road_irating'] = iratings['road']
@@ -18,7 +18,7 @@ def store_iratings(user_id, guild_id, iratings):
 
 def store_license_classes(user_id, guild_id, license_classes):
     ensure_file_exists(guild_id)
-    user_data = get_user_data(user_id, guild_id)
+    user_data = get_user_dict(user_id, guild_id)
 
     user_data['oval_license_class'] = license_classes['oval']
     user_data['road_license_class'] = license_classes['road']
@@ -40,7 +40,7 @@ def save_iracing_id(user_id, guild_id, iracing_id):
 def update_user(user_id, guild_id, career_stats_list, yearly_stats_list, recent_races_stats_list):
     ensure_file_exists(guild_id)
 
-    user_data = get_user_data(user_id, guild_id)
+    user_data = get_user_dict(user_id, guild_id)
 
     if career_stats_list:
         career_stats_dict_list = list(map(lambda x: x.__dict__, career_stats_list))
@@ -65,22 +65,22 @@ def set_guild_data(guild_id, guild_dict):
 def set_user_data(user_id, guild_id, user_data):
     ensure_file_exists(guild_id)
 
-    full_dict = get_dict_of_data(guild_id)
+    full_dict = get_guild_dict(guild_id)
     full_dict[user_id] = user_data
 
     with open(file_path(guild_id), 'w') as file:
         json.dump(full_dict, file)
 
 
-def get_dict_of_data(guild_id):
+def get_guild_dict(guild_id):
     ensure_file_exists(guild_id)
 
     with open(file_path(guild_id), 'r') as file:
         return json.load(file)
 
 
-def get_user_data(user_id, guild_id):
-    dictionary = get_dict_of_data(guild_id)
+def get_user_dict(user_id, guild_id):
+    dictionary = get_guild_dict(guild_id)
 
     if user_id in dictionary:
         return dictionary[user_id]
@@ -89,7 +89,7 @@ def get_user_data(user_id, guild_id):
 
 
 def get_user_iracing_id(user_id, guild_id):
-    user_data = get_user_data(user_id, guild_id)
+    user_data = get_user_dict(user_id, guild_id)
 
     if not user_data or 'iracing_id' not in user_data:
         return None

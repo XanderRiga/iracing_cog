@@ -236,7 +236,7 @@ class Iracing(commands.Cog):
                 guilds.append(os.path.basename(file.path)[:-5])
 
         for guild_id in guilds:
-            guild_dict = get_dict_of_data(guild_id)
+            guild_dict = get_guild_dict(guild_id)
             for user_id in guild_dict:
                 if 'iracing_id' in guild_dict[user_id]:
                     guild_dict = await self.update_user_in_dict(user_id, guild_dict)
@@ -260,7 +260,7 @@ class Iracing(commands.Cog):
 
         await ctx.send("Updating all users in this server, this may take a few minutes")
         guild_id = str(ctx.guild.id)
-        guild_dict = get_dict_of_data(guild_id)
+        guild_dict = get_guild_dict(guild_id)
         for user_id in guild_dict:
             if 'iracing_id' in guild_dict[user_id]:
                 guild_dict = await self.update_user_in_dict(user_id, guild_dict)
@@ -363,7 +363,7 @@ class Iracing(commands.Cog):
             await ctx.send('Please try again with one of these categories: `road`, `oval`, `dirtroad`, `dirtoval`')
             return
 
-        guild_dict = get_dict_of_data(ctx.guild.id)
+        guild_dict = get_guild_dict(ctx.guild.id)
         leaderboard_data = get_relevant_leaderboard_data(guild_dict, category)
         await ctx.send(print_leaderboard(leaderboard_data, ctx.guild, category, is_yearly))
 
