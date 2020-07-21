@@ -1,7 +1,6 @@
 from redbot.core import commands
 import dotenv
 from pyracing import client as pyracing
-from pyracing.response_objects.career_stats import YearlyStats, CareerStats
 from pyracing.constants import Category
 from .storage import *
 import copy
@@ -55,13 +54,13 @@ def print_yearly_stats(yearly_stats, iracing_id):
         string += str(yearly_stat.year).ljust(6) + \
                   yearly_stat.category.ljust(11) + \
                   str(yearly_stat.starts).ljust(8) + \
-                  str(yearly_stat.top5).ljust(8) + \
+                  str(yearly_stat.top_5s).ljust(8) + \
                   str(yearly_stat.wins).ljust(8) + \
-                  str(yearly_stat.avgStart).ljust(12) + \
-                  str(yearly_stat.avgFinish).ljust(12) + \
-                  str(yearly_stat.avgIncPerRace).ljust(15) + \
-                  str(yearly_stat.top5Perc).ljust(9) + \
-                  str(yearly_stat.winPerc).ljust(7) + '\n'
+                  str(yearly_stat.pos_start_avg).ljust(12) + \
+                  str(yearly_stat.pos_finish_avg).ljust(12) + \
+                  str(yearly_stat.incidents_avg).ljust(15) + \
+                  str(yearly_stat.top_5_pcnt).ljust(9) + \
+                  str(yearly_stat.win_pcnt).ljust(7) + '\n'
 
     return add_backticks(string)
 
@@ -103,9 +102,9 @@ def print_leaderboard(user_data_list, guild, category, yearly=False):
         try:
             member = discord.utils.find(lambda m: m.id == int(item[0]), guild.members)
             if yearly:
-                stats_list = get_current_year_stats(list(map(lambda x: YearlyStats(x), item[-1]['yearly_stats'])))
+                stats_list = get_current_year_stats(item[-1]['yearly_stats'])
             else:
-                stats_list = list(map(lambda x: CareerStats(x), item[-1]['career_stats']))
+                stats_list = item[-1]['career_stats']
 
             irating = 0
             if category == 'road':
@@ -130,31 +129,32 @@ def print_leaderboard(user_data_list, guild, category, yearly=False):
             career_stats = None
             for stat in stats_list:
                 if category == 'road':
-                    if stat.category == 'Road':
+                    if stat['category'] == 'Road':
                         career_stats = stat
                 elif category == 'oval':
-                    if stat.category == 'Oval':
+                    if stat['category'] == 'Oval':
                         career_stats = stat
                 elif category == 'dirtroad':
-                    if stat.category == 'Dirt Road':
+                    if stat['category'] == 'Dirt Road':
                         career_stats = stat
                 elif category == 'dirtoval':
-                    if stat.category == 'Dirt Oval':
+                    if stat['category'] == 'Dirt Oval':
                         career_stats = stat
 
             if career_stats:
                 string += member.name.ljust(16) + \
-                          str(career_stats.starts).ljust(8) + \
+                          str(career_stats['starts']).ljust(8) + \
                           str(irating).ljust(9) + \
                           str(license_class).ljust(9) + \
-                          str(career_stats.wins).ljust(8) + \
-                          str(career_stats.top5).ljust(8) + \
-                          str(career_stats.lapsLed).ljust(10) + \
-                          str(career_stats.winPerc).ljust(9) + \
-                          str(career_stats.top5Perc).ljust(9) + \
-                          str(career_stats.lapsLedPerc).ljust(12) + \
-                          str(career_stats.avgIncPerRace).ljust(15) + '\n'
+                          str(career_stats['wins']).ljust(8) + \
+                          str(career_stats['top_5s']).ljust(8) + \
+                          str(career_stats['laps_led']).ljust(10) + \
+                          str(career_stats['win_pcnt']).ljust(9) + \
+                          str(career_stats['top_5_pcnt']).ljust(9) + \
+                          str(career_stats['laps_led_pcnt']).ljust(12) + \
+                          str(career_stats['incidents_avg']).ljust(15) + '\n'
         except Exception as e:
+            log.error(e)
             log.error(f'Error printing leaderboard data for user: {item}')
             continue
 
@@ -162,10 +162,10 @@ def print_leaderboard(user_data_list, guild, category, yearly=False):
 
 
 def get_current_year_stats(yearly_stats_list):
-    """This takes the massive list of a user's yearly stats
+    """This takes the massive list of a user's yearly stats dicts
     and returns just the yearly stats from the current year"""
     current_year = str(datetime.now().year)
-    return filter(lambda x: x.year == current_year, yearly_stats_list)
+    return filter(lambda x: x['year'] == current_year, yearly_stats_list)
 
 
 def print_career_stats(career_stats, iracing_id):
@@ -185,13 +185,13 @@ def print_career_stats(career_stats, iracing_id):
     for career_stat in career_stats:
         string += career_stat.category.ljust(11) + \
                   str(career_stat.starts).ljust(8) + \
-                  str(career_stat.top5).ljust(8) + \
+                  str(career_stat.top_5s).ljust(8) + \
                   str(career_stat.wins).ljust(8) + \
-                  str(career_stat.avgStart).ljust(12) + \
-                  str(career_stat.avgFinish).ljust(12) + \
-                  str(career_stat.avgIncPerRace).ljust(15) + \
-                  str(career_stat.top5Perc).ljust(9) + \
-                  str(career_stat.winPerc).ljust(8) + '\n'
+                  str(career_stat.pos_start_avg).ljust(12) + \
+                  str(career_stat.pos_finish_avg).ljust(12) + \
+                  str(career_stat.incidents_avg).ljust(15) + \
+                  str(career_stat.top_5_pcnt).ljust(9) + \
+                  str(career_stat.win_pcnt).ljust(8) + '\n'
 
     return add_backticks(string)
 
@@ -393,15 +393,15 @@ class Iracing(commands.Cog):
         if yearly_stats_list:
             guild_dict[user_id]['yearly_stats'] = list(map(lambda x: x.__dict__, yearly_stats_list))
 
-        guild_dict[user_id]['oval_irating'] = await self.get_irating(iracing_id, Category.oval)
-        guild_dict[user_id]['road_irating'] = await self.get_irating(iracing_id, Category.road)
-        guild_dict[user_id]['dirt_road_irating'] = await self.get_irating(iracing_id, Category.dirt_road)
-        guild_dict[user_id]['dirt_oval_irating'] = await self.get_irating(iracing_id, Category.dirt_oval)
+        guild_dict[user_id]['oval_irating'] = await self.get_irating(iracing_id, Category.oval.value)
+        guild_dict[user_id]['road_irating'] = await self.get_irating(iracing_id, Category.road.value)
+        guild_dict[user_id]['dirt_road_irating'] = await self.get_irating(iracing_id, Category.dirt_road.value)
+        guild_dict[user_id]['dirt_oval_irating'] = await self.get_irating(iracing_id, Category.dirt_oval.value)
 
-        guild_dict[user_id]['oval_license_class'] = await self.get_license_class(iracing_id, Category.oval)
-        guild_dict[user_id]['road_license_class'] = await self.get_license_class(iracing_id, Category.road)
-        guild_dict[user_id]['dirt_oval_license_class'] = await self.get_license_class(iracing_id, Category.dirt_oval)
-        guild_dict[user_id]['dirt_road_license_class'] = await self.get_license_class(iracing_id, Category.dirt_road)
+        guild_dict[user_id]['oval_license_class'] = await self.get_license_class(iracing_id, Category.oval.value)
+        guild_dict[user_id]['road_license_class'] = await self.get_license_class(iracing_id, Category.road.value)
+        guild_dict[user_id]['dirt_oval_license_class'] = await self.get_license_class(iracing_id, Category.dirt_oval.value)
+        guild_dict[user_id]['dirt_road_license_class'] = await self.get_license_class(iracing_id, Category.dirt_road.value)
 
         return guild_dict
 
@@ -434,13 +434,13 @@ class Iracing(commands.Cog):
         chart_data = await self.pyracing.license_class(category, user_id)
         if not chart_data.current():
             return 'N/A'
-        return str(chart_data.current().class_letter()) + ' ' + str(chart_data.current().safety_rating)
+        return str(chart_data.current().class_letter()) + ' ' + str(chart_data.current().license_level)
 
     def get_series_name(self, series_id):
         for series in self.all_series:
             if str(series.series_id) == str(series_id):
                 # We want to truncate the series name to 35 because some of them are massive
-                return series.series_short_name[:33] + '..' if len(series.series_short_name) > 35 else series.series_short_name
+                return series.series_name_short[:33] + '..' if len(series.series_name_short) > 35 else series.series_name_short
 
         return "Unknown Series"
 
@@ -457,12 +457,12 @@ class Iracing(commands.Cog):
                   '-----------------------\n'
 
         for recent_race in recent_races:
-            string += ('P' + str(recent_race.finishPos)).ljust(8) + \
-                      ('P' + str(recent_race.startPos)).ljust(8) + \
+            string += ('P' + str(recent_race.pos_finish)).ljust(8) + \
+                      ('P' + str(recent_race.pos_start)).ljust(8) + \
                       str(recent_race.incidents).ljust(11) + \
-                      str(recent_race.sof).ljust(13) + \
+                      str(recent_race.strength_of_field).ljust(13) + \
                       recent_race.date.ljust(15) + \
-                      self.get_series_name(recent_race.seriesID).ljust(38) + \
-                      recent_race.trackName.ljust(30) + '\n'
+                      self.get_series_name(recent_race.series_id).ljust(38) + \
+                      recent_race.track.ljust(30) + '\n'
 
         return add_backticks(string)
