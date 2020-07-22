@@ -21,6 +21,29 @@ iracing_table_css = """#iracing_table {
                 
                 """
 
+leaderboard_table_css = """#iracing_table {
+                  font-family: "Comic Sans MS", Arial, Helvetica, sans-serif;
+                  border-collapse: collapse;
+                  width: 100%;
+                }
+
+                #iracing_table td, #iracing_table th {
+                  border: 1px solid #ddd;
+                  padding: 8px;
+                }
+
+                #iracing_table tr:nth-child(even){background-color: #f2f2f2;}
+
+                #iracing_table th {
+                  padding-top: 10px;
+                  padding-bottom: 10px;
+                  text-align: left;
+                  background-color: #f40000;
+                  color: white;
+                }
+
+                """
+
 header_css = """
     #header {
       font-family: "Comic Sans MS", Arial, Helvetica, sans-serif;

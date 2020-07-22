@@ -80,26 +80,18 @@ def minutes_since_last_update(guild_id):
         return None
 
 
-def print_leaderboard(user_data_list, guild, category, yearly=False):
+def get_leaderboard_html_string(user_data_list, guild, category, yearly=False):
     type_string = 'Yearly' if yearly else 'Career'
     minutes_since_update = minutes_since_last_update(guild.id)
     time_since_update_string = f' - Last updated {minutes_since_update} minute(s) ago' if minutes_since_update else ''
+    header_string = 'iRacing ' + lowercase_to_readable_categories(category) + ' ' + \
+                    type_string + ' Leaderboard' + time_since_update_string
 
-    string = 'iRacing ' + lowercase_to_readable_categories(category) + ' ' + \
-             type_string + ' Leaderboard' + time_since_update_string + '\n\n'
-    string += 'Racer'.ljust(16) + \
-              'Starts'.ljust(8) + \
-              'iRating'.ljust(9) + \
-              'License'.ljust(9) + \
-              'Wins'.ljust(8) + \
-              'Top 5s'.ljust(8) + \
-              'Laps Led'.ljust(10) + \
-              'Win %'.ljust(9) + \
-              'Top 5 %'.ljust(9) + \
-              'Laps Led %'.ljust(12) + \
-              'Avg Incidents'.ljust(15) + '\n'
-    string += '----------------------------------------------------------------------------------------------------' \
-              '-----------\n'
+    table = PrettyTable()
+    table.field_names = [
+        'Racer', 'Starts', 'iRating', 'License', 'Wins', 'Top 5s',
+        'Laps Led', 'Win %', 'Top 5 %', 'Laps Led %', 'Avg Incidents'
+    ]
 
     for item in user_data_list:
         try:
@@ -145,23 +137,31 @@ def print_leaderboard(user_data_list, guild, category, yearly=False):
                         career_stats = stat
 
             if career_stats:
-                string += member.name.ljust(16) + \
-                          str(career_stats['starts']).ljust(8) + \
-                          str(irating).ljust(9) + \
-                          str(license_class).ljust(9) + \
-                          str(career_stats['wins']).ljust(8) + \
-                          str(career_stats['top_5s']).ljust(8) + \
-                          str(career_stats['laps_led']).ljust(10) + \
-                          str(career_stats['win_pcnt']).ljust(9) + \
-                          str(career_stats['top_5_pcnt']).ljust(9) + \
-                          str(career_stats['laps_led_pcnt']).ljust(12) + \
-                          str(career_stats['incidents_avg']).ljust(15) + '\n'
+                table.add_row(
+                    [
+                        member.name,
+                        str(career_stats['starts']),
+                        str(irating),
+                        str(license_class),
+                        str(career_stats['wins']),
+                        str(career_stats['top_5s']),
+                        str(career_stats['laps_led']),
+                        str(career_stats['win_pcnt']),
+                        str(career_stats['top_5_pcnt']),
+                        str(career_stats['laps_led_pcnt']),
+                        str(career_stats['incidents_avg']),
+                    ]
+                )
         except Exception as e:
             log.error(e)
             log.error(f'Error printing leaderboard data for user: {item}')
             continue
 
-    return add_backticks(string)
+    header_html_string = build_html_header_string(header_string)
+    html_string = table.get_html_string(attributes={"id": "iracing_table"})
+    css = wrap_in_style_tag(leaderboard_table_css + header_css)
+
+    return css + header_html_string + "\n" + html_string
 
 
 def get_current_year_stats(yearly_stats_list):
@@ -263,7 +263,8 @@ class Iracing(commands.Cog):
 
         log.info('=============== Finished update that started at: ' + dt_string + ' ======================')
         finish_time = datetime.now()
-        log.info('=============== Auto update took ' + str((finish_time - start_time).total_seconds()) + ' seconds =================')
+        log.info('=============== Auto update took ' + str(
+            (finish_time - start_time).total_seconds()) + ' seconds =================')
 
         self.all_series = await self.pyracing.current_seasons(series_id=True)
         log.info('Successfully got all current season data')
@@ -286,7 +287,8 @@ class Iracing(commands.Cog):
         set_guild_data(guild_id, guild_dict)
         log.info('=============== Manual update finished that started at: ' + dt_string + ' ======================')
         finish_time = datetime.now()
-        log.info('=============== Manual update took ' + str((finish_time - start_time).total_seconds()) + ' seconds ===============')
+        log.info('=============== Manual update took ' + str(
+            (finish_time - start_time).total_seconds()) + ' seconds ===============')
         await ctx.send("Successfully updated this server")
 
     @commands.command()
@@ -385,7 +387,9 @@ class Iracing(commands.Cog):
 
         guild_dict = get_guild_dict(ctx.guild.id)
         leaderboard_data = get_relevant_leaderboard_data(guild_dict, category)
-        await ctx.send(print_leaderboard(leaderboard_data, ctx.guild, category, is_yearly))
+        table_html_string = get_leaderboard_html_string(leaderboard_data, ctx.guild, category, is_yearly)
+        imgkit.from_string(table_html_string, f'{ctx.guild.id}_leaderboard.jpg')
+        await ctx.send(file=discord.File(f'{ctx.guild.id}_leaderboard.jpg'))
 
     async def update_user_in_dict(self, user_id, guild_dict):
         """This updates a user inside the dict without saving to any files"""
@@ -405,8 +409,10 @@ class Iracing(commands.Cog):
 
         guild_dict[user_id]['oval_license_class'] = await self.get_license_class(iracing_id, Category.oval.value)
         guild_dict[user_id]['road_license_class'] = await self.get_license_class(iracing_id, Category.road.value)
-        guild_dict[user_id]['dirt_oval_license_class'] = await self.get_license_class(iracing_id, Category.dirt_oval.value)
-        guild_dict[user_id]['dirt_road_license_class'] = await self.get_license_class(iracing_id, Category.dirt_road.value)
+        guild_dict[user_id]['dirt_oval_license_class'] = await self.get_license_class(iracing_id,
+                                                                                      Category.dirt_oval.value)
+        guild_dict[user_id]['dirt_road_license_class'] = await self.get_license_class(iracing_id,
+                                                                                      Category.dirt_road.value)
 
         return guild_dict
 
@@ -445,7 +451,8 @@ class Iracing(commands.Cog):
         for series in self.all_series:
             if str(series.series_id) == str(series_id):
                 # We want to truncate the series name to 35 because some of them are massive
-                return series.series_name_short[:33] + '..' if len(series.series_name_short) > 35 else series.series_name_short
+                return series.series_name_short[:33] + '..' if len(
+                    series.series_name_short) > 35 else series.series_name_short
 
         return "Unknown Series"
 
@@ -470,4 +477,3 @@ class Iracing(commands.Cog):
         css = wrap_in_style_tag(iracing_table_css + header_css)
 
         return css + header_string + "\n" + html_string
-
