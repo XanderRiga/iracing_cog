@@ -10,6 +10,9 @@ from .storage import folder
 from datetime import datetime
 import logging
 from logdna import LogDNAHandler
+from prettytable import PrettyTable, ALL
+import imgkit
+from .helpers import *
 
 dotenv.load_dotenv()
 
@@ -303,7 +306,9 @@ class Iracing(commands.Cog):
         races_stats_list = await self.update_last_races(user_id, guild_id, iracing_id)
 
         if races_stats_list:
-            await ctx.send(self.print_recent_races(races_stats_list, iracing_id))
+            table_html_string = self.recent_races_table_string(races_stats_list, iracing_id)
+            imgkit.from_string(table_html_string, f'{guild_id}_{iracing_id}_recent_races.jpg')
+            await ctx.send(file=discord.File(f'{guild_id}_{iracing_id}_recent_races.jpg'))
         else:
             await ctx.send('Recent races not found for user: ' + iracing_id)
 
@@ -444,25 +449,25 @@ class Iracing(commands.Cog):
 
         return "Unknown Series"
 
-    def print_recent_races(self, recent_races, iracing_id):
-        string = 'Recent Races Data for user: ' + str(iracing_id) + '\n\n'
-        string += 'Finish'.ljust(8) + \
-                  'Start'.ljust(8) + \
-                  'Incidents'.ljust(11) + \
-                  'Avg iRating'.ljust(13) + \
-                  'Race Date'.ljust(15) + \
-                  'Series'.ljust(38) + \
-                  'Track Name'.ljust(30) + '\n'
-        string += '------------------------------------------------------------------------------------' \
-                  '-----------------------\n'
+    def recent_races_table_string(self, recent_races, iracing_id):
+        table = PrettyTable()
+        table.field_names = ['Finish', 'Start', 'Incidents', 'Avg iRating', 'Race Date', 'Series', 'Track Name']
 
         for recent_race in recent_races:
-            string += ('P' + str(recent_race.pos_finish)).ljust(8) + \
-                      ('P' + str(recent_race.pos_start)).ljust(8) + \
-                      str(recent_race.incidents).ljust(11) + \
-                      str(recent_race.strength_of_field).ljust(13) + \
-                      recent_race.date.ljust(15) + \
-                      self.get_series_name(recent_race.series_id).ljust(38) + \
-                      recent_race.track.ljust(30) + '\n'
+            table.add_row(
+                [
+                    'P' + str(recent_race.pos_finish),
+                    'P' + str(recent_race.pos_start),
+                    str(recent_race.incidents),
+                    str(recent_race.strength_of_field),
+                    recent_race.date,
+                    self.get_series_name(recent_race.series_id),
+                    recent_race.track
+                ]
+            )
+        html_string = table.get_html_string(attributes={"id": "iracing_table"})
+        header_string = build_html_header_string(f'Recent Races for user: {iracing_id}')
+        css = wrap_in_style_tag(iracing_table_css + header_css)
 
-        return add_backticks(string)
+        return css + header_string + "\n" + html_string
+

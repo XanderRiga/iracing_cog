@@ -143,3 +143,5 @@ ENV/
 /.pre-commit-config.yaml
 
 cookie.tmp
+
+*.jpg
