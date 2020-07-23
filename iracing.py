@@ -45,7 +45,7 @@ def get_yearly_stats_html(yearly_stats, iracing_id):
         'Avg Finish', 'Avg Incidents', 'Top 5 %', 'Win %'
     ]
 
-    for yearly_stat in yearly_stats[:16]:
+    for yearly_stat in yearly_stats:
         table.add_row(
             [
                 str(yearly_stat.year),
