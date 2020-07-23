@@ -63,7 +63,7 @@ def get_yearly_stats_html(yearly_stats, iracing_id):
 
     header_html_string = build_html_header_string(f'Yearly Stats for user: {iracing_id}')
     html_string = table.get_html_string(attributes={"id": "iracing_table"})
-    css = wrap_in_style_tag(leaderboard_table_css + header_css)
+    css = wrap_in_style_tag(iracing_table_css + header_css)
 
     return css + header_html_string + "\n" + html_string
 
@@ -193,7 +193,7 @@ def get_career_stats_html(career_stats, iracing_id):
 
     header_html_string = build_html_header_string(f'Career Stats for user: {iracing_id}')
     html_string = table.get_html_string(attributes={"id": "iracing_table"})
-    css = wrap_in_style_tag(leaderboard_table_css + header_css)
+    css = wrap_in_style_tag(iracing_table_css + header_css)
 
     return css + header_html_string + "\n" + html_string
 
@@ -439,13 +439,13 @@ class Iracing(commands.Cog):
             return career_stats_list
 
     async def get_irating(self, user_id, category):
-        chart_data = await self.pyracing.irating(category, user_id)
+        chart_data = await self.pyracing.irating(user_id, category)
         if not chart_data.current():
             return 0
         return str(chart_data.current().value)
 
     async def get_license_class(self, user_id, category):
-        chart_data = await self.pyracing.license_class(category, user_id)
+        chart_data = await self.pyracing.license_class(user_id, category)
         if not chart_data.current():
             return 'N/A'
         return str(chart_data.current().class_letter()) + ' ' + str(chart_data.current().license_level)
