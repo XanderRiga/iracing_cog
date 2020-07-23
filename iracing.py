@@ -247,6 +247,9 @@ class Iracing(commands.Cog):
         dt_string = start_time.strftime("%d/%m/%Y %H:%M:%S")
         log.info('=============== Updating all user stats: ' + dt_string + ' ======================')
 
+        self.all_series = await self.pyracing.current_seasons(series_id=True)
+        log.info('Successfully got all current season data')
+
         guilds = []
         for file in os.scandir(folder):
             if file.path.endswith('.json'):
@@ -264,9 +267,6 @@ class Iracing(commands.Cog):
         finish_time = datetime.now()
         log.info('=============== Auto update took ' + str(
             (finish_time - start_time).total_seconds()) + ' seconds =================')
-
-        self.all_series = await self.pyracing.current_seasons(series_id=True)
-        log.info('Successfully got all current season data')
 
     @commands.command()
     async def update(self, ctx):
