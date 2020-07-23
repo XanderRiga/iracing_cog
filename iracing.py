@@ -171,32 +171,31 @@ def get_current_year_stats(yearly_stats_list):
     return filter(lambda x: x['year'] == current_year, yearly_stats_list)
 
 
-def print_career_stats(career_stats, iracing_id):
-    string = 'Career Data for user: ' + str(iracing_id) + '\n\n'
-    string += 'Category'.ljust(11) + \
-              'Starts'.ljust(8) + \
-              'Top 5s'.ljust(8) + \
-              'Wins'.ljust(8) + \
-              'Avg Start'.ljust(12) + \
-              'Avg Finish'.ljust(12) + \
-              'Avg Incidents'.ljust(15) + \
-              'Top 5 %'.ljust(9) + \
-              'Win %'.ljust(8) + '\n'
-    string += '--------------------------------------------------------------------' \
-              '---------------------\n'
-
+def get_career_stats_html(career_stats, iracing_id):
+    table = PrettyTable()
+    table.field_names = [
+        'Category', 'Starts', 'Top 5s', 'Wins', 'Avg Start', 'Avg Finish', 'Avg Incidents', 'Top 5 %', 'Win %'
+    ]
     for career_stat in career_stats:
-        string += career_stat.category.ljust(11) + \
-                  str(career_stat.starts).ljust(8) + \
-                  str(career_stat.top_5s).ljust(8) + \
-                  str(career_stat.wins).ljust(8) + \
-                  str(career_stat.pos_start_avg).ljust(12) + \
-                  str(career_stat.pos_finish_avg).ljust(12) + \
-                  str(career_stat.incidents_avg).ljust(15) + \
-                  str(career_stat.top_5_pcnt).ljust(9) + \
-                  str(career_stat.win_pcnt).ljust(8) + '\n'
+        table.add_row(
+            [
+                career_stat.category,
+                str(career_stat.starts),
+                str(career_stat.top_5s),
+                str(career_stat.wins),
+                str(career_stat.pos_start_avg),
+                str(career_stat.pos_finish_avg),
+                str(career_stat.incidents_avg),
+                str(career_stat.top_5_pcnt),
+                str(career_stat.win_pcnt)
+            ]
+        )
 
-    return add_backticks(string)
+    header_html_string = build_html_header_string(f'Career Stats for user: {iracing_id}')
+    html_string = table.get_html_string(attributes={"id": "iracing_table"})
+    css = wrap_in_style_tag(leaderboard_table_css + header_css)
+
+    return css + header_html_string + "\n" + html_string
 
 
 def get_relevant_leaderboard_data(guild_dict, category):
@@ -352,7 +351,9 @@ class Iracing(commands.Cog):
         career_stats = await self.update_career_stats(user_id, guild_id, iracing_id)
 
         if career_stats:
-            await ctx.send(print_career_stats(career_stats, iracing_id))
+            career_stats_html = get_career_stats_html(career_stats, iracing_id)
+            imgkit.from_string(career_stats_html, f'{iracing_id}_career_stats.jpg')
+            await ctx.send(file=discord.File(f'{iracing_id}_career_stats.jpg'))
         else:
             await ctx.send('No career stats found for user: ' + str(iracing_id))
 
