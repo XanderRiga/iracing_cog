@@ -38,34 +38,34 @@ def lowercase_to_readable_categories(category):
         return 'Dirt Oval'
 
 
-def print_yearly_stats(yearly_stats, iracing_id):
-    string = 'Yearly Data for user: ' + str(iracing_id) + '\n\n'
-    string += 'Year'.ljust(6) + \
-              'Category'.ljust(11) + \
-              'Starts'.ljust(8) + \
-              'Top 5s'.ljust(8) + \
-              'Wins'.ljust(8) + \
-              'Avg Start'.ljust(12) + \
-              'Avg Finish'.ljust(12) + \
-              'Avg Incidents'.ljust(15) + \
-              'Top 5 %'.ljust(9) + \
-              'Win %'.ljust(7) + '\n'
-    string += '--------------------------------------------------------------------' \
-              '---------------------------\n'
+def get_yearly_stats_html(yearly_stats, iracing_id):
+    table = PrettyTable()
+    table.field_names = [
+        'Year', 'Category', 'Starts', 'Top 5s', 'Wins', 'Avg Start',
+        'Avg Finish', 'Avg Incidents', 'Top 5 %', 'Win %'
+    ]
 
     for yearly_stat in yearly_stats[:16]:
-        string += str(yearly_stat.year).ljust(6) + \
-                  yearly_stat.category.ljust(11) + \
-                  str(yearly_stat.starts).ljust(8) + \
-                  str(yearly_stat.top_5s).ljust(8) + \
-                  str(yearly_stat.wins).ljust(8) + \
-                  str(yearly_stat.pos_start_avg).ljust(12) + \
-                  str(yearly_stat.pos_finish_avg).ljust(12) + \
-                  str(yearly_stat.incidents_avg).ljust(15) + \
-                  str(yearly_stat.top_5_pcnt).ljust(9) + \
-                  str(yearly_stat.win_pcnt).ljust(7) + '\n'
+        table.add_row(
+            [
+                str(yearly_stat.year),
+                yearly_stat.category,
+                str(yearly_stat.starts),
+                str(yearly_stat.top_5s),
+                str(yearly_stat.wins),
+                str(yearly_stat.pos_start_avg),
+                str(yearly_stat.pos_finish_avg),
+                str(yearly_stat.incidents_avg),
+                str(yearly_stat.top_5_pcnt),
+                str(yearly_stat.win_pcnt)
+            ]
+        )
 
-    return add_backticks(string)
+    header_html_string = build_html_header_string(f'Yearly Stats for user: {iracing_id}')
+    html_string = table.get_html_string(attributes={"id": "iracing_table"})
+    css = wrap_in_style_tag(leaderboard_table_css + header_css)
+
+    return css + header_html_string + "\n" + html_string
 
 
 def minutes_since_last_update(guild_id):
@@ -330,7 +330,9 @@ class Iracing(commands.Cog):
         yearly_stats = await self.update_yearly_stats(user_id, guild_id, iracing_id)
 
         if yearly_stats:
-            await ctx.send(print_yearly_stats(yearly_stats, iracing_id))
+            yearly_stats_html = get_yearly_stats_html(yearly_stats, iracing_id)
+            imgkit.from_string(yearly_stats_html, f'{iracing_id}_yearly_stats.jpg')
+            await ctx.send(file=discord.File(f'{iracing_id}_yearly_stats.jpg'))
         else:
             await ctx.send('No yearly stats found for user: ' + str(iracing_id))
 
