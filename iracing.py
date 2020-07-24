@@ -13,6 +13,8 @@ from logdna import LogDNAHandler
 from prettytable import PrettyTable, ALL
 import imgkit
 from .helpers import *
+import urllib.parse
+from .errors.name_not_found import NameNotFound
 
 dotenv.load_dotenv()
 
@@ -89,7 +91,7 @@ def get_leaderboard_html_string(user_data_list, guild, category, yearly=False):
 
     table = PrettyTable()
     table.field_names = [
-        'Racer', 'Starts', 'iRating', 'License', 'Wins', 'Top 5s',
+        'Discord Name', 'iRacing Name', 'Starts', 'iRating', 'License', 'Wins', 'Top 5s',
         'Laps Led', 'Win %', 'Top 5 %', 'Laps Led %', 'Avg Incidents'
     ]
 
@@ -121,6 +123,10 @@ def get_leaderboard_html_string(user_data_list, guild, category, yearly=False):
             elif category == 'dirtoval':
                 license_class = item[-1]['dirt_oval_license_class']
 
+            iracing_name = ''
+            if 'name' in item[-1]:
+                iracing_name = item[-1]['name']
+
             career_stats = None
             for stat in stats_list:
                 if category == 'road':
@@ -140,6 +146,7 @@ def get_leaderboard_html_string(user_data_list, guild, category, yearly=False):
                 table.add_row(
                     [
                         member.name,
+                        iracing_name,
                         str(career_stats['starts']),
                         str(irating),
                         str(license_class),
@@ -225,6 +232,10 @@ def get_relevant_leaderboard_data(guild_dict, category):
         return sorted(valid_guild_dict.items(), key=lambda x: int(x[1]['dirt_oval_irating']), reverse=True)
 
     return []
+
+
+def parse_encoded_string(string):
+    return urllib.parse.unquote(string).replace('+', ' ')
 
 
 class Iracing(commands.Cog):
@@ -397,6 +408,15 @@ class Iracing(commands.Cog):
     async def update_user_in_dict(self, user_id, guild_dict):
         """This updates a user inside the dict without saving to any files"""
         iracing_id = guild_dict[user_id]['iracing_id']
+
+        if 'name' not in guild_dict[user_id]:
+            try:
+                name = await self.get_driver_name(iracing_id)
+                guild_dict[user_id]['name'] = name
+            except NameNotFound:
+                log.info(f'Name not found for user: {iracing_id}')
+                pass
+
         career_stats_list = await self.pyracing.career_stats(iracing_id)
         if career_stats_list:
             guild_dict[user_id]['career_stats'] = list(map(lambda x: x.__dict__, career_stats_list))
@@ -449,6 +469,13 @@ class Iracing(commands.Cog):
         if not chart_data.current():
             return 'N/A'
         return str(chart_data.current().class_letter()) + ' ' + str(chart_data.current().license_level)
+
+    async def get_driver_name(self, cust_id):
+        response = await self.pyracing.my_racers(cust_id=cust_id, friends=0, studied=0, blacklisted=0)
+        try:
+            return parse_encoded_string(response.json()['status']['name'])
+        except:
+            raise NameNotFound
 
     def get_series_name(self, series_id):
         for series in self.all_series:
