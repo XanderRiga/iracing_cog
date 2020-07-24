@@ -91,11 +91,11 @@ def get_leaderboard_html_string(user_data_list, guild, category, yearly=False):
 
     table = PrettyTable()
     table.field_names = [
-        'Discord Name', 'iRacing Name', 'Starts', 'iRating', 'License', 'Wins', 'Top 5s',
+        '#', 'Discord Name', 'iRacing Name', 'Starts', 'iRating', 'License', 'Wins', 'Top 5s',
         'Laps Led', 'Win %', 'Top 5 %', 'Laps Led %', 'Avg Incidents'
     ]
 
-    for item in user_data_list:
+    for index, item in enumerate(user_data_list, start=1):
         try:
             member = discord.utils.find(lambda m: m.id == int(item[0]), guild.members)
             if yearly:
@@ -145,6 +145,7 @@ def get_leaderboard_html_string(user_data_list, guild, category, yearly=False):
             if career_stats:
                 table.add_row(
                     [
+                        index,
                         member.name,
                         iracing_name,
                         str(career_stats['starts']),
