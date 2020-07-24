@@ -56,8 +56,8 @@ def get_yearly_stats_html(yearly_stats, iracing_id):
                 str(yearly_stat.pos_start_avg),
                 str(yearly_stat.pos_finish_avg),
                 str(yearly_stat.incidents_avg),
-                str(yearly_stat.top_5_pcnt),
-                str(yearly_stat.win_pcnt)
+                str(yearly_stat.top_5_pcnt) + '%',
+                str(yearly_stat.win_pcnt) + '%'
             ]
         )
 
@@ -146,9 +146,9 @@ def get_leaderboard_html_string(user_data_list, guild, category, yearly=False):
                         str(career_stats['wins']),
                         str(career_stats['top_5s']),
                         str(career_stats['laps_led']),
-                        str(career_stats['win_pcnt']),
-                        str(career_stats['top_5_pcnt']),
-                        str(career_stats['laps_led_pcnt']),
+                        str(career_stats['win_pcnt']) + '%',
+                        str(career_stats['top_5_pcnt']) + '%',
+                        str(career_stats['laps_led_pcnt']) + '%',
                         str(career_stats['incidents_avg']),
                     ]
                 )
@@ -186,8 +186,8 @@ def get_career_stats_html(career_stats, iracing_id):
                 str(career_stat.pos_start_avg),
                 str(career_stat.pos_finish_avg),
                 str(career_stat.incidents_avg),
-                str(career_stat.top_5_pcnt),
-                str(career_stat.win_pcnt)
+                str(career_stat.top_5_pcnt) + '%',
+                str(career_stat.win_pcnt) + '%'
             ]
         )
 
