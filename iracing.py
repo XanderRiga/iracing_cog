@@ -410,33 +410,39 @@ class Iracing(commands.Cog):
         """This updates a user inside the dict without saving to any files"""
         iracing_id = guild_dict[user_id]['iracing_id']
 
-        if 'name' not in guild_dict[user_id]:
-            try:
-                name = await self.get_driver_name(iracing_id)
-                guild_dict[user_id]['name'] = name
-            except NameNotFound:
-                log.info(f'Name not found for user: {iracing_id}')
-                pass
+        try:
+            if 'name' not in guild_dict[user_id]:
+                try:
+                    name = await self.get_driver_name(iracing_id)
+                    guild_dict[user_id]['name'] = name
+                except NameNotFound:
+                    log.info(f'Name not found for user: {iracing_id}')
+                    pass
 
-        career_stats_list = await self.pyracing.career_stats(iracing_id)
-        if career_stats_list:
-            guild_dict[user_id]['career_stats'] = list(map(lambda x: x.__dict__, career_stats_list))
+            career_stats_list = await self.pyracing.career_stats(iracing_id)
+            if career_stats_list:
+                guild_dict[user_id]['career_stats'] = list(map(lambda x: x.__dict__, career_stats_list))
 
-        yearly_stats_list = await self.pyracing.yearly_stats(iracing_id)
-        if yearly_stats_list:
-            guild_dict[user_id]['yearly_stats'] = list(map(lambda x: x.__dict__, yearly_stats_list))
+            yearly_stats_list = await self.pyracing.yearly_stats(iracing_id)
+            if yearly_stats_list:
+                guild_dict[user_id]['yearly_stats'] = list(map(lambda x: x.__dict__, yearly_stats_list))
 
-        guild_dict[user_id]['oval_irating'] = await self.get_irating(iracing_id, Category.oval.value)
-        guild_dict[user_id]['road_irating'] = await self.get_irating(iracing_id, Category.road.value)
-        guild_dict[user_id]['dirt_road_irating'] = await self.get_irating(iracing_id, Category.dirt_road.value)
-        guild_dict[user_id]['dirt_oval_irating'] = await self.get_irating(iracing_id, Category.dirt_oval.value)
+            guild_dict[user_id]['oval_irating'] = await self.get_irating(iracing_id, Category.oval.value)
+            guild_dict[user_id]['road_irating'] = await self.get_irating(iracing_id, Category.road.value)
+            guild_dict[user_id]['dirt_road_irating'] = await self.get_irating(iracing_id, Category.dirt_road.value)
+            guild_dict[user_id]['dirt_oval_irating'] = await self.get_irating(iracing_id, Category.dirt_oval.value)
 
-        guild_dict[user_id]['oval_license_class'] = await self.get_license_class(iracing_id, Category.oval.value)
-        guild_dict[user_id]['road_license_class'] = await self.get_license_class(iracing_id, Category.road.value)
-        guild_dict[user_id]['dirt_oval_license_class'] = await self.get_license_class(iracing_id,
-                                                                                      Category.dirt_oval.value)
-        guild_dict[user_id]['dirt_road_license_class'] = await self.get_license_class(iracing_id,
-                                                                                      Category.dirt_road.value)
+            guild_dict[user_id]['oval_license_class'] = await self.get_license_class(iracing_id, Category.oval.value)
+            guild_dict[user_id]['road_license_class'] = await self.get_license_class(iracing_id, Category.road.value)
+            guild_dict[user_id]['dirt_oval_license_class'] = await self.get_license_class(iracing_id,
+                                                                                          Category.dirt_oval.value)
+            guild_dict[user_id]['dirt_road_license_class'] = await self.get_license_class(iracing_id,
+                                                                                          Category.dirt_road.value)
+        except Exception as e:
+            log.error(f'error updating user: {iracing_id}')
+            log.error(e)
+            guild_dict[user_id] = {'iracing_id': iracing_id}
+            return guild_dict
 
         return guild_dict
 
