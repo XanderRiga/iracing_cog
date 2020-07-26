@@ -478,10 +478,11 @@ class Iracing(commands.Cog):
         return str(chart_data.current().class_letter()) + ' ' + str(chart_data.current().license_level)
 
     async def get_driver_name(self, cust_id):
-        response = await self.pyracing.my_racers(cust_id=cust_id, friends=0, studied=0, blacklisted=0)
         try:
-            return parse_encoded_string(response.json()['status']['name'])
+            response = await self.pyracing.driver_status(cust_id=cust_id)
+            return parse_encoded_string(response.name)
         except:
+            log.warning(f'Name not found for {cust_id}')
             raise NameNotFound
 
     def get_series_name(self, series_id):
