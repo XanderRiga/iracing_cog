@@ -239,6 +239,33 @@ def parse_encoded_string(string):
     return urllib.parse.unquote(string).replace('+', ' ')
 
 
+def get_last_series_html_string(last_series, iracing_id):
+    table = PrettyTable()
+    table.field_names = ['Series', 'Position', 'Division', 'Weeks', 'Starts',
+                         'Top 5s', 'Laps', 'Laps Led', 'Incidents', 'Champ Pts', 'Club Pts']
+
+    for series in last_series:
+        table.add_row([
+            series.series_name_short,
+            series.series_rank,
+            series.division,
+            series.weeks,
+            series.starts,
+            series.top_5s,
+            series.laps,
+            series.laps_led,
+            series.incidents,
+            series.points_champ,
+            series.points_club
+        ])
+
+    html_string = table.get_html_string(attributes={"id": "iracing_table"})
+    header_string = build_html_header_string(f'Recent Series for user: {iracing_id}')
+    css = wrap_in_style_tag(iracing_table_css + header_css)
+
+    return css + header_string + "\n" + html_string
+
+
 class Iracing(commands.Cog):
     """A cog that can give iRacing data about users"""
 
@@ -322,6 +349,29 @@ class Iracing(commands.Cog):
             table_html_string = self.recent_races_table_string(races_stats_list, iracing_id)
             imgkit.from_string(table_html_string, f'{guild_id}_{iracing_id}_recent_races.jpg')
             await ctx.send(file=discord.File(f'{guild_id}_{iracing_id}_recent_races.jpg'))
+        else:
+            await ctx.send('Recent races not found for user: ' + iracing_id)
+
+    @commands.command()
+    async def lastseries(self, ctx, *, iracing_id=None):
+        """Shows the recent series data for the given iracing id. If no iracing id is provided it will attempt
+        to use the stored iracing id for the user who called the command."""
+
+        user_id = str(ctx.author.id)
+        guild_id = str(ctx.guild.id)
+        if not iracing_id:
+            iracing_id = get_user_iracing_id(user_id, guild_id)
+            if not iracing_id:
+                await ctx.send('Please send an iRacing ID with the command or link your own with `!saveid <iRacing '
+                               'ID>`')
+                return
+
+        last_series = await self.pyracing.last_series(iracing_id)
+
+        if last_series:
+            table_html_string = get_last_series_html_string(last_series, iracing_id)
+            imgkit.from_string(table_html_string, f'{guild_id}_{iracing_id}_last_series.jpg')
+            await ctx.send(file=discord.File(f'{guild_id}_{iracing_id}_last_series.jpg'))
         else:
             await ctx.send('Recent races not found for user: ' + iracing_id)
 
