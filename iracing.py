@@ -7,7 +7,7 @@ import copy
 import discord
 from discord.ext import tasks
 from .storage import folder
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 from logdna import LogDNAHandler
 from prettytable import PrettyTable, ALL
@@ -15,6 +15,11 @@ import imgkit
 from .helpers import *
 import urllib.parse
 from .errors.name_not_found import NameNotFound
+from bokeh.plotting import figure, output_file
+from bokeh.io import export_png
+from bokeh.palettes import Category20
+import itertools
+
 
 dotenv.load_dotenv()
 
@@ -266,6 +271,17 @@ def get_last_series_html_string(last_series, iracing_id):
     return css + header_string + "\n" + html_string
 
 
+def category_id_from_string(string):
+    if string == 'road':
+        return Category.road.value
+    if string == 'oval':
+        return Category.oval.value
+    if string == 'dirtroad':
+        return Category.dirt_road.value
+    if string == 'dirtoval':
+        return Category.dirt_oval.value
+
+
 class Iracing(commands.Cog):
     """A cog that can give iRacing data about users"""
 
@@ -456,6 +472,48 @@ class Iracing(commands.Cog):
         imgkit.from_string(table_html_string, f'{ctx.guild.id}_leaderboard.jpg')
         await ctx.send(file=discord.File(f'{ctx.guild.id}_leaderboard.jpg'))
 
+    @commands.command()
+    async def iratings(self, ctx, category='road'):
+        if category not in ['road', 'oval', 'dirtroad', 'dirtoval']:
+            ctx.send('The category should be one of `road`, `oval`, `dirtroad`, `dirtoval`')
+            return
+
+        category_id = category_id_from_string(category)
+
+        today = datetime.now()
+        date_1yr_ago = datetime(today.year - 1, today.month, today.day)
+
+        p = figure(
+            title='iRatings',
+            x_axis_type='datetime',
+            x_range=(date_1yr_ago, datetime.now())
+        )
+        p.toolbar.logo = None
+        p.toolbar_location = None
+
+        colors = itertools.cycle(Category20[20])
+
+        irating_dicts = await self.saved_users_irating_charts(ctx.guild.id, category_id)
+        for irating_dict in irating_dicts:
+            for user_id, iratings_list in irating_dict.items():
+                member = ctx.guild.get_member(int(user_id))
+                datetimes = []
+                iratings = []
+                for irating in iratings_list:
+                    datetimes.append(irating.datetime)
+                    iratings.append(irating.value)
+
+                p.line(
+                    datetimes,
+                    iratings,
+                    legend_label=member.display_name,
+                    line_width=2,
+                    color=next(colors)
+                )
+
+        export_png(p, filename=f'irating_graph_{ctx.guild.id}.png')
+        await ctx.send(file=discord.File(f'irating_graph_{ctx.guild.id}.png'))
+
     async def update_user_in_dict(self, user_id, guild_dict):
         """This updates a user inside the dict without saving to any files"""
         iracing_id = guild_dict[user_id]['iracing_id']
@@ -543,6 +601,20 @@ class Iracing(commands.Cog):
                     series.series_name_short) > 35 else series.series_name_short
 
         return "Unknown Series"
+
+    async def saved_users_irating_charts(self, guild_id, category):
+        guild_dict = get_guild_dict(guild_id)
+
+        iratings = []
+        for user_id in guild_dict:
+            if 'iracing_id' in guild_dict[user_id]:
+                iracing_id = guild_dict[user_id]['iracing_id']
+                chart_data = await self.pyracing.irating(iracing_id, category)
+                iratings.append({
+                    user_id: chart_data.list
+                })
+
+        return iratings
 
     def recent_races_table_string(self, recent_races, iracing_id):
         table = PrettyTable()

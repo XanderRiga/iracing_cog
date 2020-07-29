@@ -145,3 +145,5 @@ ENV/
 cookie.tmp
 
 *.jpg
+*.png
+*.html
