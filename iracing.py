@@ -18,6 +18,7 @@ from .errors.name_not_found import NameNotFound
 from bokeh.plotting import figure, output_file
 from bokeh.io import export_png
 from bokeh.palettes import Category20
+from bokeh.models import Legend
 import itertools
 
 
@@ -490,6 +491,8 @@ class Iracing(commands.Cog):
         )
         p.toolbar.logo = None
         p.toolbar_location = None
+        legend = Legend(location=(0, -10))
+        p.add_layout(legend, 'right')
 
         colors = itertools.cycle(Category20[20])
 
