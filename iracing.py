@@ -461,11 +461,15 @@ class Iracing(commands.Cog):
         If the data is not up to date, try `!update` first.
         The categories are `road`, `oval`, `dirtroad`, and `dirtoval` and
         the types are `career` and `yearly`. Default is `road` `career`"""
-        is_yearly = (type != 'career')
+        if type not in ['career', 'yearly']:
+            await ctx.send('Please try again with one of these types: `career`, `yearly`')
+            return
 
         if category not in ['road', 'oval', 'dirtroad', 'dirtoval']:
             await ctx.send('Please try again with one of these categories: `road`, `oval`, `dirtroad`, `dirtoval`')
             return
+
+        is_yearly = (type != 'career')
 
         guild_dict = get_guild_dict(ctx.guild.id)
         leaderboard_data = get_relevant_leaderboard_data(guild_dict, category)
