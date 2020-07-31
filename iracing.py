@@ -350,93 +350,93 @@ class Iracing(commands.Cog):
     async def recentraces(self, ctx, *, iracing_id=None):
         """Shows the recent race data for the given iracing id. If no iracing id is provided it will attempt
         to use the stored iracing id for the user who called the command."""
-
-        user_id = str(ctx.author.id)
-        guild_id = str(ctx.guild.id)
-        if not iracing_id:
-            iracing_id = get_user_iracing_id(user_id, guild_id)
+        async with ctx.typing():
+            user_id = str(ctx.author.id)
+            guild_id = str(ctx.guild.id)
             if not iracing_id:
-                await ctx.send('Please send an iRacing ID with the command or link your own with `!saveid <iRacing '
-                               'ID>`')
-                return
+                iracing_id = get_user_iracing_id(user_id, guild_id)
+                if not iracing_id:
+                    await ctx.send('Please send an iRacing ID with the command or link your own with `!saveid <iRacing '
+                                   'ID>`')
+                    return
 
-        races_stats_list = await self.update_last_races(user_id, guild_id, iracing_id)
+            races_stats_list = await self.update_last_races(user_id, guild_id, iracing_id)
 
-        if races_stats_list:
-            table_html_string = self.recent_races_table_string(races_stats_list, iracing_id)
-            imgkit.from_string(table_html_string, f'{guild_id}_{iracing_id}_recent_races.jpg')
-            await ctx.send(file=discord.File(f'{guild_id}_{iracing_id}_recent_races.jpg'))
-        else:
-            await ctx.send('Recent races not found for user: ' + iracing_id)
+            if races_stats_list:
+                table_html_string = self.recent_races_table_string(races_stats_list, iracing_id)
+                imgkit.from_string(table_html_string, f'{guild_id}_{iracing_id}_recent_races.jpg')
+                await ctx.send(file=discord.File(f'{guild_id}_{iracing_id}_recent_races.jpg'))
+            else:
+                await ctx.send('Recent races not found for user: ' + iracing_id)
 
     @commands.command()
     async def lastseries(self, ctx, *, iracing_id=None):
         """Shows the recent series data for the given iracing id. If no iracing id is provided it will attempt
         to use the stored iracing id for the user who called the command."""
-
-        user_id = str(ctx.author.id)
-        guild_id = str(ctx.guild.id)
-        if not iracing_id:
-            iracing_id = get_user_iracing_id(user_id, guild_id)
+        async with ctx.typing():
+            user_id = str(ctx.author.id)
+            guild_id = str(ctx.guild.id)
             if not iracing_id:
-                await ctx.send('Please send an iRacing ID with the command or link your own with `!saveid <iRacing '
-                               'ID>`')
-                return
+                iracing_id = get_user_iracing_id(user_id, guild_id)
+                if not iracing_id:
+                    await ctx.send('Please send an iRacing ID with the command or link your own with `!saveid <iRacing '
+                                   'ID>`')
+                    return
 
-        last_series = await self.pyracing.last_series(iracing_id)
+            last_series = await self.pyracing.last_series(iracing_id)
 
-        if last_series:
-            table_html_string = get_last_series_html_string(last_series, iracing_id)
-            imgkit.from_string(table_html_string, f'{guild_id}_{iracing_id}_last_series.jpg')
-            await ctx.send(file=discord.File(f'{guild_id}_{iracing_id}_last_series.jpg'))
-        else:
-            await ctx.send('Recent races not found for user: ' + iracing_id)
+            if last_series:
+                table_html_string = get_last_series_html_string(last_series, iracing_id)
+                imgkit.from_string(table_html_string, f'{guild_id}_{iracing_id}_last_series.jpg')
+                await ctx.send(file=discord.File(f'{guild_id}_{iracing_id}_last_series.jpg'))
+            else:
+                await ctx.send('Recent races not found for user: ' + iracing_id)
 
     @commands.command()
     async def yearlystats(self, ctx, *, iracing_id=None):
         """Shows the yearly stats for the given iracing id. If no iracing id is provided it will attempt
         to use the stored iracing id for the user who called the command."""
-
-        user_id = str(ctx.author.id)
-        guild_id = str(ctx.guild.id)
-        if not iracing_id:
-            iracing_id = get_user_iracing_id(user_id, guild_id)
+        async with ctx.typing():
+            user_id = str(ctx.author.id)
+            guild_id = str(ctx.guild.id)
             if not iracing_id:
-                await ctx.send('Please send an iRacing ID after the command or link your own with `!saveid <iRacing '
-                               'ID>`')
-                return
+                iracing_id = get_user_iracing_id(user_id, guild_id)
+                if not iracing_id:
+                    await ctx.send('Please send an iRacing ID after the command or link your own with `!saveid <iRacing '
+                                   'ID>`')
+                    return
 
-        yearly_stats = await self.update_yearly_stats(user_id, guild_id, iracing_id)
+            yearly_stats = await self.update_yearly_stats(user_id, guild_id, iracing_id)
 
-        if yearly_stats:
-            yearly_stats_html = get_yearly_stats_html(yearly_stats, iracing_id)
-            imgkit.from_string(yearly_stats_html, f'{iracing_id}_yearly_stats.jpg')
-            await ctx.send(file=discord.File(f'{iracing_id}_yearly_stats.jpg'))
-        else:
-            await ctx.send('No yearly stats found for user: ' + str(iracing_id))
+            if yearly_stats:
+                yearly_stats_html = get_yearly_stats_html(yearly_stats, iracing_id)
+                imgkit.from_string(yearly_stats_html, f'{iracing_id}_yearly_stats.jpg')
+                await ctx.send(file=discord.File(f'{iracing_id}_yearly_stats.jpg'))
+            else:
+                await ctx.send('No yearly stats found for user: ' + str(iracing_id))
 
     @commands.command()
     async def careerstats(self, ctx, *, iracing_id=None):
         """Shows the career stats for the given iracing id. If no iracing id is provided it will attempt
         to use the stored iracing id for the user who called the command."""
-
-        user_id = str(ctx.author.id)
-        guild_id = str(ctx.guild.id)
-        if not iracing_id:
-            iracing_id = get_user_iracing_id(user_id, guild_id)
+        async with ctx.typing():
+            user_id = str(ctx.author.id)
+            guild_id = str(ctx.guild.id)
             if not iracing_id:
-                await ctx.send('Please send an iRacing ID after the command or link your own with `!saveid <iRacing '
-                               'ID>`')
-                return
+                iracing_id = get_user_iracing_id(user_id, guild_id)
+                if not iracing_id:
+                    await ctx.send('Please send an iRacing ID after the command or link your own with `!saveid <iRacing'
+                                   ' ID>`')
+                    return
 
-        career_stats = await self.update_career_stats(user_id, guild_id, iracing_id)
+            career_stats = await self.update_career_stats(user_id, guild_id, iracing_id)
 
-        if career_stats:
-            career_stats_html = get_career_stats_html(career_stats, iracing_id)
-            imgkit.from_string(career_stats_html, f'{iracing_id}_career_stats.jpg')
-            await ctx.send(file=discord.File(f'{iracing_id}_career_stats.jpg'))
-        else:
-            await ctx.send('No career stats found for user: ' + str(iracing_id))
+            if career_stats:
+                career_stats_html = get_career_stats_html(career_stats, iracing_id)
+                imgkit.from_string(career_stats_html, f'{iracing_id}_career_stats.jpg')
+                await ctx.send(file=discord.File(f'{iracing_id}_career_stats.jpg'))
+            else:
+                await ctx.send('No career stats found for user: ' + str(iracing_id))
 
     @commands.command()
     async def saveid(self, ctx, *, iracing_id):
@@ -461,21 +461,22 @@ class Iracing(commands.Cog):
         If the data is not up to date, try `!update` first.
         The categories are `road`, `oval`, `dirtroad`, and `dirtoval` and
         the types are `career` and `yearly`. Default is `road` `career`"""
-        if type not in ['career', 'yearly']:
-            await ctx.send('Please try again with one of these types: `career`, `yearly`')
-            return
+        async with ctx.typing():
+            if type not in ['career', 'yearly']:
+                await ctx.send('Please try again with one of these types: `career`, `yearly`')
+                return
 
-        if category not in ['road', 'oval', 'dirtroad', 'dirtoval']:
-            await ctx.send('Please try again with one of these categories: `road`, `oval`, `dirtroad`, `dirtoval`')
-            return
+            if category not in ['road', 'oval', 'dirtroad', 'dirtoval']:
+                await ctx.send('Please try again with one of these categories: `road`, `oval`, `dirtroad`, `dirtoval`')
+                return
 
-        is_yearly = (type != 'career')
+            is_yearly = (type != 'career')
 
-        guild_dict = get_guild_dict(ctx.guild.id)
-        leaderboard_data = get_relevant_leaderboard_data(guild_dict, category)
-        table_html_string = get_leaderboard_html_string(leaderboard_data, ctx.guild, category, is_yearly)
-        imgkit.from_string(table_html_string, f'{ctx.guild.id}_leaderboard.jpg')
-        await ctx.send(file=discord.File(f'{ctx.guild.id}_leaderboard.jpg'))
+            guild_dict = get_guild_dict(ctx.guild.id)
+            leaderboard_data = get_relevant_leaderboard_data(guild_dict, category)
+            table_html_string = get_leaderboard_html_string(leaderboard_data, ctx.guild, category, is_yearly)
+            imgkit.from_string(table_html_string, f'{ctx.guild.id}_leaderboard.jpg')
+            await ctx.send(file=discord.File(f'{ctx.guild.id}_leaderboard.jpg'))
 
     @commands.command()
     async def iratings(self, ctx, category='road'):
