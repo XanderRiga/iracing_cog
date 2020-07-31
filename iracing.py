@@ -15,7 +15,7 @@ import imgkit
 from .helpers import *
 import urllib.parse
 from .errors.name_not_found import NameNotFound
-from bokeh.plotting import figure, output_file
+from bokeh.plotting import figure, output_file, save
 from bokeh.io import export_png
 from bokeh.palettes import Category20
 from bokeh.models import Legend
@@ -498,6 +498,7 @@ class Iracing(commands.Cog):
         p.toolbar_location = None
         legend = Legend(location=(0, -10))
         p.add_layout(legend, 'right')
+        output_file('output_iratings.html')
 
         colors = itertools.cycle(Category20[20])
 
@@ -519,8 +520,10 @@ class Iracing(commands.Cog):
                     color=next(colors)
                 )
 
-        export_png(p, filename=f'irating_graph_{ctx.guild.id}.png')
-        await ctx.send(file=discord.File(f'irating_graph_{ctx.guild.id}.png'))
+        # export_png(p, filename=f'irating_graph_{ctx.guild.id}.png')
+        save(p)
+        imgkit.from_url('output_iratings.html', f'irating_graph_{ctx.guild.id}.jpg')
+        await ctx.send(file=discord.File(f'irating_graph_{ctx.guild.id}.jpg'))
 
     async def update_user_in_dict(self, user_id, guild_dict):
         """This updates a user inside the dict without saving to any files"""
