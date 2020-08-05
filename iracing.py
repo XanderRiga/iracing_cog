@@ -487,12 +487,12 @@ class Iracing(commands.Cog):
         category_id = category_id_from_string(category)
 
         today = datetime.now()
-        date_1yr_ago = datetime(today.year - 1, today.month, today.day)
+        date_6mo_ago = datetime(today.year, today.month - 6, today.day)
 
         p = figure(
             title='iRatings',
             x_axis_type='datetime',
-            x_range=(date_1yr_ago, datetime.now())
+            x_range=(date_6mo_ago, datetime.now())
         )
         p.toolbar.logo = None
         p.toolbar_location = None
