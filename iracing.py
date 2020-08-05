@@ -520,10 +520,8 @@ class Iracing(commands.Cog):
                     color=next(colors)
                 )
 
-        # export_png(p, filename=f'irating_graph_{ctx.guild.id}.png')
-        save(p)
-        imgkit.from_url('output_iratings.html', f'irating_graph_{ctx.guild.id}.jpg')
-        await ctx.send(file=discord.File(f'irating_graph_{ctx.guild.id}.jpg'))
+        export_png(p, filename=f'irating_graph_{ctx.guild.id}.png')
+        await ctx.send(file=discord.File(f'irating_graph_{ctx.guild.id}.png'))
 
     async def update_user_in_dict(self, user_id, guild_dict):
         """This updates a user inside the dict without saving to any files"""
