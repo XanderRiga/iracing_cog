@@ -20,7 +20,13 @@ from bokeh.io import export_png
 from bokeh.palettes import Category20
 from bokeh.models import Legend
 import itertools
+from selenium import webdriver
 
+options = webdriver.chrome.options.Options()
+options.add_argument("--headless")
+options.add_argument("--hide-scrollbars")
+options.add_argument("--force-device-scale-factor=1")
+options.add_argument("--force-color-profile=srgb")
 
 dotenv.load_dotenv()
 
@@ -520,7 +526,7 @@ class Iracing(commands.Cog):
                     color=next(colors)
                 )
 
-        export_png(p, filename=f'irating_graph_{ctx.guild.id}.png')
+        export_png(p, filename=f'irating_graph_{ctx.guild.id}.png', webdriver=webdriver.Chrome(options=options))
         await ctx.send(file=discord.File(f'irating_graph_{ctx.guild.id}.png'))
 
     async def update_user_in_dict(self, user_id, guild_dict):
