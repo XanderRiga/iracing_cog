@@ -117,13 +117,13 @@ def get_leaderboard_html_string(user_data_list, guild, category, yearly=False):
 
             irating = 0
             if category == 'road':
-                irating = item[-1]['road_irating']
+                irating = item[-1]['road_irating'][-1][1]
             elif category == 'oval':
-                irating = item[-1]['oval_irating']
+                irating = item[-1]['oval_irating'][-1][1]
             elif category == 'dirtroad':
-                irating = item[-1]['dirt_road_irating']
+                irating = item[-1]['dirt_road_irating'][-1][1]
             elif category == 'dirtoval':
-                irating = item[-1]['dirt_oval_irating']
+                irating = item[-1]['dirt_oval_irating'][-1][1]
 
             license_class = 'N/A'
             if category == 'road':
@@ -224,25 +224,25 @@ def get_relevant_leaderboard_data(guild_dict, category):
             lambda x: 'road_irating' in x[1],
             guild_dict.items()
         ))
-        return sorted(valid_guild_dict.items(), key=lambda x: int(x[1]['road_irating']), reverse=True)
+        return sorted(valid_guild_dict.items(), key=lambda x: int(x[1]['road_irating'][-1][1]), reverse=True)
     elif category == 'oval':
         valid_guild_dict = dict(filter(
             lambda x: 'oval_irating' in x[1],
             guild_dict.items()
         ))
-        return sorted(valid_guild_dict.items(), key=lambda x: int(x[1]['oval_irating']), reverse=True)
+        return sorted(valid_guild_dict.items(), key=lambda x: int(x[1]['oval_irating'][-1][1]), reverse=True)
     elif category == 'dirtroad':
         valid_guild_dict = dict(filter(
             lambda x: 'dirt_road_irating' in x[1],
             guild_dict.items()
         ))
-        return sorted(valid_guild_dict.items(), key=lambda x: int(x[1]['dirt_road_irating']), reverse=True)
+        return sorted(valid_guild_dict.items(), key=lambda x: int(x[1]['dirt_road_irating'][-1][1]), reverse=True)
     elif category == 'dirtoval':
         valid_guild_dict = dict(filter(
             lambda x: 'dirt_oval_irating' in x[1],
             guild_dict.items()
         ))
-        return sorted(valid_guild_dict.items(), key=lambda x: int(x[1]['dirt_oval_irating']), reverse=True)
+        return sorted(valid_guild_dict.items(), key=lambda x: int(x[1]['dirt_oval_irating'][-1][1]), reverse=True)
 
     return []
 
@@ -287,6 +287,28 @@ def category_id_from_string(string):
         return Category.dirt_road.value
     if string == 'dirtoval':
         return Category.dirt_oval.value
+
+
+async def saved_users_irating_charts(guild_id, category):
+    guild_dict = get_guild_dict(guild_id)
+    category_string = Category(category).name
+
+    iratings = []
+    for user_id in guild_dict:
+        if f'{category_string}_irating' in guild_dict[user_id]:
+            iratings_list = guild_dict[user_id][f'{category_string}_irating']
+            iratings_list_datetimes = []
+            for irating_tuple in iratings_list:
+                iratings_list_datetimes.append([
+                    datetime.strptime(irating_tuple[0], datetime_format),
+                    irating_tuple[1]
+                ])
+
+            iratings.append({
+                user_id: iratings_list_datetimes
+            })
+
+    return iratings
 
 
 class Iracing(commands.Cog):
@@ -509,15 +531,15 @@ class Iracing(commands.Cog):
 
             colors = itertools.cycle(Category20[20])
 
-            irating_dicts = await self.saved_users_irating_charts(ctx.guild.id, category_id)
+            irating_dicts = await saved_users_irating_charts(ctx.guild.id, category_id)
             for irating_dict in irating_dicts:
                 for user_id, iratings_list in irating_dict.items():
                     member = ctx.guild.get_member(int(user_id))
                     datetimes = []
                     iratings = []
                     for irating in iratings_list:
-                        datetimes.append(irating.datetime)
-                        iratings.append(irating.value)
+                        datetimes.append(irating[0])
+                        iratings.append(irating[1])
 
                     p.line(
                         datetimes,
@@ -551,10 +573,10 @@ class Iracing(commands.Cog):
             if yearly_stats_list:
                 guild_dict[user_id]['yearly_stats'] = list(map(lambda x: x.__dict__, yearly_stats_list))
 
-            guild_dict[user_id]['oval_irating'] = await self.get_irating(iracing_id, Category.oval.value)
-            guild_dict[user_id]['road_irating'] = await self.get_irating(iracing_id, Category.road.value)
-            guild_dict[user_id]['dirt_road_irating'] = await self.get_irating(iracing_id, Category.dirt_road.value)
-            guild_dict[user_id]['dirt_oval_irating'] = await self.get_irating(iracing_id, Category.dirt_oval.value)
+            guild_dict[user_id]['oval_irating'] = await self.get_iratings_json(iracing_id, Category.oval.value)
+            guild_dict[user_id]['road_irating'] = await self.get_iratings_json(iracing_id, Category.road.value)
+            guild_dict[user_id]['dirt_road_irating'] = await self.get_iratings_json(iracing_id, Category.dirt_road.value)
+            guild_dict[user_id]['dirt_oval_irating'] = await self.get_iratings_json(iracing_id, Category.dirt_oval.value)
 
             guild_dict[user_id]['oval_license_class'] = await self.get_license_class(iracing_id, Category.oval.value)
             guild_dict[user_id]['road_license_class'] = await self.get_license_class(iracing_id, Category.road.value)
@@ -589,11 +611,16 @@ class Iracing(commands.Cog):
             update_user(user_id, guild_id, copy.deepcopy(career_stats_list), None, None)
             return career_stats_list
 
-    async def get_irating(self, user_id, category):
+    async def get_iratings_json(self, user_id, category):
         chart_data = await self.pyracing.irating(user_id, category)
         if not chart_data.current():
-            return 0
-        return str(chart_data.current().value)
+            return []
+
+        json_iratings = []
+        for irating in chart_data.list:
+            json_iratings.append([irating.datetime.strftime(datetime_format), irating.value])
+
+        return json_iratings
 
     async def get_license_class(self, user_id, category):
         chart_data = await self.pyracing.license_class(user_id, category)
@@ -617,20 +644,6 @@ class Iracing(commands.Cog):
                     series.series_name_short) > 35 else series.series_name_short
 
         return "Unknown Series"
-
-    async def saved_users_irating_charts(self, guild_id, category):
-        guild_dict = get_guild_dict(guild_id)
-
-        iratings = []
-        for user_id in guild_dict:
-            if 'iracing_id' in guild_dict[user_id]:
-                iracing_id = guild_dict[user_id]['iracing_id']
-                chart_data = await self.pyracing.irating(iracing_id, category)
-                iratings.append({
-                    user_id: chart_data.list
-                })
-
-        return iratings
 
     def recent_races_table_string(self, recent_races, iracing_id):
         table = PrettyTable()
