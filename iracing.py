@@ -497,7 +497,7 @@ class Iracing(commands.Cog):
             date_6mo_ago = datetime(today.year, today.month - 6, today.day)
 
             p = figure(
-                title='iRatings',
+                title=f'{lowercase_to_readable_categories(category)} iRatings',
                 x_axis_type='datetime',
                 x_range=(date_6mo_ago, datetime.now())
             )
