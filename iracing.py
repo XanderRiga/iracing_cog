@@ -23,10 +23,10 @@ import itertools
 from selenium import webdriver
 
 options = webdriver.chrome.options.Options()
+options.add_argument('--no-sandbox')
+options.add_argument('--disable-dev-shm-usage')
 options.add_argument("--headless")
 options.add_argument("--hide-scrollbars")
-options.add_argument("--force-device-scale-factor=1")
-options.add_argument("--force-color-profile=srgb")
 
 dotenv.load_dotenv()
 
