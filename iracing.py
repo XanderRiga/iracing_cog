@@ -486,48 +486,49 @@ class Iracing(commands.Cog):
 
     @commands.command()
     async def iratings(self, ctx, category='road'):
-        if category not in ['road', 'oval', 'dirtroad', 'dirtoval']:
-            ctx.send('The category should be one of `road`, `oval`, `dirtroad`, `dirtoval`')
-            return
+        async with ctx.typing():
+            if category not in ['road', 'oval', 'dirtroad', 'dirtoval']:
+                ctx.send('The category should be one of `road`, `oval`, `dirtroad`, `dirtoval`')
+                return
 
-        category_id = category_id_from_string(category)
+            category_id = category_id_from_string(category)
 
-        today = datetime.now()
-        date_6mo_ago = datetime(today.year, today.month - 6, today.day)
+            today = datetime.now()
+            date_6mo_ago = datetime(today.year, today.month - 6, today.day)
 
-        p = figure(
-            title='iRatings',
-            x_axis_type='datetime',
-            x_range=(date_6mo_ago, datetime.now())
-        )
-        p.toolbar.logo = None
-        p.toolbar_location = None
-        legend = Legend(location=(0, -10))
-        p.add_layout(legend, 'right')
-        output_file('output_iratings.html')
+            p = figure(
+                title='iRatings',
+                x_axis_type='datetime',
+                x_range=(date_6mo_ago, datetime.now())
+            )
+            p.toolbar.logo = None
+            p.toolbar_location = None
+            legend = Legend(location=(0, -10))
+            p.add_layout(legend, 'right')
+            output_file('output_iratings.html')
 
-        colors = itertools.cycle(Category20[20])
+            colors = itertools.cycle(Category20[20])
 
-        irating_dicts = await self.saved_users_irating_charts(ctx.guild.id, category_id)
-        for irating_dict in irating_dicts:
-            for user_id, iratings_list in irating_dict.items():
-                member = ctx.guild.get_member(int(user_id))
-                datetimes = []
-                iratings = []
-                for irating in iratings_list:
-                    datetimes.append(irating.datetime)
-                    iratings.append(irating.value)
+            irating_dicts = await self.saved_users_irating_charts(ctx.guild.id, category_id)
+            for irating_dict in irating_dicts:
+                for user_id, iratings_list in irating_dict.items():
+                    member = ctx.guild.get_member(int(user_id))
+                    datetimes = []
+                    iratings = []
+                    for irating in iratings_list:
+                        datetimes.append(irating.datetime)
+                        iratings.append(irating.value)
 
-                p.line(
-                    datetimes,
-                    iratings,
-                    legend_label=member.display_name,
-                    line_width=2,
-                    color=next(colors)
-                )
+                    p.line(
+                        datetimes,
+                        iratings,
+                        legend_label=member.display_name,
+                        line_width=2,
+                        color=next(colors)
+                    )
 
-        export_png(p, filename=f'irating_graph_{ctx.guild.id}.png', webdriver=webdriver.Chrome(options=options))
-        await ctx.send(file=discord.File(f'irating_graph_{ctx.guild.id}.png'))
+            export_png(p, filename=f'irating_graph_{ctx.guild.id}.png', webdriver=webdriver.Chrome(options=options))
+            await ctx.send(file=discord.File(f'irating_graph_{ctx.guild.id}.png'))
 
     async def update_user_in_dict(self, user_id, guild_dict):
         """This updates a user inside the dict without saving to any files"""
