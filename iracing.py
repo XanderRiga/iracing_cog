@@ -7,13 +7,12 @@ import copy
 import discord
 from discord.ext import tasks
 from .storage import folder
-from datetime import datetime, timedelta
+from datetime import datetime
 import logging
 from logdna import LogDNAHandler
 from prettytable import PrettyTable, ALL
 import imgkit
 from .helpers import *
-import urllib.parse
 from .errors.name_not_found import NameNotFound
 from bokeh.plotting import figure, output_file, save
 from bokeh.io import export_png
@@ -35,21 +34,6 @@ log = logging.getLogger('logdna')
 log.setLevel(logging.DEBUG)
 handler = LogDNAHandler(logdna_key, {'hostname': os.getenv("LOG_LOCATION")})
 log.addHandler(handler)
-
-
-def add_backticks(string):
-    return '```' + string + '```'
-
-
-def lowercase_to_readable_categories(category):
-    if category == 'road':
-        return 'Road'
-    elif category == 'oval':
-        return 'Oval'
-    elif category == 'dirtroad':
-        return 'Dirt Road'
-    elif category == 'dirtoval':
-        return 'Dirt Oval'
 
 
 def get_yearly_stats_html(yearly_stats, iracing_id):
@@ -184,13 +168,6 @@ def get_leaderboard_html_string(user_data_list, guild, category, yearly=False):
     return css + header_html_string + "\n" + html_string
 
 
-def get_current_year_stats(yearly_stats_list):
-    """This takes the massive list of a user's yearly stats dicts
-    and returns just the yearly stats from the current year"""
-    current_year = str(datetime.now().year)
-    return filter(lambda x: x['year'] == current_year, yearly_stats_list)
-
-
 def get_career_stats_html(career_stats, iracing_id):
     table = PrettyTable()
     table.field_names = [
@@ -247,10 +224,6 @@ def get_relevant_leaderboard_data(guild_dict, category):
     return []
 
 
-def parse_encoded_string(string):
-    return urllib.parse.unquote(string).replace('+', ' ')
-
-
 def get_last_series_html_string(last_series, iracing_id):
     table = PrettyTable()
     table.field_names = ['Series', 'Position', 'Division', 'Weeks', 'Starts',
@@ -276,17 +249,6 @@ def get_last_series_html_string(last_series, iracing_id):
     css = wrap_in_style_tag(iracing_table_css + header_css)
 
     return css + header_string + "\n" + html_string
-
-
-def category_id_from_string(string):
-    if string == 'road':
-        return Category.road.value
-    if string == 'oval':
-        return Category.oval.value
-    if string == 'dirtroad':
-        return Category.dirt_road.value
-    if string == 'dirtoval':
-        return Category.dirt_oval.value
 
 
 async def saved_users_irating_charts(guild_id, category):
