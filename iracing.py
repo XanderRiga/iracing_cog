@@ -20,6 +20,7 @@ from bokeh.palettes import Category20
 from bokeh.models import Legend
 import itertools
 from selenium import webdriver
+import asyncio
 
 options = webdriver.chrome.options.Options()
 options.add_argument('--no-sandbox')
@@ -396,7 +397,8 @@ class Iracing(commands.Cog):
                                    'ID>`')
                     return
 
-            yearly_stats = await self.update_yearly_stats(user_id, guild_id, iracing_id)
+            guild_dict = get_guild_dict(guild_id)
+            yearly_stats = await self.update_yearly_stats(user_id, guild_dict, iracing_id)
 
             if yearly_stats:
                 yearly_stats_html = get_yearly_stats_html(yearly_stats, iracing_id)
@@ -419,7 +421,8 @@ class Iracing(commands.Cog):
                                    ' ID>`')
                     return
 
-            career_stats = await self.update_career_stats(user_id, guild_id, iracing_id)
+            guild_dict = get_guild_dict(guild_id)
+            career_stats = await self.update_career_stats(user_id, guild_dict, iracing_id)
 
             if career_stats:
                 career_stats_html = get_career_stats_html(career_stats, iracing_id)
@@ -518,63 +521,61 @@ class Iracing(commands.Cog):
         """This updates a user inside the dict without saving to any files"""
         iracing_id = guild_dict[user_id]['iracing_id']
 
-        try:
-            if 'name' not in guild_dict[user_id]:
-                try:
-                    name = await self.get_driver_name(iracing_id)
-                    guild_dict[user_id]['name'] = name
-                except NameNotFound:
-                    log.info(f'Name not found for user: {iracing_id}')
-                    pass
-
-            career_stats_list = await self.pyracing.career_stats(iracing_id)
-            if career_stats_list:
-                guild_dict[user_id]['career_stats'] = list(map(lambda x: x.__dict__, career_stats_list))
-
-            yearly_stats_list = await self.pyracing.yearly_stats(iracing_id)
-            if yearly_stats_list:
-                guild_dict[user_id]['yearly_stats'] = list(map(lambda x: x.__dict__, yearly_stats_list))
-
-            guild_dict[user_id]['oval_irating'] = await self.get_iratings_json(iracing_id, Category.oval.value)
-            guild_dict[user_id]['road_irating'] = await self.get_iratings_json(iracing_id, Category.road.value)
-            guild_dict[user_id]['dirt_road_irating'] = await self.get_iratings_json(iracing_id, Category.dirt_road.value)
-            guild_dict[user_id]['dirt_oval_irating'] = await self.get_iratings_json(iracing_id, Category.dirt_oval.value)
-
-            guild_dict[user_id]['oval_license_class'] = await self.get_license_class(iracing_id, Category.oval.value)
-            guild_dict[user_id]['road_license_class'] = await self.get_license_class(iracing_id, Category.road.value)
-            guild_dict[user_id]['dirt_oval_license_class'] = await self.get_license_class(iracing_id,
-                                                                                          Category.dirt_oval.value)
-            guild_dict[user_id]['dirt_road_license_class'] = await self.get_license_class(iracing_id,
-                                                                                          Category.dirt_road.value)
-        except Exception as e:
-            log.error(f'error updating user: {iracing_id}')
-            log.error(e)
-            guild_dict[user_id] = {'iracing_id': iracing_id}
-            return guild_dict
+        # We want to break this into a few sections because if the bot
+        # receives a request from a user we don't want this to block that from happening
+        # Yea, this is a hacky workaround, but I need a way to prioritize the inputs from users.
+        # When I store all the user data so I don't need to make requests on user input this can all be one gather.
+        await asyncio.gather(
+            self.update_driver_name(user_id, guild_dict, iracing_id),
+            self.update_career_stats(user_id, guild_dict, iracing_id),
+            self.update_yearly_stats(user_id, guild_dict, iracing_id),
+            return_exceptions=True
+        )
+        await asyncio.gather(
+            self.update_iratings(user_id, guild_dict, iracing_id, Category.oval),
+            self.update_iratings(user_id, guild_dict, iracing_id, Category.road),
+            self.update_iratings(user_id, guild_dict, iracing_id, Category.dirt_road),
+            self.update_iratings(user_id, guild_dict, iracing_id, Category.dirt_oval),
+            return_exceptions=True
+        )
+        await asyncio.gather(
+            self.update_license_class(user_id, guild_dict, iracing_id, Category.oval),
+            self.update_license_class(user_id, guild_dict, iracing_id, Category.road),
+            self.update_license_class(user_id, guild_dict, iracing_id, Category.dirt_road),
+            self.update_license_class(user_id, guild_dict, iracing_id, Category.dirt_oval),
+            return_exceptions=True
+        )
 
         return guild_dict
 
-    async def update_last_races(self, user_id, guild_id, iracing_id):
-        races_stats_list = await self.pyracing.last_races_stats(iracing_id)
-        if races_stats_list:
-            log.info('found a races stats list for user: ' + str(iracing_id))
-            update_user(user_id, guild_id, None, None, copy.deepcopy(races_stats_list))
-            return races_stats_list
+    async def update_driver_name(self, user_id, guild_dict, cust_id):
+        try:
+            response = await self.pyracing.driver_status(cust_id=cust_id)
+            name = parse_encoded_string(response.name)
+            guild_dict[user_id]['name'] = name
+            return name
+        except:
+            log.warning(f'Name not found for {cust_id}')
+            raise NameNotFound
 
-    async def update_yearly_stats(self, user_id, guild_id, iracing_id):
-        yearly_stats_list = await self.pyracing.yearly_stats(iracing_id)
-        if yearly_stats_list:
-            update_user(user_id, guild_id, None, copy.deepcopy(yearly_stats_list), None)
-            return yearly_stats_list
-
-    async def update_career_stats(self, user_id, guild_id, iracing_id):
+    async def update_career_stats(self, user_id, guild_dict, iracing_id):
         career_stats_list = await self.pyracing.career_stats(iracing_id)
         if career_stats_list:
-            update_user(user_id, guild_id, copy.deepcopy(career_stats_list), None, None)
+            guild_dict[user_id]['career_stats'] = list(map(lambda x: x.__dict__, career_stats_list))
             return career_stats_list
+        else:
+            return []
 
-    async def get_iratings_json(self, user_id, category):
-        chart_data = await self.pyracing.irating(user_id, category)
+    async def update_yearly_stats(self, user_id, guild_dict, iracing_id):
+        yearly_stats_list = await self.pyracing.yearly_stats(iracing_id)
+        if yearly_stats_list:
+            guild_dict[user_id]['yearly_stats'] = list(map(lambda x: x.__dict__, yearly_stats_list))
+            return yearly_stats_list
+        else:
+            return []
+
+    async def update_iratings(self, user_id, guild_dict, iracing_id, category):
+        chart_data = await self.pyracing.irating(iracing_id, category.value)
         if not chart_data.current():
             return []
 
@@ -582,21 +583,25 @@ class Iracing(commands.Cog):
         for irating in chart_data.list:
             json_iratings.append([irating.datetime.strftime(datetime_format), irating.value])
 
+        guild_dict[user_id][f'{category.name}_irating'] = json_iratings
+
         return json_iratings
 
-    async def get_license_class(self, user_id, category):
-        chart_data = await self.pyracing.license_class(user_id, category)
+    async def update_license_class(self, user_id, guild_dict, iracing_id, category):
+        chart_data = await self.pyracing.license_class(iracing_id, category.value)
         if not chart_data.current():
             return 'N/A'
-        return str(chart_data.current().class_letter()) + ' ' + str(chart_data.current().license_level)
 
-    async def get_driver_name(self, cust_id):
-        try:
-            response = await self.pyracing.driver_status(cust_id=cust_id)
-            return parse_encoded_string(response.name)
-        except:
-            log.warning(f'Name not found for {cust_id}')
-            raise NameNotFound
+        license_class = str(chart_data.current().class_letter()) + ' ' + str(chart_data.current().license_level)
+        guild_dict[user_id][f'{category.name}_license_class'] = license_class
+        return license_class
+
+    async def update_last_races(self, user_id, guild_id, iracing_id):
+        races_stats_list = await self.pyracing.last_races_stats(iracing_id)
+        if races_stats_list:
+            log.info('found a races stats list for user: ' + str(iracing_id))
+            update_user(user_id, guild_id, None, None, copy.deepcopy(races_stats_list))
+            return races_stats_list
 
     def get_series_name(self, series_id):
         for series in self.all_series:
