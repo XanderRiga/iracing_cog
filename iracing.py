@@ -22,6 +22,7 @@ import itertools
 from selenium import webdriver
 import asyncio
 
+
 options = webdriver.chrome.options.Options()
 options.add_argument('--no-sandbox')
 options.add_argument('--disable-dev-shm-usage')
@@ -95,6 +96,12 @@ def get_leaderboard_html_string(user_data_list, guild, category, yearly=False):
     for index, item in enumerate(user_data_list, start=1):
         try:
             member = discord.utils.find(lambda m: m.id == int(item[0]), guild.members)
+            if member:
+                member_name = member.name
+            else:
+                print('Could not find user for id: ' + str(item[0]))
+                member_name = ''
+
             if yearly:
                 stats_list = get_current_year_stats(item[-1]['yearly_stats'])
             else:
@@ -143,7 +150,7 @@ def get_leaderboard_html_string(user_data_list, guild, category, yearly=False):
                 table.add_row(
                     [
                         index,
-                        member.name,
+                        member_name,
                         iracing_name,
                         str(career_stats['starts']),
                         str(irating),
