@@ -288,8 +288,7 @@ class Iracing(commands.Cog):
         super().__init__()
         self.pyracing = pyracing.Client(
             os.getenv("IRACING_USERNAME"),
-            os.getenv("IRACING_PASSWORD"),
-            log
+            os.getenv("IRACING_PASSWORD")
         )
         self.all_series = []
         self.update_all_servers.start()
