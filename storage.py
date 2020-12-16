@@ -91,6 +91,20 @@ def get_user_dict(user_id, guild_id):
         return {}
 
 
+def get_user_ids(guild_id):
+    ensure_file_exists(guild_id)
+
+    with open(file_path(guild_id), 'r') as file:
+        guild_json = json.load(file)
+
+    ids = []
+    for key in guild_json:
+        if key != 'last_update':
+            ids.append(key)
+
+    return ids
+
+
 def get_user_iracing_id(user_id, guild_id):
     user_data = get_user_dict(user_id, guild_id)
 

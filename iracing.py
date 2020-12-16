@@ -281,6 +281,16 @@ async def saved_users_irating_charts(guild_id, category):
     return iratings
 
 
+def delete_missing_users(guild):
+    guild_dict = get_guild_dict(guild.id)
+    current_member_ids = list(map(lambda x: x.id, guild.members))
+    for user_id in get_user_ids(guild.id):
+        if int(user_id) not in current_member_ids:
+            guild_dict.pop(user_id, None)
+
+    set_guild_data(guild.id, guild_dict)
+
+
 class Iracing(commands.Cog):
     """A cog that can give iRacing data about users"""
 
@@ -460,6 +470,7 @@ class Iracing(commands.Cog):
         If the data is not up to date, try `!update` first.
         The categories are `road`, `oval`, `dirtroad`, and `dirtoval` and
         the types are `career` and `yearly`. Default is `road` `career`"""
+        delete_missing_users(ctx.guild)
         async with ctx.typing():
             if type not in ['career', 'yearly']:
                 await ctx.send('Please try again with one of these types: `career`, `yearly`')
