@@ -4,7 +4,7 @@ from pyracing.constants import Category
 
 
 iracing_table_css = """#iracing_table {
-                  font-family: "Comic Sans MS", Arial, Helvetica, sans-serif;
+                  font-family: Arial, Helvetica, sans-serif;
                   border-collapse: collapse;
                   width: 100%;
                 }
@@ -27,7 +27,7 @@ iracing_table_css = """#iracing_table {
                 """
 
 leaderboard_table_css = """#iracing_table {
-                  font-family: "Comic Sans MS", Arial, Helvetica, sans-serif;
+                  font-family: Arial, Helvetica, sans-serif;
                   border-collapse: collapse;
                   width: 100%;
                 }
@@ -51,7 +51,7 @@ leaderboard_table_css = """#iracing_table {
 
 header_css = """
     #header {
-      font-family: "Comic Sans MS", Arial, Helvetica, sans-serif;
+      font-family: Arial, Helvetica, sans-serif;
     }
     
 """
