@@ -1,6 +1,7 @@
 import urllib.parse
 from datetime import datetime
 from pyracing.constants import Category
+from .storage import *
 
 
 iracing_table_css = """#iracing_table {
@@ -100,3 +101,64 @@ def get_current_year_stats(yearly_stats_list):
     and returns just the yearly stats from the current year"""
     current_year = str(datetime.now().year)
     return filter(lambda x: x['year'] == current_year, yearly_stats_list)
+
+
+def minutes_since_last_update(guild_id, log):
+    try:
+        last_update = get_last_update_datetime(guild_id)
+        if not last_update:
+            return None
+        return round((datetime.now() - last_update).seconds / 60, 1)
+    except Exception as e:
+        log.warning('datetime parsing exploded')
+        log.warning(e)
+        return None
+
+
+def get_relevant_leaderboard_data(guild_dict, category):
+    if category == 'road':
+        valid_guild_dict = dict(filter(
+            lambda x: 'road_irating' in x[1],
+            guild_dict.items()
+        ))
+        return sorted(valid_guild_dict.items(), key=lambda x: int(x[1]['road_irating'][-1][1]), reverse=True)
+    elif category == 'oval':
+        valid_guild_dict = dict(filter(
+            lambda x: 'oval_irating' in x[1],
+            guild_dict.items()
+        ))
+        return sorted(valid_guild_dict.items(), key=lambda x: int(x[1]['oval_irating'][-1][1]), reverse=True)
+    elif category == 'dirtroad':
+        valid_guild_dict = dict(filter(
+            lambda x: 'dirt_road_irating' in x[1],
+            guild_dict.items()
+        ))
+        return sorted(valid_guild_dict.items(), key=lambda x: int(x[1]['dirt_road_irating'][-1][1]), reverse=True)
+    elif category == 'dirtoval':
+        valid_guild_dict = dict(filter(
+            lambda x: 'dirt_oval_irating' in x[1],
+            guild_dict.items()
+        ))
+        return sorted(valid_guild_dict.items(), key=lambda x: int(x[1]['dirt_oval_irating'][-1][1]), reverse=True)
+
+    return []
+
+
+def delete_missing_users(guild):
+    guild_dict = get_guild_dict(guild.id)
+    current_member_ids = list(map(lambda x: x.id, guild.members))
+    for user_id in get_user_ids(guild.id):
+        if int(user_id) not in current_member_ids:
+            guild_dict.pop(user_id, None)
+
+    set_guild_data(guild.id, guild_dict)
+
+
+def get_series_name(all_series, series_id):
+    for series in all_series:
+        if str(series.series_id) == str(series_id):
+            # We want to truncate the series name to 35 because some of them are massive
+            return series.series_name_short[:33] + '..' if len(
+                series.series_name_short) > 35 else series.series_name_short
+
+    return "Unknown Series"
