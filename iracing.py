@@ -284,6 +284,10 @@ async def saved_users_irating_charts(guild_id, category):
 def delete_missing_users(guild):
     guild_dict = get_guild_dict(guild.id)
     current_member_ids = list(map(lambda x: x.id, guild.members))
+
+    if not current_member_ids:
+        return
+
     for user_id in get_user_ids(guild.id):
         if int(user_id) not in current_member_ids:
             guild_dict.pop(user_id, None)
