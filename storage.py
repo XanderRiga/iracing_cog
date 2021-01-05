@@ -65,6 +65,18 @@ def set_guild_data(guild_id, guild_dict):
         json.dump(guild_dict, file)
 
 
+def set_guild_favorites(guild_id, favorites):
+    guild_dict = get_guild_dict(guild_id)
+    guild_dict['favorites'] = favorites
+    with open(file_path(guild_id), 'w') as file:
+        json.dump(guild_dict, file)
+
+
+def get_guild_favorites(guild_id):
+    guild_dict = get_guild_dict(guild_id)
+    return guild_dict['favorites']
+
+
 def set_user_data(user_id, guild_id, user_data):
     ensure_file_exists(guild_id)
 

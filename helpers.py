@@ -177,3 +177,13 @@ def build_embeds(discord, series, name):
         embeds[embed_index].add_field(name=str(season.series_id), value=season.series_name_short)
 
     return embeds
+
+
+def ids_valid_series(series, ids):
+    """takes in a list of ids and returns true if they are
+        all in the series list"""
+    for series_id in ids:
+        if not any(x.series_id == series_id for x in series):
+            return False
+
+    return True

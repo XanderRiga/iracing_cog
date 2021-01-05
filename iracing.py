@@ -303,6 +303,26 @@ class Iracing(commands.Cog):
         for embed in embeds:
             await ctx.send(embed=embed)
 
+    @commands.command()
+    async def setfavseries(self, ctx, ids):
+        """Use command `!allseries` to get a list of all series and ids.
+            Then use this command `!setfavseries` with a list of comma
+            separated ids to set your favorite series"""
+        id_list = ids.replace(' ', '').split(',')
+        id_list = [x for x in id_list if x]
+        try:
+            parsed_ids = list(map(int, id_list))
+            if not ids_valid_series(self.all_series, parsed_ids):
+                await ctx.send('Please enter a comma separated list of numbers which correspond to'
+                               'series IDs from the `!allseries` command')
+                return
+
+            set_guild_favorites(ctx.guild.id, parsed_ids)
+            await ctx.send('Successfully saved favorite series')
+        except ValueError:
+            await ctx.send('Please enter a comma separated list of numbers which correspond to'
+                           'series IDs from the `!allseries` command')
+
     async def update_user_in_dict(self, user_id, guild_dict):
         """This updates a user inside the dict without saving to any files"""
         iracing_id = guild_dict[user_id]['iracing_id']
