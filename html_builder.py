@@ -230,12 +230,13 @@ def recent_races_table_string(recent_races, iracing_id, all_series):
 
 def build_race_week_string(race_week, series, title):
     table = PrettyTable()
-    table.field_names = ['Series', 'Track']
+    table.field_names = ['ID', 'Series', 'Track']
 
     for serie in series:
         try:
             table.add_row(
                 [
+                    serie.series_id,
                     serie.series_name_short,
                     serie.tracks[race_week].name
                 ]

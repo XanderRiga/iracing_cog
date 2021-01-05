@@ -192,8 +192,14 @@ def ids_valid_series(series, ids):
 def series_from_ids(ids, all_series):
     series = []
     for id in ids:
-        for serie in all_series:
-            if id == serie.series_id:
-                series.append(serie)
+        series.append(serie_from_id(id, all_series))
 
     return series
+
+
+def serie_from_id(id, all_series):
+    for serie in all_series:
+        if id == serie.series_id:
+            return serie
+
+    return None
