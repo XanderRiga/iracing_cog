@@ -187,3 +187,31 @@ def ids_valid_series(series, ids):
             return False
 
     return True
+
+
+def series_from_ids(ids, all_series):
+    series = []
+    for id in ids:
+        for serie in all_series:
+            if id == serie.series_id:
+                series.append(serie)
+
+    return series
+
+
+def build_race_week_embeds(discord, race_week, series):
+    embeds = [discord.Embed()]
+    embed_index = 0
+
+    for serie in series:
+        try:
+            track_name = serie.tracks[race_week].name
+
+            if len(embeds[embed_index]) >= 500:
+                embed_index += 1
+                embeds.append(discord.Embed())
+            embeds[embed_index].add_field(name=serie.series_name_short, value=track_name)
+        except:
+            continue
+
+    return embeds

@@ -323,6 +323,24 @@ class Iracing(commands.Cog):
             await ctx.send('Please enter a comma separated list of numbers which correspond to'
                            'series IDs from the `!allseries` command')
 
+    @commands.command()
+    async def currentseries(self, ctx):
+        favorites = get_guild_favorites(ctx.guild.id)
+        if not favorites:
+            await ctx.send('Follow the directions by calling `!setfavseries` to set favorite'
+                           'series before ')
+            return
+
+        series = series_from_ids(favorites, self.all_series)
+        if not series:
+            await ctx.send('Series not found, wait a minute and try again or contact an admin.')
+
+        race_week = series[0].race_week - 1  # This is 1 indexed for some reason, but the tracks aren't
+        embeds = build_race_week_embeds(discord, race_week, series)
+
+        for embed in embeds:
+            await ctx.send(embed=embed)
+
     async def update_user_in_dict(self, user_id, guild_dict):
         """This updates a user inside the dict without saving to any files"""
         iracing_id = guild_dict[user_id]['iracing_id']
