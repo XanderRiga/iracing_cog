@@ -336,11 +336,13 @@ class Iracing(commands.Cog):
             await ctx.send('Series not found, wait a minute and try again or contact an admin.')
 
         race_week = series[0].race_week - 1  # This is 1 indexed for some reason, but the tracks aren't
-        embeds = build_race_week_embeds(discord, race_week, series, 'This Week')
-        embeds.extend(build_race_week_embeds(discord, race_week+1, series, 'Next Week'))
+        this_week_string = build_race_week_string(race_week, series, 'This Week')
+        next_week_string = build_race_week_string(race_week+1, series, 'Next Week')
 
-        for embed in embeds:
-            await ctx.send(embed=embed)
+        imgkit.from_string(this_week_string, f'{ctx.guild.id}_this_week.jpg')
+        imgkit.from_string(next_week_string, f'{ctx.guild.id}_next_week.jpg')
+        await ctx.send(file=discord.File(f'{ctx.guild.id}_this_week.jpg'))
+        await ctx.send(file=discord.File(f'{ctx.guild.id}_next_week.jpg'))
 
     async def update_user_in_dict(self, user_id, guild_dict):
         """This updates a user inside the dict without saving to any files"""
