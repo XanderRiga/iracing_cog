@@ -304,7 +304,7 @@ class Iracing(commands.Cog):
             await ctx.send(embed=embed)
 
     @commands.command()
-    async def setfavseries(self, ctx, ids):
+    async def setfavseries(self, ctx, *, ids):
         """Use command `!allseries` to get a list of all series and ids.
             Then use this command `!setfavseries` with a list of comma
             separated ids to set your favorite series"""
@@ -318,7 +318,7 @@ class Iracing(commands.Cog):
                 return
 
             set_guild_favorites(ctx.guild.id, parsed_ids)
-            await ctx.send('Successfully saved favorite series')
+            await ctx.send(f'Successfully saved favorite series: {parsed_ids}')
         except ValueError:
             await ctx.send('Please enter a comma separated list of numbers which correspond to'
                            'series IDs from the `!allseries` command')
