@@ -228,20 +228,23 @@ def recent_races_table_string(recent_races, iracing_id, all_series):
     return css + header_string + "\n" + html_string
 
 
-def build_race_week_string(race_week, series, title):
+def build_race_week_string(race_week, series, title, log):
     table = PrettyTable()
     table.field_names = ['ID', 'Series', 'Track']
 
     for serie in series:
         try:
+            track = serie.tracks[race_week]
             table.add_row(
                 [
                     serie.series_id,
                     serie.series_name_short,
-                    serie.tracks[race_week].name
+                    f'{track.name} - {track.config}'
                 ]
             )
         except:
+            log.info(f'failed to print series: {serie}')
+            print(f'failed to print series: {serie}')
             continue
 
     html_string = table.get_html_string(attributes={"id": "iracing_table"})
