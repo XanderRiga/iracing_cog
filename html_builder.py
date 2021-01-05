@@ -205,7 +205,7 @@ async def saved_users_irating_charts(guild_id, category):
     return iratings
 
 
-def recent_races_table_string(recent_races, iracing_id):
+def recent_races_table_string(recent_races, iracing_id, all_series):
     table = PrettyTable()
     table.field_names = ['Finish', 'Start', 'Incidents', 'Avg iRating', 'Race Date', 'Series', 'Track Name']
 
@@ -217,7 +217,7 @@ def recent_races_table_string(recent_races, iracing_id):
                 str(recent_race.incidents),
                 str(recent_race.strength_of_field),
                 recent_race.date,
-                get_series_name(self.all_series, recent_race.series_id),
+                get_series_name(all_series, recent_race.series_id),
                 recent_race.track
             ]
         )

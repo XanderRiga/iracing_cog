@@ -118,7 +118,7 @@ class Iracing(commands.Cog):
             races_stats_list = await self.update_last_races(user_id, guild_id, iracing_id)
 
             if races_stats_list:
-                table_html_string = recent_races_table_string(races_stats_list, iracing_id)
+                table_html_string = recent_races_table_string(races_stats_list, iracing_id, self.all_series)
                 imgkit.from_string(table_html_string, f'{guild_id}_{iracing_id}_recent_races.jpg')
                 await ctx.send(file=discord.File(f'{guild_id}_{iracing_id}_recent_races.jpg'))
             else:
