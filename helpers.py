@@ -199,8 +199,8 @@ def series_from_ids(ids, all_series):
     return series
 
 
-def build_race_week_embeds(discord, race_week, series):
-    embeds = [discord.Embed()]
+def build_race_week_embeds(discord, race_week, series, title):
+    embeds = [discord.Embed(title=title)]
     embed_index = 0
 
     for serie in series:

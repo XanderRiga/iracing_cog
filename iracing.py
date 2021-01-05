@@ -336,7 +336,8 @@ class Iracing(commands.Cog):
             await ctx.send('Series not found, wait a minute and try again or contact an admin.')
 
         race_week = series[0].race_week - 1  # This is 1 indexed for some reason, but the tracks aren't
-        embeds = build_race_week_embeds(discord, race_week, series)
+        embeds = build_race_week_embeds(discord, race_week, series, 'This Week')
+        embeds.extend(build_race_week_embeds(discord, race_week+1, series, 'Next Week'))
 
         for embed in embeds:
             await ctx.send(embed=embed)
