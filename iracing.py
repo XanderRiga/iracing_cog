@@ -282,6 +282,27 @@ class Iracing(commands.Cog):
             export_png(p, filename=f'irating_graph_{ctx.guild.id}.png', webdriver=webdriver.Chrome(options=options))
             await ctx.send(file=discord.File(f'irating_graph_{ctx.guild.id}.png'))
 
+    @commands.command()
+    async def allseries(self, ctx):
+        road, oval, dirt_road, dirt_oval = [], [], [], []
+        for season in self.all_series:
+            if season.cat_id == 2:
+                road.append(season)
+            if season.cat_id == 1:
+                oval.append(season)
+            if season.cat_id == 4:
+                dirt_road.append(season)
+            if season.cat_id == 3:
+                dirt_oval.append(season)
+
+        embeds = build_embeds(discord, road, 'Road Series')
+        embeds.extend(build_embeds(discord, oval, 'Oval Series'))
+        embeds.extend(build_embeds(discord, dirt_road, 'Dirt Road Series'))
+        embeds.extend(build_embeds(discord, dirt_oval, 'Dirt Oval Series'))
+
+        for embed in embeds:
+            await ctx.send(embed=embed)
+
     async def update_user_in_dict(self, user_id, guild_dict):
         """This updates a user inside the dict without saving to any files"""
         iracing_id = guild_dict[user_id]['iracing_id']

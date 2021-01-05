@@ -162,3 +162,18 @@ def get_series_name(all_series, series_id):
                 series.series_name_short) > 35 else series.series_name_short
 
     return "Unknown Series"
+
+
+def build_embeds(discord, series, name):
+    embeds = [discord.Embed(title=name)]
+    embed_index = 0
+
+    for i, season in enumerate(series):
+        print(str(len(embeds[embed_index])))
+        print(embed_index)
+        if len(embeds[embed_index]) >= 500:
+            embed_index += 1
+            embeds.append(discord.Embed())
+        embeds[embed_index].add_field(name=str(season.series_id), value=season.series_name_short)
+
+    return embeds
