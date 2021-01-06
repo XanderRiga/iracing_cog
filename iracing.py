@@ -295,13 +295,16 @@ class Iracing(commands.Cog):
             if season.cat_id == 3:
                 dirt_oval.append(season)
 
-        embeds = build_embeds(discord, road, 'Road Series')
-        embeds.extend(build_embeds(discord, oval, 'Oval Series'))
-        embeds.extend(build_embeds(discord, dirt_road, 'Dirt Road Series'))
-        embeds.extend(build_embeds(discord, dirt_oval, 'Dirt Oval Series'))
+        html_strings = [
+            build_series_html_string(road, 'Road Series'),
+            build_series_html_string(oval, 'Oval Series'),
+            build_series_html_string(dirt_road, 'Dirt Road Series'),
+            build_series_html_string(dirt_oval, 'Dirt Oval Series')
+        ]
 
-        for embed in embeds:
-            await ctx.send(embed=embed)
+        for string in html_strings:
+            imgkit.from_string(string, f'{ctx.guild.id}_series.jpg')
+            await ctx.send(file=discord.File(f'{ctx.guild.id}_series.jpg'))
 
     @commands.command()
     async def setfavseries(self, ctx, *, ids):

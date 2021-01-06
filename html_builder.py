@@ -251,3 +251,25 @@ def build_race_week_string(race_week, series, title, log):
     css = wrap_in_style_tag(iracing_table_css + header_css)
 
     return css + header_string + "\n" + html_string
+
+
+def build_series_html_string(series, title):
+    table = PrettyTable()
+    table.field_names = ['ID', 'Series']
+
+    for serie in series:
+        try:
+            table.add_row(
+                [
+                    serie.series_id,
+                    serie.series_name_short
+                ]
+            )
+        except:
+            continue
+
+    html_string = table.get_html_string(attributes={"id": "iracing_table"})
+    header_string = build_html_header_string(title)
+    css = wrap_in_style_tag(iracing_table_css + header_css)
+
+    return css + header_string + "\n" + html_string
