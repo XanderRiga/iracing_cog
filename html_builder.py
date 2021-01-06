@@ -235,11 +235,16 @@ def build_race_week_string(race_week, series, title, log):
     for serie in series:
         try:
             track = serie.tracks[race_week]
+            track_name = track.name
+            track_config = track.config
+
+            if track_config:
+                track_name += f' - {track_config}'
             table.add_row(
                 [
                     serie.series_id,
                     serie.series_name_short,
-                    f'{track.name} - {track.config}'
+                    track_name
                 ]
             )
         except:
