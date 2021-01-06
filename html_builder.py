@@ -244,7 +244,6 @@ def build_race_week_string(race_week, series, title, log):
             )
         except:
             log.info(f'failed to print series: {serie}')
-            print(f'failed to print series: {serie}')
             continue
 
     html_string = table.get_html_string(attributes={"id": "iracing_table"})
