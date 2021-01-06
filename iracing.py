@@ -59,6 +59,7 @@ class Iracing(commands.Cog):
         log.info('=============== Updating all user stats: ' + dt_string + ' ======================')
 
         self.all_series = await self.pyracing.current_seasons(series_id=True)
+        self.all_series.sort(key=lambda x: x.series_id)
         log.info('Successfully got all current season data')
 
         guilds = []
