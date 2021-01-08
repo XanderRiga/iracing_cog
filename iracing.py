@@ -328,6 +328,21 @@ class Iracing(commands.Cog):
                            'series IDs from the `!allseries` command')
 
     @commands.command()
+    async def addfavseries(self, ctx, series_id):
+        try:
+            series_id_int = int(series_id)
+            if not ids_valid_series(self.all_series, [series_id_int]):
+                await ctx.send('Series ID must be a number associated to a series in `!allseries`')
+                return
+            current_favorites = get_guild_favorites(ctx.guild.id)
+            current_favorites.append(series_id_int)
+            current_favorites.sort()
+            set_guild_favorites(ctx.guild.id, current_favorites)
+            await ctx.send(f'Successfully added series: {series_id}')
+        except:
+            await ctx.send('Series ID must be a number associated to a series in `!allseries`')
+
+    @commands.command()
     async def currentseries(self, ctx):
         favorites = get_guild_favorites(ctx.guild.id)
         if not favorites:
