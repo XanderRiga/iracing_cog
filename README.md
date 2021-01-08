@@ -37,3 +37,15 @@ If the user has not saved their ID, they must provide an iRacing Client ID.
 This will give an overview of the yearly stats of the player with the given iRacing Client ID.
 If an iRacing Client ID is not provided, then it will use the saved ID for the user who called the command.
 If the user has not saved their ID, they must provide an iRacing Client ID.
+
+### !allseries
+This will give a list of all current active series names and IDs(which are used for the favorite series commands).
+
+### !setfavseries <Series IDs\>
+This will set the favorite series for your server. Server IDs in this case is a list of comma separated
+Series IDs that can be found from the `!allseries` command. Setting favorite series is necessary to
+use the `!currentseries` command.
+
+### !currentseries
+Once favorite series have been set through `!setfavseries` this command prints images
+showing the current tracks for each of the favorite series for this race week and the next race week.
