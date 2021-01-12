@@ -218,3 +218,13 @@ async def get_last_races(pyracing, log, user_id, guild_id, iracing_id):
         log.info('found a races stats list for user: ' + str(iracing_id))
         update_user(user_id, guild_id, None, None, copy.deepcopy(races_stats_list))
         return races_stats_list
+
+
+def six_months_before(date):
+    month = date.month - 6
+    year = date.year
+    if month < 1:
+        month += 12
+        year = date.year - 1
+
+    return datetime(year, month, date.day)
