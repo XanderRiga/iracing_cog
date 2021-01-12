@@ -23,6 +23,7 @@ from .commands.update import Update
 from .commands.recent_races import RecentRaces
 from .commands.last_series import LastSeries
 from .commands.yearly_stats import YearlyStats
+from .commands.career_stats import CareerStats
 
 
 options = webdriver.chrome.options.Options()
@@ -55,6 +56,7 @@ class Iracing(commands.Cog):
         self.recent_races = RecentRaces(self.pyracing, log)
         self.last_series = LastSeries(self.pyracing, log)
         self.yearly_stats = YearlyStats(self.pyracing, log, self.update_user)
+        self.career_stats = CareerStats(self.pyracing, log, self.update_user)
         self.update_all_servers.start()
 
     @tasks.loop(hours=1, reconnect=False)
@@ -94,27 +96,7 @@ class Iracing(commands.Cog):
     async def careerstats(self, ctx, *, iracing_id=None):
         """Shows the career stats for the given iracing id. If no iracing id is provided it will attempt
         to use the stored iracing id for the user who called the command."""
-        async with ctx.typing():
-            user_id = str(ctx.author.id)
-            guild_id = str(ctx.guild.id)
-            if not iracing_id:
-                iracing_id = get_user_iracing_id(user_id, guild_id)
-                if not iracing_id:
-                    await ctx.send('Please send an iRacing ID after the command or link your own with `!saveid <iRacing'
-                                   ' ID>`')
-                    return
-
-            guild_dict = get_guild_dict(guild_id)
-            career_stats = await self.update_user.update_career_stats(user_id, guild_dict, iracing_id)
-
-            if career_stats:
-                career_stats_html = get_career_stats_html(career_stats, iracing_id)
-                filename = f'{iracing_id}_career_stats.jpg'
-                imgkit.from_string(career_stats_html, filename)
-                await ctx.send(file=discord.File(filename))
-                cleanup_file(filename)
-            else:
-                await ctx.send('No career stats found for user: ' + str(iracing_id))
+        await self.career_stats.call(ctx, iracing_id)
 
     @commands.command()
     async def saveid(self, ctx, *, iracing_id):
