@@ -11,14 +11,12 @@ from prettytable import PrettyTable, ALL
 import imgkit
 from .helpers import *
 from .html_builder import *
-from .errors.name_not_found import NameNotFound
 from bokeh.plotting import figure, output_file, save
 from bokeh.io import export_png
 from bokeh.palettes import Category20
 from bokeh.models import Legend
 import itertools
 from selenium import webdriver
-import asyncio
 from .commands.update import Update
 import copy
 
