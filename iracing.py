@@ -84,8 +84,10 @@ class Iracing(commands.Cog):
 
             if races_stats_list:
                 table_html_string = recent_races_table_string(races_stats_list, iracing_id, self.all_series)
-                imgkit.from_string(table_html_string, f'{guild_id}_{iracing_id}_recent_races.jpg')
-                await ctx.send(file=discord.File(f'{guild_id}_{iracing_id}_recent_races.jpg'))
+                filename = f'{guild_id}_{iracing_id}_recent_races.jpg'
+                imgkit.from_string(table_html_string, filename)
+                await ctx.send(file=discord.File(filename))
+                cleanup_file(filename)
             else:
                 await ctx.send('Recent races not found for user: ' + iracing_id)
 
@@ -107,8 +109,10 @@ class Iracing(commands.Cog):
 
             if last_series:
                 table_html_string = get_last_series_html_string(last_series, iracing_id)
-                imgkit.from_string(table_html_string, f'{guild_id}_{iracing_id}_last_series.jpg')
-                await ctx.send(file=discord.File(f'{guild_id}_{iracing_id}_last_series.jpg'))
+                filename = f'{guild_id}_{iracing_id}_last_series.jpg'
+                imgkit.from_string(table_html_string, filename)
+                await ctx.send(file=discord.File(filename))
+                cleanup_file(filename)
             else:
                 await ctx.send('Recent races not found for user: ' + iracing_id)
 
@@ -131,8 +135,10 @@ class Iracing(commands.Cog):
 
             if yearly_stats:
                 yearly_stats_html = get_yearly_stats_html(yearly_stats, iracing_id)
-                imgkit.from_string(yearly_stats_html, f'{iracing_id}_yearly_stats.jpg')
-                await ctx.send(file=discord.File(f'{iracing_id}_yearly_stats.jpg'))
+                filename = f'{iracing_id}_yearly_stats.jpg'
+                imgkit.from_string(yearly_stats_html, filename)
+                await ctx.send(file=discord.File(filename))
+                cleanup_file(filename)
             else:
                 await ctx.send('No yearly stats found for user: ' + str(iracing_id))
 
@@ -155,8 +161,10 @@ class Iracing(commands.Cog):
 
             if career_stats:
                 career_stats_html = get_career_stats_html(career_stats, iracing_id)
-                imgkit.from_string(career_stats_html, f'{iracing_id}_career_stats.jpg')
-                await ctx.send(file=discord.File(f'{iracing_id}_career_stats.jpg'))
+                filename = f'{iracing_id}_career_stats.jpg'
+                imgkit.from_string(career_stats_html, filename)
+                await ctx.send(file=discord.File(filename))
+                cleanup_file(filename)
             else:
                 await ctx.send('No career stats found for user: ' + str(iracing_id))
 
@@ -198,8 +206,10 @@ class Iracing(commands.Cog):
             guild_dict = get_guild_dict(ctx.guild.id)
             leaderboard_data = get_relevant_leaderboard_data(guild_dict, category)
             table_html_string = get_leaderboard_html_string(leaderboard_data, ctx.guild, category, log, is_yearly)
-            imgkit.from_string(table_html_string, f'{ctx.guild.id}_leaderboard.jpg')
-            await ctx.send(file=discord.File(f'{ctx.guild.id}_leaderboard.jpg'))
+            filename = f'{ctx.guild.id}_leaderboard.jpg'
+            imgkit.from_string(table_html_string, filename)
+            await ctx.send(file=discord.File(filename))
+            cleanup_file(filename)
 
     @commands.command()
     async def iratings(self, ctx, category='road'):
@@ -268,8 +278,10 @@ class Iracing(commands.Cog):
         ]
 
         for string in html_strings:
-            imgkit.from_string(string, f'{ctx.guild.id}_series.jpg')
-            await ctx.send(file=discord.File(f'{ctx.guild.id}_series.jpg'))
+            filename = f'{ctx.guild.id}_series.jpg'
+            imgkit.from_string(string, filename)
+            await ctx.send(file=discord.File(filename))
+            cleanup_file(filename)
 
     @commands.command()
     async def setfavseries(self, ctx, *, ids):
@@ -338,10 +350,14 @@ class Iracing(commands.Cog):
         this_week_string = build_race_week_string(race_week, series, 'This Week', log)
         next_week_string = build_race_week_string(race_week+1, series, 'Next Week', log)
 
-        imgkit.from_string(this_week_string, f'{ctx.guild.id}_this_week.jpg')
-        imgkit.from_string(next_week_string, f'{ctx.guild.id}_next_week.jpg')
-        await ctx.send(file=discord.File(f'{ctx.guild.id}_this_week.jpg'))
-        await ctx.send(file=discord.File(f'{ctx.guild.id}_next_week.jpg'))
+        this_week_filename = f'{ctx.guild.id}_this_week.jpg'
+        next_week_filename = f'{ctx.guild.id}_next_week.jpg'
+        imgkit.from_string(this_week_string, this_week_filename)
+        imgkit.from_string(next_week_string, next_week_filename)
+        await ctx.send(file=discord.File(this_week_filename))
+        await ctx.send(file=discord.File(next_week_filename))
+        cleanup_file(this_week_filename)
+        cleanup_file(next_week_filename)
 
     async def get_last_races(self, user_id, guild_id, iracing_id):
         races_stats_list = await self.pyracing.last_races_stats(iracing_id)

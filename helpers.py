@@ -2,6 +2,7 @@ import urllib.parse
 from datetime import datetime
 from pyracing.constants import Category
 from .storage import *
+import os
 
 
 iracing_table_css = """#iracing_table {
@@ -203,3 +204,8 @@ def serie_from_id(id, all_series):
             return serie
 
     return None
+
+
+def cleanup_file(file_name):
+    if os.path.exists(file_name):
+        os.remove(file_name)
