@@ -1,23 +1,10 @@
 from redbot.core import commands
 import dotenv
 from pyracing import client as pyracing
-from .storage import *
-import discord
 from discord.ext import tasks
-from datetime import datetime
 import logging
 from logdna import LogDNAHandler
-from prettytable import PrettyTable, ALL
-import imgkit
-from .helpers import *
 from .html_builder import *
-from bokeh.plotting import figure, output_file, save
-from bokeh.io import export_png
-from bokeh.palettes import Category20
-from bokeh.models import Legend
-import itertools
-from selenium import webdriver
-import copy
 from .commands.update_user import UpdateUser
 from .commands.update import Update
 from .commands.recent_races import RecentRaces
