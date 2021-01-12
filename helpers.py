@@ -3,6 +3,7 @@ from datetime import datetime
 from pyracing.constants import Category
 from .storage import *
 import os
+import copy
 
 
 iracing_table_css = """#iracing_table {
@@ -209,3 +210,11 @@ def serie_from_id(id, all_series):
 def cleanup_file(file_name):
     if os.path.exists(file_name):
         os.remove(file_name)
+
+
+async def get_last_races(pyracing, log, user_id, guild_id, iracing_id):
+    races_stats_list = await pyracing.last_races_stats(iracing_id)
+    if races_stats_list:
+        log.info('found a races stats list for user: ' + str(iracing_id))
+        update_user(user_id, guild_id, None, None, copy.deepcopy(races_stats_list))
+        return races_stats_list

@@ -19,6 +19,7 @@ import itertools
 from selenium import webdriver
 from .commands.update import Update
 import copy
+from .commands.recent_races import RecentRaces
 
 
 options = webdriver.chrome.options.Options()
@@ -47,6 +48,7 @@ class Iracing(commands.Cog):
         )
         self.all_series = []
         self.updater = Update(self.pyracing, log)
+        self.recent_races = RecentRaces(self.pyracing, log)
         self.update_all_servers.start()
 
     @tasks.loop(hours=1, reconnect=False)
@@ -68,26 +70,7 @@ class Iracing(commands.Cog):
     async def recentraces(self, ctx, *, iracing_id=None):
         """Shows the recent race data for the given iracing id. If no iracing id is provided it will attempt
         to use the stored iracing id for the user who called the command."""
-        async with ctx.typing():
-            user_id = str(ctx.author.id)
-            guild_id = str(ctx.guild.id)
-            if not iracing_id:
-                iracing_id = get_user_iracing_id(user_id, guild_id)
-                if not iracing_id:
-                    await ctx.send('Please send an iRacing ID with the command or link your own with `!saveid <iRacing '
-                                   'ID>`')
-                    return
-
-            races_stats_list = await self.get_last_races(user_id, guild_id, iracing_id)
-
-            if races_stats_list:
-                table_html_string = recent_races_table_string(races_stats_list, iracing_id, self.all_series)
-                filename = f'{guild_id}_{iracing_id}_recent_races.jpg'
-                imgkit.from_string(table_html_string, filename)
-                await ctx.send(file=discord.File(filename))
-                cleanup_file(filename)
-            else:
-                await ctx.send('Recent races not found for user: ' + iracing_id)
+        await self.recent_races.call(ctx, iracing_id, self.all_series)
 
     @commands.command()
     async def lastseries(self, ctx, *, iracing_id=None):
@@ -356,10 +339,3 @@ class Iracing(commands.Cog):
         await ctx.send(file=discord.File(next_week_filename))
         cleanup_file(this_week_filename)
         cleanup_file(next_week_filename)
-
-    async def get_last_races(self, user_id, guild_id, iracing_id):
-        races_stats_list = await self.pyracing.last_races_stats(iracing_id)
-        if races_stats_list:
-            log.info('found a races stats list for user: ' + str(iracing_id))
-            update_user(user_id, guild_id, None, None, copy.deepcopy(races_stats_list))
-            return races_stats_list
