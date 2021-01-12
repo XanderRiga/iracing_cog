@@ -1,8 +1,8 @@
-from redbot.core import commands
+import logging
 import dotenv
+from redbot.core import commands
 from pyracing import client as pyracing
 from discord.ext import tasks
-import logging
 from logdna import LogDNAHandler
 from .html_builder import *
 from .commands.update_user import UpdateUser
@@ -19,6 +19,7 @@ from .commands.current_series import CurrentSeries
 from .commands.set_fav_series import SetFavSeries
 from.commands.add_fav_series import AddFavSeries
 from .commands.remove_fav_series import RemoveFavSeries
+
 
 
 dotenv.load_dotenv()
