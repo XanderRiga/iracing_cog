@@ -27,6 +27,7 @@ from .commands.career_stats import CareerStats
 from .commands.save_id import SaveId
 from .commands.leaderboard import Leaderboard
 from .commands.iratings import Iratings
+from .commands.all_series import AllSeries
 
 
 dotenv.load_dotenv()
@@ -57,6 +58,7 @@ class Iracing(commands.Cog):
         self.save_id = SaveId(log)
         self.leaderboard = Leaderboard(log)
         self.iratings = Iratings(log)
+        self.all_series_command = AllSeries(log)
         self.update_all_servers.start()
 
     @tasks.loop(hours=1, reconnect=False)
@@ -118,29 +120,7 @@ class Iracing(commands.Cog):
 
     @commands.command()
     async def allseries(self, ctx):
-        road, oval, dirt_road, dirt_oval = [], [], [], []
-        for season in self.all_series:
-            if season.cat_id == 2:
-                road.append(season)
-            if season.cat_id == 1:
-                oval.append(season)
-            if season.cat_id == 4:
-                dirt_road.append(season)
-            if season.cat_id == 3:
-                dirt_oval.append(season)
-
-        html_strings = [
-            build_series_html_string(road, 'Road Series'),
-            build_series_html_string(oval, 'Oval Series'),
-            build_series_html_string(dirt_road, 'Dirt Road Series'),
-            build_series_html_string(dirt_oval, 'Dirt Oval Series')
-        ]
-
-        for string in html_strings:
-            filename = f'{ctx.guild.id}_series.jpg'
-            imgkit.from_string(string, filename)
-            await ctx.send(file=discord.File(filename))
-            cleanup_file(filename)
+        await self.all_series_command.call(ctx, self.all_series)
 
     @commands.command()
     async def setfavseries(self, ctx, *, ids):
