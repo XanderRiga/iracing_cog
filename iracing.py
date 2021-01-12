@@ -29,6 +29,7 @@ from .commands.leaderboard import Leaderboard
 from .commands.iratings import Iratings
 from .commands.all_series import AllSeries
 from .commands.current_series import CurrentSeries
+from .commands.set_fav_series import SetFavSeries
 
 
 dotenv.load_dotenv()
@@ -61,6 +62,7 @@ class Iracing(commands.Cog):
         self.iratings = Iratings(log)
         self.all_series_command = AllSeries(log)
         self.current_series = CurrentSeries(log)
+        self.set_fav_series = SetFavSeries(log)
         self.update_all_servers.start()
 
     @tasks.loop(hours=1, reconnect=False)
@@ -129,20 +131,7 @@ class Iracing(commands.Cog):
         """Use command `!allseries` to get a list of all series and ids.
             Then use this command `!setfavseries` with a list of comma
             separated ids to set your favorite series"""
-        id_list = ids.replace(' ', '').split(',')
-        id_list = [x for x in id_list if x]
-        try:
-            parsed_ids = list(map(int, id_list))
-            if not ids_valid_series(self.all_series, parsed_ids):
-                await ctx.send('Please enter a comma separated list of numbers which correspond to'
-                               'series IDs from the `!allseries` command')
-                return
-
-            set_guild_favorites(ctx.guild.id, parsed_ids)
-            await ctx.send(f'Successfully saved favorite series: {parsed_ids}')
-        except ValueError:
-            await ctx.send('Please enter a comma separated list of numbers which correspond to'
-                           'series IDs from the `!allseries` command')
+        await self.set_fav_series.call(ctx, ids, self.all_series)
 
     @commands.command()
     async def currentseries(self, ctx):
