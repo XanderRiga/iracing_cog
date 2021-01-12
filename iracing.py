@@ -20,6 +20,7 @@ from selenium import webdriver
 from .commands.update import Update
 import copy
 from .commands.recent_races import RecentRaces
+from .commands.last_series import LastSeries
 
 
 options = webdriver.chrome.options.Options()
@@ -49,6 +50,7 @@ class Iracing(commands.Cog):
         self.all_series = []
         self.updater = Update(self.pyracing, log)
         self.recent_races = RecentRaces(self.pyracing, log)
+        self.last_series = LastSeries(self.pyracing, log)
         self.update_all_servers.start()
 
     @tasks.loop(hours=1, reconnect=False)
@@ -76,26 +78,7 @@ class Iracing(commands.Cog):
     async def lastseries(self, ctx, *, iracing_id=None):
         """Shows the recent series data for the given iracing id. If no iracing id is provided it will attempt
         to use the stored iracing id for the user who called the command."""
-        async with ctx.typing():
-            user_id = str(ctx.author.id)
-            guild_id = str(ctx.guild.id)
-            if not iracing_id:
-                iracing_id = get_user_iracing_id(user_id, guild_id)
-                if not iracing_id:
-                    await ctx.send('Please send an iRacing ID with the command or link your own with `!saveid <iRacing '
-                                   'ID>`')
-                    return
-
-            last_series = await self.pyracing.last_series(iracing_id)
-
-            if last_series:
-                table_html_string = get_last_series_html_string(last_series, iracing_id)
-                filename = f'{guild_id}_{iracing_id}_last_series.jpg'
-                imgkit.from_string(table_html_string, filename)
-                await ctx.send(file=discord.File(filename))
-                cleanup_file(filename)
-            else:
-                await ctx.send('Recent races not found for user: ' + iracing_id)
+        await self.last_series.call(ctx, iracing_id)
 
     @commands.command()
     async def yearlystats(self, ctx, *, iracing_id=None):
