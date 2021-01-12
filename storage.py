@@ -111,7 +111,7 @@ def get_user_ids(guild_id):
 
     ids = []
     for key in guild_json:
-        if key != 'last_update':
+        if key not in ['last_update', 'favorites']:
             ids.append(key)
 
     return ids

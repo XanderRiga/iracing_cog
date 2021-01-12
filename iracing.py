@@ -1,12 +1,9 @@
 from redbot.core import commands
 import dotenv
 from pyracing import client as pyracing
-from pyracing.constants import Category
 from .storage import *
-import copy
 import discord
 from discord.ext import tasks
-from .storage import folder
 from datetime import datetime
 import logging
 from logdna import LogDNAHandler
@@ -22,6 +19,8 @@ from bokeh.models import Legend
 import itertools
 from selenium import webdriver
 import asyncio
+from .commands.update import Update
+import copy
 
 
 options = webdriver.chrome.options.Options()
@@ -49,58 +48,23 @@ class Iracing(commands.Cog):
             os.getenv("IRACING_PASSWORD")
         )
         self.all_series = []
+        self.updater = Update(self.pyracing, log)
         self.update_all_servers.start()
 
     @tasks.loop(hours=1, reconnect=False)
     async def update_all_servers(self):
         """Update all users career stats and iratings for building a current leaderboard"""
-        start_time = datetime.now()
-        dt_string = start_time.strftime("%d/%m/%Y %H:%M:%S")
-        log.info('=============== Updating all user stats: ' + dt_string + ' ======================')
-
         self.all_series = await self.pyracing.current_seasons(series_id=True)
         self.all_series.sort(key=lambda x: x.series_id)
         log.info('Successfully got all current season data')
 
-        guilds = []
-        for file in os.scandir(folder):
-            if file.path.endswith('.json'):
-                guilds.append(os.path.basename(file.path)[:-5])
-
-        for guild_id in guilds:
-            guild_dict = get_guild_dict(guild_id)
-            for user_id in guild_dict:
-                if 'iracing_id' in guild_dict[user_id]:
-                    guild_dict = await self.update_user_in_dict(user_id, guild_dict)
-
-            set_guild_data(guild_id, guild_dict)
-
-        log.info('=============== Finished update that started at: ' + dt_string + ' ======================')
-        finish_time = datetime.now()
-        log.info('=============== Auto update took ' + str(
-            (finish_time - start_time).total_seconds()) + ' seconds =================')
+        await self.updater.update_all_servers()
 
     @commands.command()
     async def update(self, ctx):
         """Update all users career and yearly stats and iratings for building a current leaderboard.
         This is run every hour anyways, so it isn't necessary most of the time to run manually"""
-        start_time = datetime.now()
-        dt_string = start_time.strftime("%d/%m/%Y %H:%M:%S")
-        log.info('=============== Manual update started at: ' + dt_string + ' ======================')
-
-        await ctx.send("Updating all users in this server, this may take a few minutes")
-        guild_id = str(ctx.guild.id)
-        guild_dict = get_guild_dict(guild_id)
-        for user_id in guild_dict:
-            if 'iracing_id' in guild_dict[user_id]:
-                guild_dict = await self.update_user_in_dict(user_id, guild_dict)
-
-        set_guild_data(guild_id, guild_dict)
-        log.info('=============== Manual update finished that started at: ' + dt_string + ' ======================')
-        finish_time = datetime.now()
-        log.info('=============== Manual update took ' + str(
-            (finish_time - start_time).total_seconds()) + ' seconds ===============')
-        await ctx.send("Successfully updated this server")
+        await self.updater.update(ctx)
 
     @commands.command()
     async def recentraces(self, ctx, *, iracing_id=None):
@@ -116,7 +80,7 @@ class Iracing(commands.Cog):
                                    'ID>`')
                     return
 
-            races_stats_list = await self.update_last_races(user_id, guild_id, iracing_id)
+            races_stats_list = await self.get_last_races(user_id, guild_id, iracing_id)
 
             if races_stats_list:
                 table_html_string = recent_races_table_string(races_stats_list, iracing_id, self.all_series)
@@ -163,7 +127,7 @@ class Iracing(commands.Cog):
                     return
 
             guild_dict = get_guild_dict(guild_id)
-            yearly_stats = await self.update_yearly_stats(user_id, guild_dict, iracing_id)
+            yearly_stats = await self.updater.update_user.update_yearly_stats(user_id, guild_dict, iracing_id)
 
             if yearly_stats:
                 yearly_stats_html = get_yearly_stats_html(yearly_stats, iracing_id)
@@ -187,7 +151,7 @@ class Iracing(commands.Cog):
                     return
 
             guild_dict = get_guild_dict(guild_id)
-            career_stats = await self.update_career_stats(user_id, guild_dict, iracing_id)
+            career_stats = await self.updater.update_user.update_career_stats(user_id, guild_dict, iracing_id)
 
             if career_stats:
                 career_stats_html = get_career_stats_html(career_stats, iracing_id)
@@ -379,86 +343,7 @@ class Iracing(commands.Cog):
         await ctx.send(file=discord.File(f'{ctx.guild.id}_this_week.jpg'))
         await ctx.send(file=discord.File(f'{ctx.guild.id}_next_week.jpg'))
 
-    async def update_user_in_dict(self, user_id, guild_dict):
-        """This updates a user inside the dict without saving to any files"""
-        iracing_id = guild_dict[user_id]['iracing_id']
-
-        # We want to break this into a few sections because if the bot
-        # receives a request from a user we don't want this to block that from happening
-        # Yea, this is a hacky workaround, but I need a way to prioritize the inputs from users.
-        # When I store all the user data so I don't need to make requests on user input this can all be one gather.
-        await asyncio.gather(
-            self.update_driver_name(user_id, guild_dict, iracing_id),
-            self.update_career_stats(user_id, guild_dict, iracing_id),
-            self.update_yearly_stats(user_id, guild_dict, iracing_id),
-            return_exceptions=True
-        )
-        await asyncio.gather(
-            self.update_iratings(user_id, guild_dict, iracing_id, Category.oval),
-            self.update_iratings(user_id, guild_dict, iracing_id, Category.road),
-            self.update_iratings(user_id, guild_dict, iracing_id, Category.dirt_road),
-            self.update_iratings(user_id, guild_dict, iracing_id, Category.dirt_oval),
-            return_exceptions=True
-        )
-        await asyncio.gather(
-            self.update_license_class(user_id, guild_dict, iracing_id, Category.oval),
-            self.update_license_class(user_id, guild_dict, iracing_id, Category.road),
-            self.update_license_class(user_id, guild_dict, iracing_id, Category.dirt_road),
-            self.update_license_class(user_id, guild_dict, iracing_id, Category.dirt_oval),
-            return_exceptions=True
-        )
-
-        return guild_dict
-
-    async def update_driver_name(self, user_id, guild_dict, cust_id):
-        try:
-            response = await self.pyracing.driver_status(cust_id=cust_id)
-            name = parse_encoded_string(response.name)
-            guild_dict[user_id]['name'] = name
-            return name
-        except:
-            log.warning(f'Name not found for {cust_id}')
-            raise NameNotFound
-
-    async def update_career_stats(self, user_id, guild_dict, iracing_id):
-        career_stats_list = await self.pyracing.career_stats(iracing_id)
-        if career_stats_list:
-            guild_dict[user_id]['career_stats'] = list(map(lambda x: x.__dict__, career_stats_list))
-            return career_stats_list
-        else:
-            return []
-
-    async def update_yearly_stats(self, user_id, guild_dict, iracing_id):
-        yearly_stats_list = await self.pyracing.yearly_stats(iracing_id)
-        if yearly_stats_list:
-            guild_dict[user_id]['yearly_stats'] = list(map(lambda x: x.__dict__, yearly_stats_list))
-            return yearly_stats_list
-        else:
-            return []
-
-    async def update_iratings(self, user_id, guild_dict, iracing_id, category):
-        chart_data = await self.pyracing.irating(iracing_id, category.value)
-        if not chart_data.current():
-            return []
-
-        json_iratings = []
-        for irating in chart_data.list:
-            json_iratings.append([irating.datetime.strftime(datetime_format), irating.value])
-
-        guild_dict[user_id][f'{category.name}_irating'] = json_iratings
-
-        return json_iratings
-
-    async def update_license_class(self, user_id, guild_dict, iracing_id, category):
-        chart_data = await self.pyracing.license_class(iracing_id, category.value)
-        if not chart_data.current():
-            return 'N/A'
-
-        license_class = str(chart_data.current().class_letter()) + ' ' + str(chart_data.current().license_level)
-        guild_dict[user_id][f'{category.name}_license_class'] = license_class
-        return license_class
-
-    async def update_last_races(self, user_id, guild_id, iracing_id):
+    async def get_last_races(self, user_id, guild_id, iracing_id):
         races_stats_list = await self.pyracing.last_races_stats(iracing_id)
         if races_stats_list:
             log.info('found a races stats list for user: ' + str(iracing_id))
