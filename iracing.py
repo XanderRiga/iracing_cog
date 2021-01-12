@@ -30,6 +30,7 @@ from .commands.iratings import Iratings
 from .commands.all_series import AllSeries
 from .commands.current_series import CurrentSeries
 from .commands.set_fav_series import SetFavSeries
+from.commands.add_fav_series import AddFavSeries
 
 
 dotenv.load_dotenv()
@@ -63,6 +64,7 @@ class Iracing(commands.Cog):
         self.all_series_command = AllSeries(log)
         self.current_series = CurrentSeries(log)
         self.set_fav_series = SetFavSeries(log)
+        self.add_fav_series = AddFavSeries(log)
         self.update_all_servers.start()
 
     @tasks.loop(hours=1, reconnect=False)
@@ -139,18 +141,7 @@ class Iracing(commands.Cog):
 
     @commands.command()
     async def addfavseries(self, ctx, series_id):
-        try:
-            series_id_int = int(series_id)
-            if not ids_valid_series(self.all_series, [series_id_int]):
-                await ctx.send('Series ID must be a number associated to a series in `!allseries`')
-                return
-            current_favorites = get_guild_favorites(ctx.guild.id)
-            current_favorites.append(series_id_int)
-            current_favorites.sort()
-            set_guild_favorites(ctx.guild.id, current_favorites)
-            await ctx.send(f'Successfully added series: {series_id}')
-        except:
-            await ctx.send('Series ID must be a number associated to a series in `!allseries`')
+        await self.add_fav_series.call(ctx, series_id, self.all_series)
 
     @commands.command()
     async def removefavseries(self, ctx, series_id):
