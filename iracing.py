@@ -25,6 +25,7 @@ from .commands.last_series import LastSeries
 from .commands.yearly_stats import YearlyStats
 from .commands.career_stats import CareerStats
 from .commands.save_id import SaveId
+from .commands.leaderboard import Leaderboard
 
 
 options = webdriver.chrome.options.Options()
@@ -59,6 +60,7 @@ class Iracing(commands.Cog):
         self.yearly_stats = YearlyStats(self.pyracing, log, self.update_user)
         self.career_stats = CareerStats(self.pyracing, log, self.update_user)
         self.save_id = SaveId(log)
+        self.leaderboard = Leaderboard(log)
         self.update_all_servers.start()
 
     @tasks.loop(hours=1, reconnect=False)
@@ -112,25 +114,7 @@ class Iracing(commands.Cog):
         If the data is not up to date, try `!update` first.
         The categories are `road`, `oval`, `dirtroad`, and `dirtoval` and
         the types are `career` and `yearly`. Default is `road` `career`"""
-        delete_missing_users(ctx.guild)
-        async with ctx.typing():
-            if type not in ['career', 'yearly']:
-                await ctx.send('Please try again with one of these types: `career`, `yearly`')
-                return
-
-            if category not in ['road', 'oval', 'dirtroad', 'dirtoval']:
-                await ctx.send('Please try again with one of these categories: `road`, `oval`, `dirtroad`, `dirtoval`')
-                return
-
-            is_yearly = (type != 'career')
-
-            guild_dict = get_guild_dict(ctx.guild.id)
-            leaderboard_data = get_relevant_leaderboard_data(guild_dict, category)
-            table_html_string = get_leaderboard_html_string(leaderboard_data, ctx.guild, category, log, is_yearly)
-            filename = f'{ctx.guild.id}_leaderboard.jpg'
-            imgkit.from_string(table_html_string, filename)
-            await ctx.send(file=discord.File(filename))
-            cleanup_file(filename)
+        await self.leaderboard.call(ctx, category, type)
 
     @commands.command()
     async def iratings(self, ctx, category='road'):
