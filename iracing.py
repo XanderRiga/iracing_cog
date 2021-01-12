@@ -24,6 +24,7 @@ from .commands.recent_races import RecentRaces
 from .commands.last_series import LastSeries
 from .commands.yearly_stats import YearlyStats
 from .commands.career_stats import CareerStats
+from .commands.save_id import SaveId
 
 
 options = webdriver.chrome.options.Options()
@@ -57,6 +58,7 @@ class Iracing(commands.Cog):
         self.last_series = LastSeries(self.pyracing, log)
         self.yearly_stats = YearlyStats(self.pyracing, log, self.update_user)
         self.career_stats = CareerStats(self.pyracing, log, self.update_user)
+        self.save_id = SaveId(log)
         self.update_all_servers.start()
 
     @tasks.loop(hours=1, reconnect=False)
@@ -102,18 +104,7 @@ class Iracing(commands.Cog):
     async def saveid(self, ctx, *, iracing_id):
         """Save your iRacing ID to be placed on the leaderboard.
         Your ID can be found by the top right of your account page under "Customer ID"."""
-
-        if not iracing_id.isdigit():
-            await ctx.send('Oops, this ID does not seem to be valid. '
-                           + 'Make sure you only write the numbers and not any symbols with the ID.'
-                           + 'Your ID can be found by the top right of your account page under "Customer ID".')
-            return
-
-        user_id = str(ctx.author.id)
-        guild_id = str(ctx.guild.id)
-
-        save_iracing_id(user_id, guild_id, iracing_id)
-        await ctx.send('iRacing ID successfully saved. Use `!update` to see this user on the leaderboard.')
+        await self.save_id.call(ctx, iracing_id)
 
     @commands.command()
     async def leaderboard(self, ctx, category='road', type='career'):
