@@ -17,10 +17,8 @@ from .commands.iratings import Iratings
 from .commands.all_series import AllSeries
 from .commands.current_series import CurrentSeries
 from .commands.set_fav_series import SetFavSeries
-from.commands.add_fav_series import AddFavSeries
+from .commands.add_fav_series import AddFavSeries
 from .commands.remove_fav_series import RemoveFavSeries
-
-
 
 dotenv.load_dotenv()
 
