@@ -1,11 +1,10 @@
 from datetime import datetime
-from .update_user import UpdateUser
 from ..storage import *
 
 
 class Update:
-    def __init__(self, pyracing, log):
-        self.update_user = UpdateUser(pyracing, log)
+    def __init__(self, pyracing, log, update_user):
+        self.update_user = update_user
         self.pyracing = pyracing
         self.log = log
 

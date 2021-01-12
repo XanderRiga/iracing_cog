@@ -17,10 +17,12 @@ from bokeh.palettes import Category20
 from bokeh.models import Legend
 import itertools
 from selenium import webdriver
-from .commands.update import Update
 import copy
+from .commands.update_user import UpdateUser
+from .commands.update import Update
 from .commands.recent_races import RecentRaces
 from .commands.last_series import LastSeries
+from .commands.yearly_stats import YearlyStats
 
 
 options = webdriver.chrome.options.Options()
@@ -48,9 +50,11 @@ class Iracing(commands.Cog):
             os.getenv("IRACING_PASSWORD")
         )
         self.all_series = []
-        self.updater = Update(self.pyracing, log)
+        self.update_user = UpdateUser(self.pyracing, log)
+        self.updater = Update(self.pyracing, log, self.update_user)
         self.recent_races = RecentRaces(self.pyracing, log)
         self.last_series = LastSeries(self.pyracing, log)
+        self.yearly_stats = YearlyStats(self.pyracing, log, self.update_user)
         self.update_all_servers.start()
 
     @tasks.loop(hours=1, reconnect=False)
@@ -84,27 +88,7 @@ class Iracing(commands.Cog):
     async def yearlystats(self, ctx, *, iracing_id=None):
         """Shows the yearly stats for the given iracing id. If no iracing id is provided it will attempt
         to use the stored iracing id for the user who called the command."""
-        async with ctx.typing():
-            user_id = str(ctx.author.id)
-            guild_id = str(ctx.guild.id)
-            if not iracing_id:
-                iracing_id = get_user_iracing_id(user_id, guild_id)
-                if not iracing_id:
-                    await ctx.send('Please send an iRacing ID after the command or link your own with `!saveid <iRacing '
-                                   'ID>`')
-                    return
-
-            guild_dict = get_guild_dict(guild_id)
-            yearly_stats = await self.updater.update_user.update_yearly_stats(user_id, guild_dict, iracing_id)
-
-            if yearly_stats:
-                yearly_stats_html = get_yearly_stats_html(yearly_stats, iracing_id)
-                filename = f'{iracing_id}_yearly_stats.jpg'
-                imgkit.from_string(yearly_stats_html, filename)
-                await ctx.send(file=discord.File(filename))
-                cleanup_file(filename)
-            else:
-                await ctx.send('No yearly stats found for user: ' + str(iracing_id))
+        await self.yearly_stats.call(ctx, iracing_id)
 
     @commands.command()
     async def careerstats(self, ctx, *, iracing_id=None):
@@ -121,7 +105,7 @@ class Iracing(commands.Cog):
                     return
 
             guild_dict = get_guild_dict(guild_id)
-            career_stats = await self.updater.update_user.update_career_stats(user_id, guild_dict, iracing_id)
+            career_stats = await self.update_user.update_career_stats(user_id, guild_dict, iracing_id)
 
             if career_stats:
                 career_stats_html = get_career_stats_html(career_stats, iracing_id)
