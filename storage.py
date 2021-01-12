@@ -126,6 +126,14 @@ def get_user_iracing_id(user_id, guild_id):
     return user_data['iracing_id']
 
 
+def get_user_iratings(user_id, guild_id, category):
+    try:
+        user_data = get_user_dict(user_id, guild_id)
+        return user_data[f'{category}_irating']
+    except:
+        return []
+
+
 def get_last_update_datetime(guild_id):
     guild_dict = get_guild_dict(guild_id)
     if not guild_dict.get('last_update'):

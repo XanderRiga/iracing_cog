@@ -228,3 +228,12 @@ def six_months_before(date):
         year = date.year - 1
 
     return datetime(year, month, date.day)
+
+
+def peak_irating_value(iratings):
+    max = iratings[0][1]
+    for irating in iratings:
+        if irating[1] > max:
+            max = irating[1]
+
+    return max

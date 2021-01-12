@@ -42,7 +42,7 @@ def get_leaderboard_html_string(user_data_list, guild, category, log, yearly=Fal
 
     table = PrettyTable()
     table.field_names = [
-        '#', 'Discord Name', 'iRacing Name', 'Starts', 'iRating', 'License', 'Wins', 'Top 5s',
+        '#', 'Discord Name', 'iRacing Name', 'Starts', 'Current iRating', 'Peak iRating', 'License', 'Wins', 'Top 5s',
         'Laps Led', 'Win %', 'Top 5 %', 'Laps Led %', 'Avg Incidents'
     ]
 
@@ -61,14 +61,19 @@ def get_leaderboard_html_string(user_data_list, guild, category, log, yearly=Fal
                 stats_list = item[-1]['career_stats']
 
             irating = 0
+            peak_irating = 1350
             if category == 'road':
                 irating = item[-1]['road_irating'][-1][1]
+                peak_irating = peak_irating_value(item[-1]['road_irating'])
             elif category == 'oval':
                 irating = item[-1]['oval_irating'][-1][1]
+                peak_irating = peak_irating_value(item[-1]['oval_irating'])
             elif category == 'dirtroad':
                 irating = item[-1]['dirt_road_irating'][-1][1]
+                peak_irating = peak_irating_value(item[-1]['dirt_road_irating'])
             elif category == 'dirtoval':
                 irating = item[-1]['dirt_oval_irating'][-1][1]
+                peak_irating = peak_irating_value(item[-1]['dirt_oval_irating'])
 
             license_class = 'N/A'
             if category == 'road':
@@ -107,6 +112,7 @@ def get_leaderboard_html_string(user_data_list, guild, category, log, yearly=Fal
                         iracing_name,
                         str(career_stats['starts']),
                         str(irating),
+                        str(peak_irating),
                         str(license_class),
                         str(career_stats['wins']),
                         str(career_stats['top_5s']),
