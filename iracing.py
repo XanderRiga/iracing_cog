@@ -66,9 +66,14 @@ class Iracing(commands.Cog):
 
     @commands.command()
     async def update(self, ctx):
+        """Update the career, yearly stats, and iratings for the user who called the command in the given server"""
+        await self.updater.update_member(ctx)
+
+    @commands.command()
+    async def updateserver(self, ctx):
         """Update all users career and yearly stats and iratings for building a current leaderboard.
         This is run every hour anyways, so it isn't necessary most of the time to run manually"""
-        await self.updater.update(ctx)
+        await self.updater.update_server(ctx)
 
     @commands.command()
     async def recentraces(self, ctx, *, iracing_id=None):
