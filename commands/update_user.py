@@ -11,6 +11,7 @@ class UpdateUser:
 
     async def update_user_in_dict(self, user_id, guild_dict):
         """This updates a user inside the dict without saving to any files"""
+        self.log.info(f'Updating user: {user_id}')
         iracing_id = guild_dict[user_id]['iracing_id']
 
         # We want to break this into a few sections because if the bot
@@ -31,6 +32,7 @@ class UpdateUser:
         await self.update_license_class(user_id, guild_dict, iracing_id, Category.dirt_road)
         await self.update_license_class(user_id, guild_dict, iracing_id, Category.dirt_oval)
 
+        self.log.info(f'Finished updating user: {user_id}')
         return guild_dict
 
     async def update_driver_name(self, user_id, guild_dict, cust_id):
