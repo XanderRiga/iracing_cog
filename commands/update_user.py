@@ -17,19 +17,19 @@ class UpdateUser:
         # receives a request from a user we don't want this to block that from happening
         # Yea, this is a hacky workaround, but I need a way to prioritize the inputs from users.
         # When I store all the user data so I don't need to make requests on user input this can all be one gather.
-        await self.update_driver_name(user_id, guild_dict, iracing_id),
-        await self.update_career_stats(user_id, guild_dict, iracing_id),
-        await self.update_yearly_stats(user_id, guild_dict, iracing_id),
+        await self.update_driver_name(user_id, guild_dict, iracing_id)
+        await self.update_career_stats(user_id, guild_dict, iracing_id)
+        await self.update_yearly_stats(user_id, guild_dict, iracing_id)
 
-        await self.update_iratings(user_id, guild_dict, iracing_id, Category.oval),
-        await self.update_iratings(user_id, guild_dict, iracing_id, Category.road),
-        await self.update_iratings(user_id, guild_dict, iracing_id, Category.dirt_road),
-        await self.update_iratings(user_id, guild_dict, iracing_id, Category.dirt_oval),
+        await self.update_iratings(user_id, guild_dict, iracing_id, Category.oval)
+        await self.update_iratings(user_id, guild_dict, iracing_id, Category.road)
+        await self.update_iratings(user_id, guild_dict, iracing_id, Category.dirt_road)
+        await self.update_iratings(user_id, guild_dict, iracing_id, Category.dirt_oval)
 
-        await self.update_license_class(user_id, guild_dict, iracing_id, Category.oval),
-        await self.update_license_class(user_id, guild_dict, iracing_id, Category.road),
-        await self.update_license_class(user_id, guild_dict, iracing_id, Category.dirt_road),
-        await self.update_license_class(user_id, guild_dict, iracing_id, Category.dirt_oval),
+        await self.update_license_class(user_id, guild_dict, iracing_id, Category.oval)
+        await self.update_license_class(user_id, guild_dict, iracing_id, Category.road)
+        await self.update_license_class(user_id, guild_dict, iracing_id, Category.dirt_road)
+        await self.update_license_class(user_id, guild_dict, iracing_id, Category.dirt_oval)
 
         return guild_dict
 
