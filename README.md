@@ -46,7 +46,7 @@ This will update the saved information for just the user who called the command.
 This will update the saved information for all users in the discord for use of the `!leaderboard` command.
 All discords are automatically updated every hour, so often this is unnecessary to run.
 
-**NOTE:** The iRacing API does not update, so even if you finished a race recently and expect to see changes, 
+**NOTE:** The iRacing API does not update frequently, so even if you finished a race recently and expect to see changes, 
 it can take up to a day for those to come through on the bot.
 
 ### !leaderboard <category\> <type\>
