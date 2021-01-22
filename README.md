@@ -17,9 +17,14 @@ This bot has 2 primary functions, it can show you the current weekly combos of w
 Want the bot in your discord? Click this link to add it:
 https://discord.com/oauth2/authorize?client_id=706222703664693308&scope=bot
 
-
 #Support
 You can reach out to me on Discord as `Xander#1234` for help if something seems to be wrong
+
+#Examples
+![Leaderboard](fixtures/leaderboard_censored.jpg)
+![iRating Graph](fixtures/irating_graph_censored.jpg)
+![Recent Races](fixtures/recent_races.jpg)
+![Usage Example](fixtures/screenshot%20in%20chat_censored.jpg)
 
 ## Commands
 ## Series Combos Related
