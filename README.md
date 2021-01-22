@@ -5,7 +5,7 @@ This uses [pyracing](https://github.com/Esterni/pyracing) under the hood, which 
 
 # Some Important Notes
 - The iRacing API is _slow_ to update. 
-  When you finish a race it can a day or sometimes more to appear in their API, which means the bot will not have that information either.
+  When you finish a race it can take a day or sometimes more to appear in their API, which means the bot will not have that information either.
   When in doubt, run `!update`
 - Please do not spam `!update` and `!updateserver`. 99% of the time the iRacing API just hasn't updated yet, 
   so you will never get live to the minute data, that just isn't a capability of the current iRacing API.
