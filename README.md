@@ -10,6 +10,10 @@ This uses [pyracing](https://github.com/Esterni/pyracing) under the hood, which 
 - Please do not spam `!update` and `!updateserver`. 99% of the time the iRacing API just hasn't updated yet, 
   so you will never get live to the minute data, that just isn't a capability of the current iRacing API.
 
+# What it Does
+This bot has 2 primary functions, it can show you the current weekly combos of what track your favorite series are on, and compare you to your friends through the leaderboards and other statistics. You can find the commands to do these actions below.
+
+
 ## Commands
 ## Series Combos Related
 ### !allseries
