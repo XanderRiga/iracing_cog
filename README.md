@@ -3,7 +3,34 @@ This is a cog for the [Red-Discord Bot](https://github.com/Cog-Creators/Red-Disc
 
 This uses [pyracing](https://github.com/Esterni/pyracing) under the hood, which I also contribute to.
 
+# Some Important Notes
+- The iRacing API is _slow_ to update. 
+  When you finish a race it can a day or sometimes more to appear in their API, which means the bot will not have that information either.
+  When in doubt, run `!update`
+- Please do not spam `!update` and `!updateserver`. 99% of the time the iRacing API just hasn't updated yet, 
+  so you will never get live to the minute data, that just isn't a capability of the current iRacing API.
+
 ## Commands
+## Series Combos Related
+### !allseries
+This will give a list of all current active series names and IDs(which are used for the favorite series commands).
+
+### !setfavseries <Series IDs\>
+This will set the favorite series for your server. Server IDs in this case is a list of comma separated
+Series IDs that can be found from the `!allseries` command. Setting favorite series is necessary to
+use the `!currentseries` command.
+
+### !currentseries
+Once favorite series have been set through `!setfavseries` this command prints images
+showing the current tracks for each of the favorite series for this race week and the next race week.
+
+### !addfavseries
+This is similar to `!setfavseries` except it just adds a single series to the favorites list.
+
+### !removefavseries
+This removes a single favorite from the saved favorite series
+
+## Leaderboard/Statistics Related
 ### !saveid <iRacing Client ID\>
 Use this command to save your iRacing ID to your discord ID.
 
@@ -13,6 +40,9 @@ If no iRacing Client ID is provided, it will default to the saved ID of the user
 If the user who called it has not saved their ID, then they must provide an ID when calling.
 
 ### !update
+This will update the saved information for just the user who called the command.
+
+### !updateserver
 This will update the saved information for all users in the discord for use of the `!leaderboard` command.
 All discords are automatically updated every hour, so often this is unnecessary to run.
 
@@ -37,15 +67,3 @@ If the user has not saved their ID, they must provide an iRacing Client ID.
 This will give an overview of the yearly stats of the player with the given iRacing Client ID.
 If an iRacing Client ID is not provided, then it will use the saved ID for the user who called the command.
 If the user has not saved their ID, they must provide an iRacing Client ID.
-
-### !allseries
-This will give a list of all current active series names and IDs(which are used for the favorite series commands).
-
-### !setfavseries <Series IDs\>
-This will set the favorite series for your server. Server IDs in this case is a list of comma separated
-Series IDs that can be found from the `!allseries` command. Setting favorite series is necessary to
-use the `!currentseries` command.
-
-### !currentseries
-Once favorite series have been set through `!setfavseries` this command prints images
-showing the current tracks for each of the favorite series for this race week and the next race week.
