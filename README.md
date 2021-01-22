@@ -3,6 +3,9 @@ This is a cog for the [Red-Discord Bot](https://github.com/Cog-Creators/Red-Disc
 
 This uses [pyracing](https://github.com/Esterni/pyracing) under the hood, which I also contribute to.
 
+# What it Does
+This bot has 2 primary functions, it can show you the current weekly combos of what track your favorite series are on, and compare you to your friends through the leaderboards and other statistics. You can find the commands to do these actions below.
+
 # Some Important Notes
 - The iRacing API is _slow_ to update. 
   When you finish a race it can take a day or sometimes more to appear in their API, which means the bot will not have that information either.
@@ -10,9 +13,9 @@ This uses [pyracing](https://github.com/Esterni/pyracing) under the hood, which 
 - Please do not spam `!update` and `!updateserver`. 99% of the time the iRacing API just hasn't updated yet, 
   so you will never get live to the minute data, that just isn't a capability of the current iRacing API.
 
-# What it Does
-This bot has 2 primary functions, it can show you the current weekly combos of what track your favorite series are on, and compare you to your friends through the leaderboards and other statistics. You can find the commands to do these actions below.
-
+# Bot Invite Link
+Want the bot in your discord? Click this link to add it:
+https://discord.com/oauth2/authorize?client_id=706222703664693308&scope=bot
 
 ## Commands
 ## Series Combos Related
