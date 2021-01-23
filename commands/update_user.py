@@ -14,23 +14,60 @@ class UpdateUser:
         self.log.info(f'Updating user: {user_id}')
         iracing_id = guild_dict[user_id]['iracing_id']
 
-        # We want to break this into a few sections because if the bot
-        # receives a request from a user we don't want this to block that from happening
-        # Yea, this is a hacky workaround, but I need a way to prioritize the inputs from users.
-        # When I store all the user data so I don't need to make requests on user input this can all be one gather.
-        await self.update_driver_name(user_id, guild_dict, iracing_id)
-        await self.update_career_stats(user_id, guild_dict, iracing_id)
-        await self.update_yearly_stats(user_id, guild_dict, iracing_id)
+        try:
+            await self.update_driver_name(user_id, guild_dict, iracing_id)
+        except Exception as e:
+            self.handle_exceptions(self.update_driver_name.__name__, e)
 
-        await self.update_iratings(user_id, guild_dict, iracing_id, Category.oval)
-        await self.update_iratings(user_id, guild_dict, iracing_id, Category.road)
-        await self.update_iratings(user_id, guild_dict, iracing_id, Category.dirt_road)
-        await self.update_iratings(user_id, guild_dict, iracing_id, Category.dirt_oval)
+        try:
+            await self.update_career_stats(user_id, guild_dict, iracing_id)
+        except Exception as e:
+            self.handle_exceptions(self.update_career_stats.__name__, e)
 
-        await self.update_license_class(user_id, guild_dict, iracing_id, Category.oval)
-        await self.update_license_class(user_id, guild_dict, iracing_id, Category.road)
-        await self.update_license_class(user_id, guild_dict, iracing_id, Category.dirt_road)
-        await self.update_license_class(user_id, guild_dict, iracing_id, Category.dirt_oval)
+        try:
+            await self.update_yearly_stats(user_id, guild_dict, iracing_id)
+        except Exception as e:
+            self.handle_exceptions(self.update_yearly_stats.__name__, e)
+
+        try:
+            await self.update_iratings(user_id, guild_dict, iracing_id, Category.oval)
+        except Exception as e:
+            self.handle_exceptions(self.update_iratings.__name__, e)
+
+        try:
+            await self.update_iratings(user_id, guild_dict, iracing_id, Category.road)
+        except Exception as e:
+            self.handle_exceptions(self.update_iratings.__name__, e)
+
+        try:
+            await self.update_iratings(user_id, guild_dict, iracing_id, Category.dirt_road)
+        except Exception as e:
+            self.handle_exceptions(self.update_iratings.__name__, e)
+
+        try:
+            await self.update_iratings(user_id, guild_dict, iracing_id, Category.dirt_oval)
+        except Exception as e:
+            self.handle_exceptions(self.update_iratings.__name__, e)
+
+        try:
+            await self.update_license_class(user_id, guild_dict, iracing_id, Category.oval)
+        except Exception as e:
+            self.handle_exceptions(self.update_license_class.__name__, e)
+
+        try:
+            await self.update_license_class(user_id, guild_dict, iracing_id, Category.road)
+        except Exception as e:
+            self.handle_exceptions(self.update_license_class.__name__, e)
+
+        try:
+            await self.update_license_class(user_id, guild_dict, iracing_id, Category.dirt_road)
+        except Exception as e:
+            self.handle_exceptions(self.update_license_class.__name__, e)
+
+        try:
+            await self.update_license_class(user_id, guild_dict, iracing_id, Category.dirt_oval)
+        except Exception as e:
+            self.handle_exceptions(self.update_license_class.__name__, e)
 
         self.log.info(f'Finished updating user: {user_id}')
         return guild_dict
@@ -82,3 +119,6 @@ class UpdateUser:
         license_class = str(chart_data.current().class_letter()) + ' ' + str(chart_data.current().safety_rating())
         guild_dict[user_id][f'{category.name}_license_class'] = license_class
         return license_class
+
+    def handle_exceptions(self, method_name, e):
+        self.log.warning(f'update failed in method {method_name}. Exception: {str(e)}')
