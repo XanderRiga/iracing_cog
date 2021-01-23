@@ -61,6 +61,7 @@ class Update:
                 guilds.append(os.path.basename(file.path)[:-5])
 
         update_promises = []
+        self.log.info(f'Updating {len(guilds)} total guilds')
         for guild_id in guilds:
             update_promises.append(self.update_server_background(guild_id))
 
