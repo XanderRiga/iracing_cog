@@ -55,7 +55,7 @@ class Iracing(commands.Cog):
         self.remove_fav_series = RemoveFavSeries(log)
         self.update_all_servers.start()
 
-    @tasks.loop(hours=1, reconnect=False)
+    @tasks.loop(hours=4, reconnect=False)
     async def update_all_servers(self):
         """Update all users career stats and iratings for building a current leaderboard"""
         self.all_series = await self.pyracing.current_seasons(series_id=True)
