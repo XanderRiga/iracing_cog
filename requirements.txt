@@ -8,3 +8,5 @@ imgkit~=1.0.2
 bokeh~=2.2.3
 selenium~=3.141.0
 pyracing~=0.1.0
+tortoise-orm~=0.16.20
+aerich~=0.4.4

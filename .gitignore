@@ -147,3 +147,5 @@ cookie.tmp
 *.jpg
 *.png
 *.html
+*.sqlite3-*
+*.sqlite3
