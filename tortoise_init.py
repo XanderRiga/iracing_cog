@@ -1,5 +1,4 @@
 from tortoise import Tortoise, run_async
-from models import Guild, Driver, Irating
 
 
 async def init_tortoise():
