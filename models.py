@@ -60,8 +60,8 @@ class Track(Base):
 
 class Car(Base):
     iracing_id = fields.CharField(max_length=30)
-    name = fields.CharField(max_length=100)
-    sku = fields.CharField(max_length=30, null=True)
+    name = fields.TextField()
+    sku = fields.TextField(null=True)
 
 
 class Series(Base):
@@ -75,13 +75,12 @@ class Season(Base):
     season_combos: fields.ReverseRelation["SeasonCombo"]
     iracing_id = fields.CharField(max_length=30, unique=True)
     series = fields.ForeignKeyField('models.Series', related_name='seasons')
-    is_official = fields.BooleanField()
-    active = fields.BooleanField()
-    minimum_team_drivers = fields.IntField()
+    is_official = fields.BooleanField(null=True)
+    active = fields.BooleanField(null=True)
+    minimum_team_drivers = fields.IntField(default=1)
     start_time = fields.TextField()
     end_time = fields.TextField()
-    current_race_week = fields.IntField()
-    is_fixed = fields.BooleanField()
+    is_fixed = fields.BooleanField(null=True)
 
     # TODO use the start date and the current date difference
     #  to determine what the current race week is and find the combo from that
@@ -98,7 +97,7 @@ class SeasonCombo(Base):
     track_layout = fields.TextField()
     iracing_id = fields.CharField(max_length=30, unique=True)
     race_week = fields.IntField()
-    time_of_day = fields.IntField()
+    time_of_day = fields.IntField(null=True)
 
 
 class Stat(Base):
