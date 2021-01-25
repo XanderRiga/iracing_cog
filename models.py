@@ -32,7 +32,6 @@ class Driver(Base):
     guilds: fields.ManyToManyRelation["Guild"] = fields.ManyToManyField(
         "models.Guild", related_name="drivers", through="driver_guild"
     )
-    # guilds = fields.ManyToManyField('models.Guild', related_name='drivers')
     iracing_name = fields.CharField(max_length=30, null=True)
     iracing_id = fields.CharField(max_length=30, null=True)
 
@@ -44,3 +43,47 @@ class Guild(Base):
     discord_id = fields.CharField(max_length=30, unique=True)
     drivers: fields.ManyToManyRelation[Driver]
 
+
+class Track(Base):
+    iracing_id = fields.CharField(max_length=30)
+    name = fields.CharField(max_length=100)
+
+
+class Car(Base):
+    iracing_id = fields.CharField(max_length=30)
+    name = fields.CharField(max_length=100)
+    sku = fields.CharField(max_length=30, null=True)
+
+
+class Series(Base):
+    iracing_id = fields.CharField(max_length=30, unique=True)
+    name = fields.CharField(max_length=100)
+    category_id = fields.IntField()
+
+
+class Season(Base):
+    season_combos: fields.ReverseRelation["SeasonCombo"]
+    iracing_id = fields.CharField(max_length=30, unique=True)
+    series = fields.ForeignKeyField('models.Series', related_name='seasons')
+    is_official = fields.BooleanField()
+    active = fields.BooleanField()
+    minimum_team_drivers = fields.IntField()
+    start_time = fields.CharField(max_length=30)
+    end_time = fields.CharField(max_length=30)
+    current_race_week = fields.IntField()
+
+    # TODO use the start date and the current date difference
+    #  to determine what the current race week is and find the combo from that
+    def current_combo(self):
+        return None
+
+
+class SeasonCombo(Base):
+    season = fields.ForeignKeyField('models.Season', related_name='season_combos')
+    track = fields.ForeignKeyField('models.Track', related_name='season_combos')
+    cars: fields.ManyToManyRelation["Car"] = fields.ManyToManyField(
+        "models.Car", related_name="season_combos", through="season_combo_cars"
+    )
+    iracing_id = fields.CharField(max_length=30)
+    race_week = fields.IntField()
+    time_of_day = fields.IntField()
