@@ -38,11 +38,11 @@ class Driver(Base):
     guilds: fields.ManyToManyRelation["Guild"] = fields.ManyToManyField(
         "models.Guild", related_name="drivers", through="driver_guild"
     )
-    iracing_name = fields.fields.TextField()
+    iracing_name = fields.TextField()
     iracing_id = fields.TextField()
 
     def __str__(self):
-        return self.name
+        return self.iracing_name
 
 
 class Guild(Base):
@@ -105,7 +105,7 @@ class Stat(Base):
     category: Category = fields.IntEnumField(Category)
     stats_type: StatsType = fields.IntEnumField(StatsType)
     avg_incidents = fields.TextField()
-    total_laps = fields.TextField()
+    total_laps = fields.IntField()
     laps_led = fields.IntField()
     laps_led_percentage = fields.TextField()
     points_avg = fields.IntField()
