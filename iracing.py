@@ -19,7 +19,7 @@ from .commands.current_series import CurrentSeries
 from .commands.set_fav_series import SetFavSeries
 from .commands.add_fav_series import AddFavSeries
 from .commands.remove_fav_series import RemoveFavSeries
-
+from .db_helpers import *
 dotenv.load_dotenv()
 
 logdna_key = os.getenv("LOGDNA_INGESTION_KEY")
@@ -60,6 +60,13 @@ class Iracing(commands.Cog):
         """Update all users career stats and iratings for building a current leaderboard"""
         self.all_series = await self.pyracing.current_seasons(series_id=True)
         self.all_series.sort(key=lambda x: x.series_id)
+        try:
+            for series in self.all_series:
+                log.info(f'about to get series {series}')
+                await get_or_create_series(series)
+        except Exception as e:
+            log.info(str(e))
+
         log.info('Successfully got all current season data')
 
         await self.updater.update_all_servers()
