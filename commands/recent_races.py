@@ -2,6 +2,7 @@ from ..storage import *
 from ..html_builder import *
 from ..helpers import *
 import imgkit
+from pyvirtualdisplay import Display
 
 
 class RecentRaces:
@@ -25,8 +26,11 @@ class RecentRaces:
             if races_stats_list:
                 table_html_string = recent_races_table_string(races_stats_list, iracing_id, all_series)
                 filename = f'{guild_id}_{iracing_id}_recent_races.jpg'
+            	display = Display(visible=0, size=(600,600))
+            	display.start()      
                 imgkit.from_string(table_html_string, filename)
                 await ctx.send(file=discord.File(filename))
                 cleanup_file(filename)
+                display.stop()
             else:
                 await ctx.send('Recent races not found for user: ' + iracing_id)
