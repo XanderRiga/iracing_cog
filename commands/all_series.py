@@ -1,6 +1,7 @@
 from ..html_builder import *
 from ..helpers import cleanup_file
 import imgkit
+from pyvirtualdisplay import Display
 
 
 class AllSeries:
@@ -28,6 +29,9 @@ class AllSeries:
 
         for string in html_strings:
             filename = f'{ctx.guild.id}_series.jpg'
+            display = Display(visible=0, size=(600,600))
+            display.start()        
             imgkit.from_string(string, filename)
             await ctx.send(file=discord.File(filename))
             cleanup_file(filename)
+            display.stop()
