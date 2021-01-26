@@ -1,7 +1,7 @@
 import logging
 import dotenv
 from redbot.core import commands
-from pyracing import client as pyracing
+from pyracing.client import Client
 from discord.ext import tasks
 from logdna import LogDNAHandler
 from .html_builder import *
@@ -27,6 +27,9 @@ log = logging.getLogger('logdna')
 log.setLevel(logging.DEBUG)
 handler = LogDNAHandler(logdna_key, {'hostname': os.getenv("LOG_LOCATION")})
 log.addHandler(handler)
+username = 'iRACING-E-MAIL'
+password = 'iRACING-PASSWORD'
+
 
 
 class Iracing(commands.Cog):
@@ -34,10 +37,7 @@ class Iracing(commands.Cog):
 
     def __init__(self):
         super().__init__()
-        self.pyracing = pyracing.Client(
-            os.getenv("IRACING_USERNAME"),
-            os.getenv("IRACING_PASSWORD")
-        )
+        self.pyracing = Client(username, password)
         self.all_series = []
         self.update_user = UpdateUser(self.pyracing, log)
         self.updater = Update(self.pyracing, log, self.update_user)
