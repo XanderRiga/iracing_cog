@@ -1,6 +1,7 @@
 from ..storage import *
 from ..html_builder import *
 import imgkit
+from pyvirtualdisplay import Display
 
 
 class CurrentSeries:
@@ -24,9 +25,12 @@ class CurrentSeries:
 
         this_week_filename = f'{ctx.guild.id}_this_week.jpg'
         next_week_filename = f'{ctx.guild.id}_next_week.jpg'
+        display = Display(visible=0, size=(600,600))
+        display.start()    
         imgkit.from_string(this_week_string, this_week_filename)
         imgkit.from_string(next_week_string, next_week_filename)
         await ctx.send(file=discord.File(this_week_filename))
         await ctx.send(file=discord.File(next_week_filename))
         cleanup_file(this_week_filename)
         cleanup_file(next_week_filename)
+        display.stop()
