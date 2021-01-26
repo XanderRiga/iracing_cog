@@ -2,6 +2,7 @@ from ..storage import *
 from ..html_builder import *
 from ..helpers import delete_missing_users, get_relevant_leaderboard_data
 import imgkit
+from pyvirtualdisplay import Display
 
 
 class Leaderboard:
@@ -25,8 +26,11 @@ class Leaderboard:
             leaderboard_data = get_relevant_leaderboard_data(guild_dict, category)
             table_html_string = self.get_leaderboard_html_string(leaderboard_data, ctx.guild, category, self.log, is_yearly)
             filename = f'{ctx.guild.id}_leaderboard.jpg'
+            display = Display(visible=0, size=(600,600))
+            display.start()
             imgkit.from_string(table_html_string, filename)
             await ctx.send(file=discord.File(filename))
+            display.stop()
 
         cleanup_file(filename)
 

@@ -1,6 +1,7 @@
 from ..storage import *
 from ..html_builder import *
 import imgkit
+from pyvirtualdisplay import Display
 
 
 class CareerStats:
@@ -26,8 +27,11 @@ class CareerStats:
             if career_stats:
                 career_stats_html = get_career_stats_html(career_stats, iracing_id)
                 filename = f'{iracing_id}_career_stats.jpg'
+                display = Display(visible=0, size=(600,600))
+                display.start()      
                 imgkit.from_string(career_stats_html, filename)
                 await ctx.send(file=discord.File(filename))
                 cleanup_file(filename)
+                display.stop()
             else:
                 await ctx.send('No career stats found for user: ' + str(iracing_id))

@@ -1,7 +1,7 @@
 import logging
 import dotenv
 from redbot.core import commands
-from pyracing import client as pyracing
+from pyracing.client import Client
 from discord.ext import tasks
 from logdna import LogDNAHandler
 from .html_builder import *
@@ -19,7 +19,7 @@ from .commands.current_series import CurrentSeries
 from .commands.set_fav_series import SetFavSeries
 from .commands.add_fav_series import AddFavSeries
 from .commands.remove_fav_series import RemoveFavSeries
-from .db_helpers import *
+
 dotenv.load_dotenv()
 
 logdna_key = os.getenv("LOGDNA_INGESTION_KEY")
@@ -27,6 +27,8 @@ log = logging.getLogger('logdna')
 log.setLevel(logging.DEBUG)
 handler = LogDNAHandler(logdna_key, {'hostname': os.getenv("LOG_LOCATION")})
 log.addHandler(handler)
+username = 'YOUR-IRACING-EMAIL'
+password = 'YOUR-IRACING-PASSWORD'
 
 
 class Iracing(commands.Cog):
@@ -34,10 +36,7 @@ class Iracing(commands.Cog):
 
     def __init__(self):
         super().__init__()
-        self.pyracing = pyracing.Client(
-            os.getenv("IRACING_USERNAME"),
-            os.getenv("IRACING_PASSWORD")
-        )
+        self.pyracing = Client(username, password)
         self.all_series = []
         self.update_user = UpdateUser(self.pyracing, log)
         self.updater = Update(self.pyracing, log, self.update_user)
@@ -60,13 +59,6 @@ class Iracing(commands.Cog):
         """Update all users career stats and iratings for building a current leaderboard"""
         self.all_series = await self.pyracing.current_seasons(series_id=True)
         self.all_series.sort(key=lambda x: x.series_id)
-        try:
-            for series in self.all_series:
-                log.info(f'about to get series {series}')
-                await get_or_create_series(series)
-        except Exception as e:
-            log.info(str(e))
-
         log.info('Successfully got all current season data')
 
         await self.updater.update_all_servers()

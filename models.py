@@ -1,4 +1,4 @@
-from tortoise import fields
+from tortoise import fields, Tortoise
 from tortoise.models import Model
 from enum import IntEnum
 
