@@ -1,8 +1,7 @@
 import logging
 import dotenv
-from redbot.core import commands
 from pyracing import client as pyracing
-from discord.ext import tasks
+from discord.ext import commands, tasks
 from logdna import LogDNAHandler
 from .html_builder import *
 from .commands.update_user import UpdateUser
@@ -32,8 +31,8 @@ log.addHandler(handler)
 class Iracing(commands.Cog):
     """A cog that can give iRacing data about users"""
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, bot):
+        self.bot = bot
         self.pyracing = pyracing.Client(
             os.getenv("IRACING_USERNAME"),
             os.getenv("IRACING_PASSWORD")
@@ -47,7 +46,7 @@ class Iracing(commands.Cog):
         self.career_stats = CareerStats(self.pyracing, log, self.update_user)
         self.save_id = SaveId(log)
         self.leaderboard = Leaderboard(log)
-        self.iratings = Iratings(log)
+        # self.iratings = Iratings(log)
         self.all_series_command = AllSeries(log)
         self.current_series = CurrentSeries(log)
         self.set_fav_series = SetFavSeries(log)
@@ -64,48 +63,48 @@ class Iracing(commands.Cog):
 
         await self.updater.update_all_servers()
 
-    @commands.command()
+    @commands.command(name='update')
     async def update(self, ctx):
         """Update the career, yearly stats, and iratings for the user who called the command in the given server"""
         await self.updater.update_member(ctx)
 
-    @commands.command()
+    @commands.command(name='updateserver')
     async def updateserver(self, ctx):
         """Update all users career and yearly stats and iratings for building a current leaderboard.
         This is run every hour anyways, so it isn't necessary most of the time to run manually"""
         await self.updater.update_server(ctx)
 
-    @commands.command()
+    @commands.command(name='recentraces')
     async def recentraces(self, ctx, *, iracing_id=None):
         """Shows the recent race data for the given iracing id. If no iracing id is provided it will attempt
         to use the stored iracing id for the user who called the command."""
         await self.recent_races.call(ctx, iracing_id, self.all_series)
 
-    @commands.command()
+    @commands.command(name='lastseries')
     async def lastseries(self, ctx, *, iracing_id=None):
         """Shows the recent series data for the given iracing id. If no iracing id is provided it will attempt
         to use the stored iracing id for the user who called the command."""
         await self.last_series.call(ctx, iracing_id)
 
-    @commands.command()
+    @commands.command(name='yearlystats')
     async def yearlystats(self, ctx, *, iracing_id=None):
         """Shows the yearly stats for the given iracing id. If no iracing id is provided it will attempt
         to use the stored iracing id for the user who called the command."""
         await self.yearly_stats.call(ctx, iracing_id)
 
-    @commands.command()
+    @commands.command(name='careerstats')
     async def careerstats(self, ctx, *, iracing_id=None):
         """Shows the career stats for the given iracing id. If no iracing id is provided it will attempt
         to use the stored iracing id for the user who called the command."""
         await self.career_stats.call(ctx, iracing_id)
 
-    @commands.command()
+    @commands.command(name='saveid')
     async def saveid(self, ctx, *, iracing_id):
         """Save your iRacing ID to be placed on the leaderboard.
         Your ID can be found by the top right of your account page under "Customer ID"."""
         await self.save_id.call(ctx, iracing_id)
 
-    @commands.command()
+    @commands.command(name='leaderboard')
     async def leaderboard(self, ctx, category='road', type='career'):
         """Displays a leaderboard of the users who have used `!saveid`.
         If the data is not up to date, try `!update` first.
@@ -113,29 +112,33 @@ class Iracing(commands.Cog):
         the types are `career` and `yearly`. Default is `road` `career`"""
         await self.leaderboard.call(ctx, category, type)
 
-    @commands.command()
-    async def iratings(self, ctx, category='road'):
-        await self.iratings.call(ctx, category)
+    # @commands.command()
+    # async def iratings(self, ctx, category='road'):
+    #     await self.iratings.call(ctx, category)
 
-    @commands.command()
+    @commands.command(name='allseries')
     async def allseries(self, ctx):
         await self.all_series_command.call(ctx, self.all_series)
 
-    @commands.command()
+    @commands.command(name='setfavseries')
     async def setfavseries(self, ctx, *, ids):
         """Use command `!allseries` to get a list of all series and ids.
             Then use this command `!setfavseries` with a list of comma
             separated ids to set your favorite series"""
         await self.set_fav_series.call(ctx, ids, self.all_series)
 
-    @commands.command()
+    @commands.command(name='currentseries')
     async def currentseries(self, ctx):
         await self.current_series.call(ctx, self.all_series)
 
-    @commands.command()
+    @commands.command(name='addfavseries')
     async def addfavseries(self, ctx, series_id):
         await self.add_fav_series.call(ctx, series_id, self.all_series)
 
-    @commands.command()
+    @commands.command(name='removefavseries')
     async def removefavseries(self, ctx, series_id):
         await self.remove_fav_series.call(ctx, series_id)
+
+
+def setup(bot):
+    bot.add_cog(Iracing(bot))
