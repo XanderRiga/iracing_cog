@@ -24,10 +24,10 @@ class RecentRaces:
             races_stats_list = await get_last_races(self.pyracing, self.log, user_id, guild_id, iracing_id)
 
             if races_stats_list:
+                display = Display(visible=0, size=(600,600))
+                display.start()
                 table_html_string = recent_races_table_string(races_stats_list, iracing_id, all_series)
                 filename = f'{guild_id}_{iracing_id}_recent_races.jpg'
-            	display = Display(visible=0, size=(600,600))
-            	display.start()      
                 imgkit.from_string(table_html_string, filename)
                 await ctx.send(file=discord.File(filename))
                 cleanup_file(filename)

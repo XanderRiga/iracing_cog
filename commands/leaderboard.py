@@ -26,13 +26,13 @@ class Leaderboard:
             leaderboard_data = get_relevant_leaderboard_data(guild_dict, category)
             table_html_string = self.get_leaderboard_html_string(leaderboard_data, ctx.guild, category, self.log, is_yearly)
             filename = f'{ctx.guild.id}_leaderboard.jpg'
-            imgkit.from_string(table_html_string, filename)
             display = Display(visible=0, size=(600,600))
             display.start()
+            imgkit.from_string(table_html_string, filename)
             await ctx.send(file=discord.File(filename))
+            display.stop()
 
         cleanup_file(filename)
-	display.stop()
 
     def get_leaderboard_html_string(self, user_data_list, guild, category, log, yearly=False):
         type_string = 'Yearly' if yearly else 'Career'

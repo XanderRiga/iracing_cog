@@ -3,7 +3,6 @@ from ..html_builder import *
 import imgkit
 from pyvirtualdisplay import Display
 
-
 class YearlyStats:
     def __init__(self, pyracing, log, update_user):
         self.pyracing = pyracing
@@ -27,11 +26,11 @@ class YearlyStats:
             if yearly_stats:
                 yearly_stats_html = get_yearly_stats_html(yearly_stats, iracing_id)
                 filename = f'{iracing_id}_yearly_stats.jpg'
-            	display = Display(visible=0, size=(600,600))
-            	display.start()    
+                display = Display(visible=0, size=(600,600))
+                display.start()
                 imgkit.from_string(yearly_stats_html, filename)
                 await ctx.send(file=discord.File(filename))
                 cleanup_file(filename)
-            	display.stop()
+                display.stop()
             else:
                 await ctx.send('No yearly stats found for user: ' + str(iracing_id))

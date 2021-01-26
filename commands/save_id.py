@@ -17,4 +17,4 @@ class SaveId:
         guild_id = str(ctx.guild.id)
 
         save_iracing_id(user_id, guild_id, iracing_id)
-        await ctx.send('iRacing ID successfully saved. Use `!update` to see this user on the leaderboard.')
+        await ctx.send('iRacing ID successfully saved. Use `!happen_update` to see this user on the leaderboard.')
