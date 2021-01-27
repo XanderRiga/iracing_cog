@@ -24,7 +24,7 @@ class Update:
 
         await ctx.send(f'Updating user: {ctx.author.name}, this may take a minute')
         if 'iracing_id' in guild_dict[user_id]:
-            guild_dict = await self.update_user.update_user_in_dict(user_id, guild_dict)
+            guild_dict = await self.update_user.update_user_in_dict(user_id, guild_dict, guild_id)
 
         set_guild_data(guild_id, guild_dict)
         self.log.info(f'=============== Manual update for {ctx.author.name} finished that started at: ' +
@@ -44,7 +44,7 @@ class Update:
         guild_dict = get_guild_dict(guild_id)
         for user_id in guild_dict:
             if 'iracing_id' in guild_dict[user_id]:
-                guild_dict = await self.update_user.update_user_in_dict(user_id, guild_dict)
+                guild_dict = await self.update_user.update_user_in_dict(user_id, guild_dict, guild_id)
 
         set_guild_data(guild_id, guild_dict)
         self.log.info(
@@ -92,7 +92,7 @@ class Update:
         guild_dict = get_guild_dict(guild_id)
         for user_id in guild_dict:
             if 'iracing_id' in guild_dict[user_id]:
-                guild_dict = await self.update_user.update_user_in_dict(user_id, guild_dict)
+                guild_dict = await self.update_user.update_user_in_dict(user_id, guild_dict, guild_id)
 
         set_guild_data(guild_id, guild_dict)
         finish_time = datetime.now()

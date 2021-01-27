@@ -1,4 +1,4 @@
-from .models import Series, Season, SeasonCombo, Car, Track
+from .models import *
 from tortoise import Tortoise
 
 
@@ -85,3 +85,26 @@ async def get_or_create_car(car):
     )
 
     return car_model[0]
+
+
+async def get_or_create_driver(iracing_id, discord_id, guild_id, name):
+    guild_model = await get_or_create_guild(guild_id)
+    driver_model = await Driver.get_or_create(
+        discord_id=discord_id,
+        defaults={
+            'iracing_id': iracing_id,
+            'iracing_name': name
+        }
+    )
+
+    await driver_model[0].guilds.add(guild_model)
+
+    return driver_model[0]
+
+
+async def get_or_create_guild(guild_id):
+    guild_model = await Guild.get_or_create(
+        discord_id=guild_id
+    )
+
+    return guild_model[0]
