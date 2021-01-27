@@ -80,7 +80,7 @@ class UpdateUser:
             name = parse_encoded_string(response.name)
             guild_dict[user_id]['name'] = name
 
-            await get_or_create_driver(cust_id, user_id, guild_id, name)
+            await update_driver_name(user_id, guild_id, name)
             return name
         except:
             self.log.warning(f'Name not found for {cust_id}')

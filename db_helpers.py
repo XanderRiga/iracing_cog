@@ -127,3 +127,12 @@ async def get_or_create_guild(guild_id):
     )
 
     return guild_model[0]
+
+
+async def update_driver_name(discord_id, guild_id, name):
+    guild_model = await get_or_create_guild(guild_id)
+    driver_model = await Driver.get_or_create(discord_id=discord_id)
+
+    await driver_model[0].update_from_dict({'iracing_name': name})
+    await driver_model[0].save()
+    await driver_model[0].guilds.add(guild_model)
