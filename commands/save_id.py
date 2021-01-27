@@ -1,4 +1,5 @@
 from ..storage import *
+from ..db_helpers import *
 
 
 class SaveId:
@@ -13,8 +14,10 @@ class SaveId:
             self.log.info(f'Failed to save iracing id: {iracing_id}')
             return
 
+        await init_tortoise()
         user_id = str(ctx.author.id)
         guild_id = str(ctx.guild.id)
 
         save_iracing_id(user_id, guild_id, iracing_id)
+        await create_or_update_driver(iracing_id, user_id, guild_id)
         await ctx.send('iRacing ID successfully saved. Use `!update` to see this user on the leaderboard.')

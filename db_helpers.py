@@ -102,6 +102,25 @@ async def get_or_create_driver(iracing_id, discord_id, guild_id, name):
     return driver_model[0]
 
 
+async def create_or_update_driver(iracing_id, discord_id, guild_id, name=None):
+    guild_model = await get_or_create_guild(guild_id)
+    driver_model = await Driver.get_or_create(discord_id=discord_id)
+
+    if name:
+        await driver_model[0].update_from_dict({
+            'iracing_id': iracing_id,
+            'iracing_name': name
+        })
+    else:
+        await driver_model[0].update_from_dict({
+            'iracing_id': iracing_id
+        })
+
+    await driver_model[0].save()
+
+    await driver_model[0].guilds.add(guild_model)
+
+
 async def get_or_create_guild(guild_id):
     guild_model = await Guild.get_or_create(
         discord_id=guild_id

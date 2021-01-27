@@ -106,6 +106,7 @@ class Iracing(commands.Cog):
         """Save your iRacing ID to be placed on the leaderboard.
         Your ID can be found by the top right of your account page under "Customer ID"."""
         await self.save_id.call(ctx, iracing_id)
+        await Tortoise.close_connections()
 
     @commands.command(name='leaderboard')
     async def leaderboard(self, ctx, category='road', type='career'):

@@ -3,7 +3,6 @@ from pyracing.constants import Category
 from ..helpers import *
 from ..errors.name_not_found import NameNotFound
 from ..db_helpers import *
-from tortoise import Tortoise
 
 
 class UpdateUser:
@@ -72,7 +71,6 @@ class UpdateUser:
         except Exception as e:
             self.handle_exceptions(self.update_license_class.__name__, e)
 
-        await Tortoise.close_connections()
         self.log.info(f'Finished updating user: {user_id}')
         return guild_dict
 

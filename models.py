@@ -38,8 +38,8 @@ class Driver(Base):
     guilds: fields.ManyToManyRelation["Guild"] = fields.ManyToManyField(
         "models.Guild", related_name="drivers", through="driver_guild"
     )
-    iracing_name = fields.TextField()
-    iracing_id = fields.TextField()
+    iracing_name = fields.TextField(null=True)
+    iracing_id = fields.TextField(null=True)
 
     def __str__(self):
         return self.iracing_name
