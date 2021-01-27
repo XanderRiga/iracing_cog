@@ -12,7 +12,7 @@ from .commands.yearly_stats import YearlyStats
 from .commands.career_stats import CareerStats
 from .commands.save_id import SaveId
 from .commands.leaderboard import Leaderboard
-from .commands.iratings import Iratings
+# from .commands.iratings import Iratings
 from .commands.all_series import AllSeries
 from .commands.current_series import CurrentSeries
 from .commands.set_fav_series import SetFavSeries
