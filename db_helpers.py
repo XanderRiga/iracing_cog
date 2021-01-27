@@ -1,4 +1,17 @@
 from .models import Series, Season, SeasonCombo, Car, Track
+from tortoise import Tortoise
+
+
+async def init_tortoise():
+    await Tortoise.init(
+        db_url='sqlite://db.sqlite3',
+        modules={'models': ['iracing_cog.models']}
+    )
+
+
+async def generate_schemas():
+    await init_tortoise()
+    await Tortoise.generate_schemas(safe=True)
 
 
 async def get_or_create_series(series):

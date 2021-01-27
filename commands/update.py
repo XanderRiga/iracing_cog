@@ -2,6 +2,8 @@ from datetime import datetime
 from ..storage import *
 import time
 import asyncio
+from ..db_helpers import *
+import traceback
 
 
 class Update:
@@ -52,9 +54,21 @@ class Update:
             (finish_time - start_time).total_seconds()) + ' seconds ===============')
         await ctx.send("Successfully updated this server")
 
-    async def update_all_servers(self):
+    async def update_all_servers(self, all_series):
         start_time = time.monotonic()
         self.log.info('=============== Updating all servers stats ======================')
+
+        try:
+            await generate_schemas()
+            for series in all_series:
+                try:
+                    await get_or_create_series(series)
+                    await get_or_create_season(series)
+                except Exception as e:
+                    print(traceback.format_exc())
+                    self.log.warning(f'Failed saving season/series: {series}, exception: {e}')
+        except Exception as e:
+            self.log.warning(f'Failed loading all series {str(e)}')
 
         guilds = []
         for file in os.scandir(folder):

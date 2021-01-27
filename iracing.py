@@ -18,9 +18,7 @@ from .commands.current_series import CurrentSeries
 from .commands.set_fav_series import SetFavSeries
 from .commands.add_fav_series import AddFavSeries
 from .commands.remove_fav_series import RemoveFavSeries
-from .db_helpers import *
 from tortoise import Tortoise
-import traceback
 
 dotenv.load_dotenv()
 
@@ -63,20 +61,9 @@ class Iracing(commands.Cog):
         log.info('loading all series')
         self.all_series = await self.pyracing.current_seasons(series_id=True)
         self.all_series.sort(key=lambda x: x.series_id)
-        try:
-            await generate_schemas()
-            for series in self.all_series:
-                try:
-                    await get_or_create_series(series)
-                    await get_or_create_season(series)
-                except Exception as e:
-                    print(traceback.format_exc())
-                    log.warning(f'Failed saving season/series: {series}, exception: {e}')
-        except Exception as e:
-            log.warning(f'Failed loading all series {str(e)}')
 
         log.info('Successfully got all current season data')
-        await self.updater.update_all_servers()
+        await self.updater.update_all_servers(self.all_series)
         await Tortoise.close_connections()
 
     @commands.command(name='update')
@@ -154,18 +141,6 @@ class Iracing(commands.Cog):
     @commands.command(name='removefavseries')
     async def removefavseries(self, ctx, series_id):
         await self.remove_fav_series.call(ctx, series_id)
-
-
-async def init_tortoise():
-    await Tortoise.init(
-        db_url='sqlite://db.sqlite3',
-        modules={'models': ['iracing_cog.models']}
-    )
-
-
-async def generate_schemas():
-    await init_tortoise()
-    await Tortoise.generate_schemas(safe=True)
 
 
 def setup(bot):
