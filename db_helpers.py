@@ -87,15 +87,19 @@ async def get_or_create_car(car):
     return car_model[0]
 
 
-async def get_or_create_driver(iracing_id, discord_id, guild_id, name):
+async def get_or_create_driver(discord_id, guild_id, iracing_id=None, name=None):
     guild_model = await get_or_create_guild(guild_id)
-    driver_model = await Driver.get_or_create(
-        discord_id=discord_id,
-        defaults={
-            'iracing_id': iracing_id,
-            'iracing_name': name
-        }
-    )
+    driver_model = await Driver.get_or_create(discord_id=discord_id)
+
+    update_params = {}
+    if iracing_id:
+        update_params['iracing_id'] = iracing_id
+    if name:
+        update_params['iracing_name'] = name
+
+    if update_params:
+        await driver_model[0].update_from_dict(update_params)
+        await driver_model[0].save()
 
     await driver_model[0].guilds.add(guild_model)
 
