@@ -9,6 +9,20 @@ class Category(IntEnum):
     dirt_road = 3
     dirt_oval = 4
 
+    @staticmethod
+    def from_name(name):
+        lower_name = name.lower()
+        if lower_name == 'oval':
+            return Category.oval
+        if lower_name == 'road':
+            return Category.road
+        if lower_name == 'dirt road':
+            return Category.dirt_road
+        if lower_name == 'dirt oval':
+            return Category.dirt_oval
+        else:
+            return None
+
 
 class StatsType(IntEnum):
     career = 0
@@ -105,19 +119,19 @@ class SeasonCombo(Base):
 class Stat(Base):
     driver = fields.ForeignKeyField('models.Driver', related_name='stats')
     category: Category = fields.IntEnumField(Category)
-    stats_type: StatsType = fields.IntEnumField(StatsType)
-    avg_incidents = fields.TextField()
-    total_laps = fields.IntField()
-    laps_led = fields.IntField()
-    laps_led_percentage = fields.TextField()
-    points_avg = fields.IntField()
-    points_club = fields.IntField()
-    poles = fields.IntField()
-    avg_start_pos = fields.IntField()
-    avg_finish_pos = fields.IntField()
-    total_starts = fields.IntField()
-    top_five_percentage = fields.IntField()
-    total_top_fives = fields.IntField()
-    win_percentage = fields.IntField()
-    total_wins = fields.IntField()
+    stat_type: StatsType = fields.IntEnumField(StatsType)
+    avg_incidents = fields.TextField(null=True)
+    total_laps = fields.IntField(null=True)
+    laps_led = fields.IntField(null=True)
+    laps_led_percentage = fields.TextField(null=True)
+    points_avg = fields.IntField(null=True)
+    points_club = fields.IntField(null=True)
+    poles = fields.IntField(null=True)
+    avg_start_pos = fields.IntField(null=True)
+    avg_finish_pos = fields.IntField(null=True)
+    total_starts = fields.IntField(null=True)
+    top_five_percentage = fields.IntField(null=True)
+    total_top_fives = fields.IntField(null=True)
+    win_percentage = fields.IntField(null=True)
+    total_wins = fields.IntField(null=True)
     year = fields.TextField(null=True)

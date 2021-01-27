@@ -1,5 +1,6 @@
 from .models import *
 from tortoise import Tortoise
+import traceback
 
 
 async def init_tortoise():
@@ -123,6 +124,51 @@ async def create_or_update_driver(iracing_id, discord_id, guild_id, name=None):
     await driver_model[0].save()
 
     await driver_model[0].guilds.add(guild_model)
+
+
+async def create_or_update_stats(driver_discord_id, guild_id, stat, stat_type):
+    driver_model = await get_or_create_driver(driver_discord_id, guild_id)
+    try:
+        if stat_type == StatsType.career:
+            stat_model_tuple = await Stat.get_or_create(
+                driver=driver_model,
+                category=Category.from_name(stat.category),
+                stat_type=StatsType.career
+            )
+
+            stat_model = stat_model_tuple[0]
+        else:
+            stat_model_tuple = await Stat.get_or_create(
+                driver=driver_model,
+                category=Category.from_name(stat.category),
+                stat_type=StatsType.yearly,
+                year=stat.year
+            )
+
+            stat_model = stat_model_tuple[0]
+
+        await stat_model.update_from_dict({
+            'avg_incidents': stat.incidents_avg,
+            'total_laps': stat.laps,
+            'laps_led': stat.laps_led,
+            'laps_led_percentage': stat.laps_led_pcnt,
+            'points_avg': stat.points_avg,
+            'points_club': stat.points_club,
+            'poles': stat.poles,
+            'avg_start_pos': stat.pos_start_avg,
+            'avg_finish_pos': stat.pos_finish_avg,
+            'total_starts': stat.starts,
+            'top_five_percentage': stat.top_5_pcnt,
+            'total_top_fives': stat.top_5s,
+            'win_percentage': stat.win_pcnt,
+            'total_wins': stat.wins,
+        })
+
+        await stat_model.save()
+        return stat_model
+    except Exception as e:
+        traceback.print_exc()
+        print(f'failed stats: {e}')
 
 
 async def get_or_create_guild(guild_id):

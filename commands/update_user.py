@@ -93,6 +93,8 @@ class UpdateUser:
         if career_stats_list:
             guild_dict[user_id]['career_stats'] = list(map(lambda x: x.__dict__, career_stats_list))
 
+            for stat in career_stats_list:
+                await create_or_update_stats(user_id, guild_id, stat, StatsType.career)
             return career_stats_list
         else:
             return []
@@ -101,6 +103,9 @@ class UpdateUser:
         yearly_stats_list = await self.pyracing.yearly_stats(iracing_id)
         if yearly_stats_list:
             guild_dict[user_id]['yearly_stats'] = list(map(lambda x: x.__dict__, yearly_stats_list))
+
+            for stat in yearly_stats_list:
+                await create_or_update_stats(user_id, guild_id, stat, StatsType.yearly)
             return yearly_stats_list
         else:
             return []
