@@ -58,12 +58,6 @@ class Track(Base):
     name = fields.TextField()
 
 
-class Car(Base):
-    iracing_id = fields.CharField(max_length=30)
-    name = fields.TextField()
-    sku = fields.TextField(null=True)
-
-
 class Series(Base):
     iracing_id = fields.CharField(max_length=30, unique=True)
     favorited_guilds: fields.ManyToManyRelation[Guild]
@@ -75,12 +69,17 @@ class Season(Base):
     season_combos: fields.ReverseRelation["SeasonCombo"]
     iracing_id = fields.CharField(max_length=30, unique=True)
     series = fields.ForeignKeyField('models.Series', related_name='seasons')
+    cars: fields.ManyToManyRelation["Car"] = fields.ManyToManyField(
+        "models.Car", related_name="seasons", through="season_cars"
+    )
+    minimum_team_drivers = fields.IntField(default=1)
+    start_time = fields.DatetimeField()
+    end_time = fields.DatetimeField()
+    season_quarter = fields.IntField(null=True)
+    season_year = fields.IntField(null=True)
+    is_fixed = fields.BooleanField(null=True)
     is_official = fields.BooleanField(null=True)
     active = fields.BooleanField(null=True)
-    minimum_team_drivers = fields.IntField(default=1)
-    start_time = fields.TextField()
-    end_time = fields.TextField()
-    is_fixed = fields.BooleanField(null=True)
 
     # TODO use the start date and the current date difference
     #  to determine what the current race week is and find the combo from that
@@ -88,14 +87,17 @@ class Season(Base):
         return None
 
 
+class Car(Base):
+    iracing_id = fields.CharField(max_length=30)
+    seasons: fields.ManyToManyRelation[Season]
+    name = fields.TextField()
+    sku = fields.TextField(null=True)
+
+
 class SeasonCombo(Base):
     season = fields.ForeignKeyField('models.Season', related_name='season_combos')
     track = fields.ForeignKeyField('models.Track', related_name='season_combos')
-    cars: fields.ManyToManyRelation["Car"] = fields.ManyToManyField(
-        "models.Car", related_name="season_combos", through="season_combo_cars"
-    )
     track_layout = fields.TextField()
-    iracing_id = fields.CharField(max_length=30, unique=True)
     race_week = fields.IntField()
     time_of_day = fields.IntField(null=True)
 

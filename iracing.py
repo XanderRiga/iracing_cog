@@ -20,6 +20,7 @@ from .commands.add_fav_series import AddFavSeries
 from .commands.remove_fav_series import RemoveFavSeries
 from .db_helpers import *
 from tortoise import Tortoise
+import traceback
 
 dotenv.load_dotenv()
 
@@ -63,11 +64,16 @@ class Iracing(commands.Cog):
         self.all_series = await self.pyracing.current_seasons(series_id=True)
         self.all_series.sort(key=lambda x: x.series_id)
         try:
-            await init_tortoise()
+            await generate_schemas()
             for series in self.all_series:
-                await get_or_create_series(series, log)
+                try:
+                    await get_or_create_series(series)
+                    await get_or_create_season(series)
+                except Exception as e:
+                    print(traceback.format_exc())
+                    log.warning(f'Failed saving season/series: {series}, exception: {e}')
         except Exception as e:
-            log.warning(f'Failed loading series {str(e)}')
+            log.warning(f'Failed loading all series {str(e)}')
 
         log.info('Successfully got all current season data')
         await self.updater.update_all_servers()
