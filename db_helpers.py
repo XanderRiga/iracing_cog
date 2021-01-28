@@ -216,3 +216,15 @@ async def get_or_create_license(guild_id, driver_discord_id, license_class, cate
     )
 
     return license_model[0]
+
+
+async def set_all_fav_series(guild_id, series_ids):
+    for series_id in series_ids:
+        await add_fav_series(guild_id, series_id)
+
+
+async def add_fav_series(guild_id, series_id):
+    guild = await get_or_create_guild(guild_id)
+    series = await Series.get(iracing_id=series_id)
+
+    await guild.favorite_series.add(series)

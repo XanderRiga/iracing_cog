@@ -1,4 +1,5 @@
 from ..helpers import *
+from ..db_helpers import set_all_fav_series, init_tortoise, Tortoise
 
 
 class SetFavSeries:
@@ -14,9 +15,12 @@ class SetFavSeries:
                 await ctx.send('Please enter a comma separated list of numbers which correspond to'
                                'series IDs from the `!allseries` command')
                 return
-
+            await init_tortoise()
+            await set_all_fav_series(ctx.guild.id, parsed_ids)
             set_guild_favorites(ctx.guild.id, parsed_ids)
             await ctx.send(f'Successfully saved favorite series: {parsed_ids}')
+            await Tortoise.close_connections()
         except ValueError:
             await ctx.send('Please enter a comma separated list of numbers which correspond to'
                            'series IDs from the `!allseries` command')
+            await Tortoise.close_connections()
