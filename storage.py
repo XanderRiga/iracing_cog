@@ -74,7 +74,7 @@ def set_guild_favorites(guild_id, favorites):
 
 def get_guild_favorites(guild_id):
     guild_dict = get_guild_dict(guild_id)
-    return guild_dict['favorites']
+    return guild_dict['favorites'] or {}
 
 
 def set_user_data(user_id, guild_id, user_data):

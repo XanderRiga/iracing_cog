@@ -228,3 +228,10 @@ async def add_fav_series(guild_id, series_id):
     series = await Series.get(iracing_id=series_id)
 
     await guild.favorite_series.add(series)
+
+
+async def remove_fav_series(guild_id, series_id):
+    guild = await get_or_create_guild(guild_id)
+    series = await Series.get(iracing_id=series_id)
+
+    await guild.favorite_series.remove(series)

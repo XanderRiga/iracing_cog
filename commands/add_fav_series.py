@@ -1,5 +1,6 @@
 from ..storage import *
 from ..helpers import *
+from ..db_helpers import add_fav_series, init_tortoise, Tortoise
 
 
 class AddFavSeries:
@@ -16,7 +17,12 @@ class AddFavSeries:
             current_favorites = list(set(current_favorites))
             current_favorites.append(series_id_int)
             current_favorites.sort()
+
+            await init_tortoise()
+            await add_fav_series(ctx.guild.id, series_id)
             set_guild_favorites(ctx.guild.id, current_favorites)
             await ctx.send(f'Successfully added series: {series_id}')
+            await Tortoise.close_connections()
         except:
             await ctx.send('Series ID must be a number associated to a series in `!allseries`')
+            await Tortoise.close_connections()
