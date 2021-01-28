@@ -163,14 +163,14 @@ def build_race_week_string(race_week, series, title, log):
     return css + header_string + "\n" + html_string
 
 
-async def build_race_week_string_db(series, title, log):
+async def build_race_week_string_db(series, title, log, offset):
     table = PrettyTable()
     table.field_names = ['ID', 'Series', 'Track']
 
     await init_tortoise()
     for serie in series:
         season = await serie.current_season()
-        combo = await season.current_combo()
+        combo = await season.offset_combo(offset)
         track = await combo.track
         try:
             track_name = track.name

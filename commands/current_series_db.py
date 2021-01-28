@@ -19,8 +19,8 @@ class CurrentSeriesDb:
                                'series before using this command')
                 return
 
-            this_week_string = await build_race_week_string_db(favorite_series, 'This Week', self.log)
-            next_week_string = await build_race_week_string_db(favorite_series, 'Next Week', self.log)
+            this_week_string = await build_race_week_string_db(favorite_series, 'This Week', self.log, 0)
+            next_week_string = await build_race_week_string_db(favorite_series, 'Next Week', self.log, 1)
 
             this_week_filename = f'{ctx.guild.id}_this_week.jpg'
             next_week_filename = f'{ctx.guild.id}_next_week.jpg'
