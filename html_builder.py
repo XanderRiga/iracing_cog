@@ -182,3 +182,25 @@ def build_series_html_string(series, title):
     css = wrap_in_style_tag(iracing_table_css + header_css)
 
     return css + header_string + "\n" + html_string
+
+
+def build_series_model_html_string(series, title):
+    table = PrettyTable()
+    table.field_names = ['ID', 'Series']
+
+    for serie in series:
+        try:
+            table.add_row(
+                [
+                    serie.iracing_id,
+                    serie.name
+                ]
+            )
+        except:
+            continue
+
+    html_string = table.get_html_string(attributes={"id": "iracing_table"})
+    header_string = build_html_header_string(title)
+    css = wrap_in_style_tag(iracing_table_css + header_css)
+
+    return css + header_string + "\n" + html_string

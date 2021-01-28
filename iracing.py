@@ -14,11 +14,12 @@ from .commands.save_id import SaveId
 from .commands.leaderboard import Leaderboard
 # from .commands.iratings import Iratings
 from .commands.all_series import AllSeries
+from .commands.all_series_db import AllSeriesDb
 from .commands.current_series import CurrentSeries
 from .commands.set_fav_series import SetFavSeries
 from .commands.add_fav_series import AddFavSeries
 from .commands.remove_fav_series import RemoveFavSeries
-from tortoise import Tortoise
+from .db_helpers import *
 
 dotenv.load_dotenv()
 
@@ -49,6 +50,7 @@ class Iracing(commands.Cog):
         self.leaderboard = Leaderboard(log)
         # self.iratings = Iratings(log)
         self.all_series_command = AllSeries(log)
+        self.all_series_db = AllSeriesDb(log)
         self.current_series = CurrentSeries(log)
         self.set_fav_series = SetFavSeries(log)
         self.add_fav_series = AddFavSeries(log)
@@ -122,7 +124,10 @@ class Iracing(commands.Cog):
 
     @commands.command(name='allseries')
     async def allseries(self, ctx):
-        await self.all_series_command.call(ctx, self.all_series)
+        if is_home_guild(str(ctx.guild.id)):
+            await self.all_series_db.call(ctx)
+        else:
+            await self.all_series_command.call(ctx, self.all_series)
 
     @commands.command(name='setfavseries')
     async def setfavseries(self, ctx, *, ids):

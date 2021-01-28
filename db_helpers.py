@@ -20,7 +20,7 @@ async def get_or_create_series(series):
         iracing_id=series.series_id,
         defaults={
             'name': series.series_name_short,
-            'category_id': series.cat_id
+            'category': Category(series.cat_id)
         }
     )
 

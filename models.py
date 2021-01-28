@@ -111,7 +111,7 @@ class Series(Base):
     iracing_id = fields.CharField(max_length=30, unique=True)
     favorited_guilds: fields.ManyToManyRelation[Guild]
     name = fields.TextField()
-    category_id = fields.IntField()
+    category: Category = fields.IntEnumField(Category)
 
 
 class Season(Base):

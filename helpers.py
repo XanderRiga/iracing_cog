@@ -237,3 +237,8 @@ def peak_irating_value(iratings):
             max = irating[1]
 
     return max
+
+
+def is_home_guild(guild_id):
+    return guild_id == '174382936877957120' or \
+           guild_id == '286557202523750411'
