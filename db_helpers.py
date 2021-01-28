@@ -1,6 +1,7 @@
 from .models import *
 from tortoise import Tortoise
 import traceback
+import datetime
 
 
 async def init_tortoise():
@@ -186,3 +187,20 @@ async def update_driver_name(discord_id, guild_id, name):
     await driver_model[0].update_from_dict({'iracing_name': name})
     await driver_model[0].save()
     await driver_model[0].guilds.add(guild_model)
+
+
+async def get_or_create_irating(guild_id, driver_discord_id, irating, category):
+    driver_model = await get_or_create_driver(driver_discord_id, guild_id)
+
+    irating_timestamp = datetime.datetime.fromtimestamp((irating.timestamp / 1000))
+
+    irating_model = await Irating.get_or_create(
+        timestamp=irating_timestamp,
+        driver=driver_model,
+        category=Category(category),
+        defaults={
+            'value': irating.value
+        }
+    )
+
+    return irating_model[0]

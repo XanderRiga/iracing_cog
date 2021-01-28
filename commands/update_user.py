@@ -118,6 +118,7 @@ class UpdateUser:
         json_iratings = []
         for irating in chart_data.content:
             json_iratings.append([irating.datetime().strftime(datetime_format), irating.value])
+            await get_or_create_irating(guild_id, user_id, irating, category)
 
         guild_dict[user_id][f'{category.name}_irating'] = json_iratings
 

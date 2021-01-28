@@ -3,6 +3,16 @@ from tortoise.models import Model
 from enum import IntEnum
 
 
+class LicenseClass(IntEnum):
+    R = 1
+    D = 2
+    C = 3
+    B = 4
+    A = 5
+    P = 6
+    PWC = 7
+
+
 class Category(IntEnum):
     oval = 1
     road = 2
@@ -45,8 +55,33 @@ class Irating(Base):
         return f'{self.driver.discord_id} irating for {self.category} at {self.timestamp}'
 
 
+# LicenseClass is in the format `4368` where the first digit represents the
+# license class A through Rookie which can be seen in Constants.
+# License and the next 3 digits are the actual rating, so the example '4368'
+# would be B class with a 3.68 rating
+class License(Base):
+    license_number = fields.IntField()
+    timestamp = fields.TextField()
+    driver = fields.ForeignKeyField('models.Driver', related_name='licenses')
+    category: Category = fields.IntEnumField(Category)
+
+    # 1, 2, 3, 4, 5
+    def class_number(self) -> int:
+        return int(str(self.license_number)[0])
+
+    # A, B, C, D, R
+    def class_letter(self) -> str:
+        return LicenseClass(self.class_number()).name
+
+    # example: 3.15
+    def safety_rating(self) -> str:
+        relevant_chars = str(self.license_number)[1:]
+        return relevant_chars[0] + '.' + relevant_chars[1:]
+
+
 class Driver(Base):
     iratings: fields.ReverseRelation["Irating"]
+    licenses: fields.ReverseRelation["Driver"]
     stats: fields.ReverseRelation["Stat"]
     discord_id = fields.CharField(max_length=30, unique=True)
     guilds: fields.ManyToManyRelation["Guild"] = fields.ManyToManyField(

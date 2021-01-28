@@ -1,4 +1,3 @@
-from datetime import datetime
 from ..storage import *
 import time
 import asyncio
@@ -17,7 +16,7 @@ class Update:
         guild_dict = get_guild_dict(guild_id)
         user_id = str(ctx.author.id)
 
-        start_time = datetime.now()
+        start_time = datetime.datetime.now()
         dt_string = start_time.strftime("%d/%m/%Y %H:%M:%S")
         self.log.info(f'=============== Manual update for {ctx.author.name} update started at: ' +
                       dt_string + ' ======================')
@@ -29,13 +28,13 @@ class Update:
         set_guild_data(guild_id, guild_dict)
         self.log.info(f'=============== Manual update for {ctx.author.name} finished that started at: ' +
                       dt_string + ' ======================')
-        finish_time = datetime.now()
+        finish_time = datetime.datetime.now()
         self.log.info(f'=============== Manual update for {ctx.author.name} took ' + str(
             (finish_time - start_time).total_seconds()) + ' seconds ===============')
         await ctx.send(f'Successfully updated {ctx.author.name}')
 
     async def update_server(self, ctx):
-        start_time = datetime.now()
+        start_time = datetime.datetime.now()
         dt_string = start_time.strftime("%d/%m/%Y %H:%M:%S")
         self.log.info('=============== Manual update started at: ' + dt_string + ' ======================')
 
@@ -83,7 +82,7 @@ class Update:
             (time.monotonic() - start_time)) + ' seconds =================')
 
     async def update_server_background(self, guild_id):
-        start_time = datetime.now()
+        start_time = datetime.datetime.now()
         dt_string = start_time.strftime("%d/%m/%Y %H:%M:%S")
         guild_id = str(guild_id)
         self.log.info(f'=============== background update for guild: {guild_id} started at: ' +
@@ -95,6 +94,6 @@ class Update:
                 guild_dict = await self.update_user.update_user_in_dict(user_id, guild_dict, guild_id)
 
         set_guild_data(guild_id, guild_dict)
-        finish_time = datetime.now()
+        finish_time = datetime.datetime.now()
         self.log.info(f'=============== Auto update for guild: {guild_id} took ' + str(
             (finish_time - start_time).total_seconds()) + ' seconds ===============')
