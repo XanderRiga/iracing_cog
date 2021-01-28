@@ -1,6 +1,8 @@
 from ..storage import *
 from ..html_builder import *
 import imgkit
+from ..db_helpers import init_tortoise
+from tortoise import Tortoise
 
 
 class CareerStats:
@@ -20,8 +22,10 @@ class CareerStats:
                                    ' ID>`')
                     return
 
+            await init_tortoise()
             guild_dict = get_guild_dict(guild_id)
             career_stats = await self.update_user.update_career_stats(user_id, guild_dict, iracing_id, guild_id)
+            await Tortoise.close_connections()
 
             if career_stats:
                 career_stats_html = get_career_stats_html(career_stats, iracing_id)
