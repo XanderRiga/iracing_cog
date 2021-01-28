@@ -21,7 +21,7 @@ class CareerStats:
                     return
 
             guild_dict = get_guild_dict(guild_id)
-            career_stats = await self.update_user.update_career_stats(user_id, guild_dict, iracing_id)
+            career_stats = await self.update_user.update_career_stats(user_id, guild_dict, iracing_id, guild_id)
 
             if career_stats:
                 career_stats_html = get_career_stats_html(career_stats, iracing_id)

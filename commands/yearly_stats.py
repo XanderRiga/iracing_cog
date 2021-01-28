@@ -21,7 +21,7 @@ class YearlyStats:
                     return
 
             guild_dict = get_guild_dict(guild_id)
-            yearly_stats = await self.update_user.update_yearly_stats(user_id, guild_dict, iracing_id)
+            yearly_stats = await self.update_user.update_yearly_stats(user_id, guild_dict, iracing_id, guild_id)
 
             if yearly_stats:
                 yearly_stats_html = get_yearly_stats_html(yearly_stats, iracing_id)
