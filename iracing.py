@@ -19,6 +19,7 @@ from .commands.current_series import CurrentSeries
 from .commands.set_fav_series import SetFavSeries
 from .commands.add_fav_series import AddFavSeries
 from .commands.remove_fav_series import RemoveFavSeries
+from .commands.current_series_db import CurrentSeriesDb
 from .db_helpers import *
 
 dotenv.load_dotenv()
@@ -52,6 +53,7 @@ class Iracing(commands.Cog):
         self.all_series_command = AllSeries(log)
         self.all_series_db = AllSeriesDb(log)
         self.current_series = CurrentSeries(log)
+        self.current_series_db = CurrentSeriesDb(log)
         self.set_fav_series = SetFavSeries(log)
         self.add_fav_series = AddFavSeries(log)
         self.remove_fav_series = RemoveFavSeries(log)
@@ -138,7 +140,10 @@ class Iracing(commands.Cog):
 
     @commands.command(name='currentseries')
     async def currentseries(self, ctx):
-        await self.current_series.call(ctx, self.all_series)
+        if is_home_guild(str(ctx.guild.id)):
+            await self.current_series_db.call(ctx)
+        else:
+            await self.current_series.call(ctx, self.all_series)
 
     @commands.command(name='addfavseries')
     async def addfavseries(self, ctx, series_id):

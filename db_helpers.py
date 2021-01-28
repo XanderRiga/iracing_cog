@@ -1,6 +1,7 @@
 from .models import *
 from tortoise import Tortoise
 from datetime import datetime
+import traceback
 
 
 async def init_tortoise():
@@ -56,14 +57,13 @@ async def get_or_create_season_combo(track, season):
     track_model = await get_or_create_track(track)
     season_combo = await SeasonCombo.get_or_create(
         season=season,
+        race_week=track.race_week,
         defaults={
             'track': track_model,
             'track_layout': track.config,
-            'race_week': track.race_week,
             'time_of_day': track.time_of_day
         }
     )
-
     return season_combo[0]
 
 

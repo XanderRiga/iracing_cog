@@ -1,6 +1,7 @@
 from tortoise import fields
 from tortoise.models import Model
 from enum import IntEnum
+from datetime import datetime, timezone
 
 
 class LicenseClass(IntEnum):
@@ -110,8 +111,18 @@ class Track(Base):
 class Series(Base):
     iracing_id = fields.CharField(max_length=30, unique=True)
     favorited_guilds: fields.ManyToManyRelation[Guild]
+    seasons: fields.ReverseRelation["Season"]
     name = fields.TextField()
     category: Category = fields.IntEnumField(Category)
+
+    async def current_season(self):
+        all_seasons = await self.seasons.all()
+        most_recent = all_seasons[0]
+        for season in all_seasons:
+            if season.start_time > most_recent.start_time:
+                most_recent = season
+
+        return most_recent
 
 
 class Season(Base):
@@ -130,10 +141,16 @@ class Season(Base):
     is_official = fields.BooleanField(null=True)
     active = fields.BooleanField(null=True)
 
-    # TODO use the start date and the current date difference
-    #  to determine what the current race week is and find the combo from that
-    def current_combo(self):
-        return None
+    def current_week(self):
+        current_datetime = datetime.now()
+        utc_time = current_datetime.replace(tzinfo=timezone.utc)
+        return ((utc_time - self.start_time).days // 7) + 1
+
+    async def current_combo(self):
+        return await SeasonCombo.get(
+            season=self,
+            race_week=self.current_week()
+        )
 
 
 class Car(Base):
@@ -146,8 +163,8 @@ class Car(Base):
 class SeasonCombo(Base):
     season = fields.ForeignKeyField('models.Season', related_name='season_combos')
     track = fields.ForeignKeyField('models.Track', related_name='season_combos')
-    track_layout = fields.TextField()
     race_week = fields.IntField()
+    track_layout = fields.TextField(null=True)
     time_of_day = fields.IntField(null=True)
 
 

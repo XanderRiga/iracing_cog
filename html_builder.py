@@ -1,6 +1,7 @@
 from .helpers import *
 from prettytable import PrettyTable
 import discord
+from .db_helpers import init_tortoise
 
 
 def get_yearly_stats_html(yearly_stats, iracing_id):
@@ -148,6 +149,38 @@ def build_race_week_string(race_week, series, title, log):
                 [
                     serie.series_id,
                     serie.series_name_short,
+                    track_name
+                ]
+            )
+        except:
+            log.info(f'failed to print series: {serie}')
+            continue
+
+    html_string = table.get_html_string(attributes={"id": "iracing_table"})
+    header_string = build_html_header_string(title)
+    css = wrap_in_style_tag(iracing_table_css + header_css)
+
+    return css + header_string + "\n" + html_string
+
+
+async def build_race_week_string_db(series, title, log):
+    table = PrettyTable()
+    table.field_names = ['ID', 'Series', 'Track']
+
+    await init_tortoise()
+    for serie in series:
+        season = await serie.current_season()
+        combo = await season.current_combo()
+        track = await combo.track
+        try:
+            track_name = track.name
+
+            if combo.track_layout:
+                track_name += f' - {combo.track_layout}'
+            table.add_row(
+                [
+                    serie.iracing_id,
+                    serie.name,
                     track_name
                 ]
             )
