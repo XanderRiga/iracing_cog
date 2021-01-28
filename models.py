@@ -144,7 +144,7 @@ class Season(Base):
     def current_week(self):
         current_datetime = datetime.now()
         utc_time = current_datetime.replace(tzinfo=timezone.utc)
-        return ((utc_time - self.start_time).days // 7) + 1
+        return (utc_time - self.start_time).days // 7
 
     async def current_combo(self):
         return await SeasonCombo.get(
