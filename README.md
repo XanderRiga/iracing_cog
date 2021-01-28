@@ -3,6 +3,8 @@ This is a cog for discord.py that allows users to view and compare their iRacing
 
 This uses [pyracing](https://github.com/Esterni/pyracing) under the hood, which I also contribute to.
 
+## You can always use `!help` to see what the bot can do
+
 # What it Does
 This bot has 2 primary functions, it can show you the current weekly combos of what track your favorite series are on, 
 and compare you to your friends through the leaderboards and other statistics. 
