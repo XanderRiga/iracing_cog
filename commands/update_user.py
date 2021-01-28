@@ -130,6 +130,8 @@ class UpdateUser:
             return 'N/A'
 
         license_class = str(chart_data.current().class_letter()) + ' ' + str(chart_data.current().safety_rating())
+        await get_or_create_license(guild_id, user_id, chart_data.current(), category)
+
         guild_dict[user_id][f'{category.name}_license_class'] = license_class
         return license_class
 
