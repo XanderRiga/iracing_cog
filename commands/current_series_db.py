@@ -31,6 +31,7 @@ class CurrentSeriesDb:
             cleanup_file(this_week_filename)
             cleanup_file(next_week_filename)
             await Tortoise.close_connections()
-        except Exception:
+        except Exception as e:
+            self.log.warning(f'Current series failed: {e}')
             traceback.print_exc()
             await Tortoise.close_connections()
