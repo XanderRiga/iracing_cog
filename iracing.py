@@ -7,7 +7,7 @@ from .html_builder import *
 from .commands.update_user import UpdateUser
 from .commands.update import Update
 from .commands.recent_races import RecentRaces
-from .commands.last_series import LastSeries
+# from .commands.last_series import LastSeries
 from .commands.yearly_stats import YearlyStats
 from .commands.career_stats import CareerStats
 from .commands.save_id import SaveId
@@ -44,7 +44,7 @@ class Iracing(commands.Cog):
         self.update_user = UpdateUser(self.pyracing, log)
         self.updater = Update(self.pyracing, log, self.update_user)
         self.recent_races = RecentRaces(self.pyracing, log)
-        self.last_series = LastSeries(self.pyracing, log)
+        # self.last_series = LastSeries(self.pyracing, log)
         self.yearly_stats = YearlyStats(self.pyracing, log, self.update_user)
         self.career_stats = CareerStats(self.pyracing, log, self.update_user)
         self.save_id = SaveId(log)
@@ -87,11 +87,11 @@ class Iracing(commands.Cog):
         to use the stored iracing id for the user who called the command."""
         await self.recent_races.call(ctx, iracing_id, self.all_series)
 
-    @commands.command(name='lastseries')
-    async def lastseries(self, ctx, *, iracing_id=None):
-        """Shows the recent series data for the given iracing id. If no iracing id is provided it will attempt
-        to use the stored iracing id for the user who called the command."""
-        await self.last_series.call(ctx, iracing_id)
+    # @commands.command(name='lastseries')
+    # async def lastseries(self, ctx, *, iracing_id=None):
+    #     """Shows the recent series data for the given iracing id. If no iracing id is provided it will attempt
+    #     to use the stored iracing id for the user who called the command."""
+    #     await self.last_series.call(ctx, iracing_id)
 
     @commands.command(name='yearlystats')
     async def yearlystats(self, ctx, *, iracing_id=None):
@@ -126,6 +126,8 @@ class Iracing(commands.Cog):
 
     @commands.command(name='allseries')
     async def allseries(self, ctx):
+        """Show all series currently in iRacing to help with choosing your favorites for
+        `!setfavseries`"""
         if is_home_guild(str(ctx.guild.id)):
             await self.all_series_db.call(ctx)
         else:
@@ -140,6 +142,8 @@ class Iracing(commands.Cog):
 
     @commands.command(name='currentseries')
     async def currentseries(self, ctx):
+        """Once you set favorites with `!setfavseries` or `!addfavseries` this command will
+        show this and next week tracks for your favorite series"""
         if is_home_guild(str(ctx.guild.id)):
             await self.current_series_db.call(ctx)
         else:
@@ -147,10 +151,14 @@ class Iracing(commands.Cog):
 
     @commands.command(name='addfavseries')
     async def addfavseries(self, ctx, series_id):
+        """Add a series to your favorites, use `!currentseries` to see
+        what your current favorites are"""
         await self.add_fav_series.call(ctx, series_id, self.all_series)
 
     @commands.command(name='removefavseries')
     async def removefavseries(self, ctx, series_id):
+        """Remove a series from your favorites list, use `!currentseries` to see
+        what your current favorites are"""
         await self.remove_fav_series.call(ctx, series_id)
 
 
