@@ -1,6 +1,6 @@
 from .models import *
 from tortoise import Tortoise
-import datetime
+from datetime import datetime
 
 
 async def init_tortoise():
@@ -187,7 +187,7 @@ async def update_driver_name(discord_id, guild_id, name):
 async def get_or_create_irating(guild_id, driver_discord_id, irating, category):
     driver_model = await get_or_create_driver(driver_discord_id, guild_id)
 
-    irating_timestamp = datetime.datetime.fromtimestamp((irating.timestamp / 1000))
+    irating_timestamp = datetime.fromtimestamp((irating.timestamp / 1000))
 
     irating_model = await Irating.get_or_create(
         timestamp=irating_timestamp,
@@ -204,7 +204,7 @@ async def get_or_create_irating(guild_id, driver_discord_id, irating, category):
 async def get_or_create_license(guild_id, driver_discord_id, license_class, category):
     driver_model = await get_or_create_driver(driver_discord_id, guild_id)
 
-    license_timestamp = datetime.datetime.fromtimestamp((license_class.timestamp / 1000))
+    license_timestamp = datetime.fromtimestamp((license_class.timestamp / 1000))
 
     license_model = await License.get_or_create(
         timestamp=license_timestamp,
