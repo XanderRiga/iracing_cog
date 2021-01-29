@@ -21,8 +21,8 @@ You can find examples of these actions and the commands to do these actions belo
 Want the bot in your discord? Click this link to add it:
 https://discord.com/oauth2/authorize?client_id=706222703664693308&scope=bot
 
-# Support
-You can reach out to me on Discord as `Xander#1234` for help if something seems to be wrong
+# Support & Questions
+Come to the discord [here](https://discord.gg/bAq8Ec5JPQ) for support
 
 # Examples
 ![Current Series](./fixtures/current_series.png)
