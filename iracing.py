@@ -134,10 +134,14 @@ class Iracing(commands.Cog):
             await self.all_series_command.call(ctx, self.all_series)
 
     @commands.command(name='setfavseries')
-    async def setfavseries(self, ctx, *, ids):
+    async def setfavseries(self, ctx, *, ids=''):
         """Use command `!allseries` to get a list of all series and ids.
             Then use this command `!setfavseries` with a list of comma
             separated ids to set your favorite series"""
+        if ids == '':
+            await ctx.send('You must pass at least one ID. Use `!help setfavseries` for more help')
+            return
+
         await self.set_fav_series.call(ctx, ids, self.all_series)
 
     @commands.command(name='currentseries')
@@ -150,15 +154,21 @@ class Iracing(commands.Cog):
             await self.current_series.call(ctx, self.all_series)
 
     @commands.command(name='addfavseries')
-    async def addfavseries(self, ctx, series_id):
+    async def addfavseries(self, ctx, series_id=None):
         """Add a series to your favorites, use `!currentseries` to see
         what your current favorites are"""
+        if not series_id:
+            await ctx.send('You must pass a series ID with this command. Use `!help addfavseries` for more info.')
+
         await self.add_fav_series.call(ctx, series_id, self.all_series)
 
     @commands.command(name='removefavseries')
-    async def removefavseries(self, ctx, series_id):
+    async def removefavseries(self, ctx, series_id=None):
         """Remove a series from your favorites list, use `!currentseries` to see
         what your current favorites are"""
+        if not series_id:
+            await ctx.send('You must pass a series ID with this command. Use `!help removefavseries` for more info.')
+
         await self.remove_fav_series.call(ctx, series_id)
 
 
