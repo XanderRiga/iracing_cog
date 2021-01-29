@@ -73,12 +73,24 @@ class Iracing(commands.Cog):
     @commands.command(name='update')
     async def update(self, ctx):
         """Update the career, yearly stats, and iratings for the user who called the command in the given server"""
+        if is_support_guild(ctx.guild.id):
+            await ctx.send('Sorry, this discord does not allow update, saveid, '
+                           'leaderboard, and series commands so as not to overload me. '
+                           'Try `!careerstats` or `!yearlystats` with your customer ID to test '
+                           'or go to #invite-link to bring the bot to your discord for all functionality')
+            return
         await self.updater.update_member(ctx)
 
     @commands.command(name='updateserver')
     async def updateserver(self, ctx):
         """Update all users career and yearly stats and iratings for building a current leaderboard.
         This is run every hour anyways, so it isn't necessary most of the time to run manually"""
+        if is_support_guild(ctx.guild.id):
+            await ctx.send('Sorry, this discord does not allow update, saveid, '
+                           'leaderboard, and series commands so as not to overload me. '
+                           'Try `!careerstats` or `!yearlystats` with your customer ID to test '
+                           'or go to #invite-link to bring the bot to your discord for all functionality')
+            return
         await self.updater.update_server(ctx)
 
     @commands.command(name='recentraces')
@@ -109,6 +121,12 @@ class Iracing(commands.Cog):
     async def saveid(self, ctx, *, iracing_id):
         """Save your iRacing ID to be placed on the leaderboard.
         Your ID can be found by the top right of your account page under "Customer ID"."""
+        if is_support_guild(ctx.guild.id):
+            await ctx.send('Sorry, this discord does not allow update, saveid, '
+                           'leaderboard, and series commands so as not to overload me. '
+                           'Try `!careerstats` or `!yearlystats` with your customer ID to test '
+                           'or go to #invite-link to bring the bot to your discord for all functionality')
+            return
         await self.save_id.call(ctx, iracing_id)
         await Tortoise.close_connections()
 
@@ -118,6 +136,12 @@ class Iracing(commands.Cog):
         If the data is not up to date, try `!update` first.
         The categories are `road`, `oval`, `dirtroad`, and `dirtoval` and
         the types are `career` and `yearly`. Default is `road` `career`"""
+        if is_support_guild(ctx.guild.id):
+            await ctx.send('Sorry, this discord does not allow update, saveid, '
+                           'leaderboard, and series commands so as not to overload me. '
+                           'Try `!careerstats` or `!yearlystats` with your customer ID to test '
+                           'or go to #invite-link to bring the bot to your discord for all functionality')
+            return
         await self.leaderboard.call(ctx, category, type)
 
     # @commands.command()
@@ -138,6 +162,12 @@ class Iracing(commands.Cog):
         """Use command `!allseries` to get a list of all series and ids.
             Then use this command `!setfavseries` with a list of comma
             separated ids to set your favorite series"""
+        if is_support_guild(ctx.guild.id):
+            await ctx.send('Sorry, this discord does not allow update, saveid, '
+                           'leaderboard, and series commands so as not to overload me. '
+                           'Try `!careerstats` or `!yearlystats` with your customer ID to test '
+                           'or go to #invite-link to bring the bot to your discord for all functionality')
+            return
         if ids == '':
             await ctx.send('You must pass at least one ID. Use `!help setfavseries` for more help')
             return
@@ -148,6 +178,12 @@ class Iracing(commands.Cog):
     async def currentseries(self, ctx):
         """Once you set favorites with `!setfavseries` or `!addfavseries` this command will
         show this and next week tracks for your favorite series"""
+        if is_support_guild(ctx.guild.id):
+            await ctx.send('Sorry, this discord does not allow update, saveid, '
+                           'leaderboard, and series commands so as not to overload me. '
+                           'Try `!careerstats` or `!yearlystats` with your customer ID to test '
+                           'or go to #invite-link to bring the bot to your discord for all functionality')
+            return
         if is_home_guild(str(ctx.guild.id)):
             await self.current_series_db.call(ctx)
         else:
@@ -157,6 +193,12 @@ class Iracing(commands.Cog):
     async def addfavseries(self, ctx, series_id=None):
         """Add a series to your favorites, use `!currentseries` to see
         what your current favorites are"""
+        if is_support_guild(ctx.guild.id):
+            await ctx.send('Sorry, this discord does not allow update, saveid, '
+                           'leaderboard, and series commands so as not to overload me. '
+                           'Try `!careerstats` or `!yearlystats` with your customer ID to test '
+                           'or go to #invite-link to bring the bot to your discord for all functionality')
+            return
         if not series_id:
             await ctx.send('You must pass a series ID with this command. Use `!help addfavseries` for more info.')
 
@@ -166,6 +208,12 @@ class Iracing(commands.Cog):
     async def removefavseries(self, ctx, series_id=None):
         """Remove a series from your favorites list, use `!currentseries` to see
         what your current favorites are"""
+        if is_support_guild(ctx.guild.id):
+            await ctx.send('Sorry, this discord does not allow update, saveid, '
+                           'leaderboard, and series commands so as not to overload me. '
+                           'Try `!careerstats` or `!yearlystats` with your customer ID to test '
+                           'or go to #invite-link to bring the bot to your discord for all functionality')
+            return
         if not series_id:
             await ctx.send('You must pass a series ID with this command. Use `!help removefavseries` for more info.')
 
