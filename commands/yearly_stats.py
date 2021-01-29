@@ -16,8 +16,13 @@ class YearlyStats:
             user_id = str(ctx.author.id)
             guild_id = str(ctx.guild.id)
             if not iracing_id:
-                iracing_id = get_user_iracing_id(user_id, guild_id)
-                if not iracing_id:
+                try:
+                    iracing_id = get_user_iracing_id(user_id, guild_id)
+                    if not iracing_id:
+                        await ctx.send('Please send an iRacing ID after the command or link your own with '
+                                       '`!saveid <iRacing ID>`')
+                        return
+                except:
                     await ctx.send('Please send an iRacing ID after the command or link your own with '
                                    '`!saveid <iRacing ID>`')
                     return

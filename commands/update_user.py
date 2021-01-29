@@ -91,22 +91,30 @@ class UpdateUser:
     async def update_career_stats(self, user_id, guild_dict, iracing_id, guild_id):
         career_stats_list = await self.pyracing.career_stats(iracing_id)
         if career_stats_list:
-            guild_dict[user_id]['career_stats'] = list(map(lambda x: x.__dict__, career_stats_list))
+            try:
+                guild_dict[user_id]['career_stats'] = list(map(lambda x: x.__dict__, career_stats_list))
 
-            for stat in career_stats_list:
-                await create_or_update_stats(user_id, guild_id, stat, StatsType.career)
-            return career_stats_list
+                for stat in career_stats_list:
+                    await create_or_update_stats(user_id, guild_id, stat, StatsType.career)
+                return career_stats_list
+            except:
+                self.log.info('skipping saving for career stats')
+                return career_stats_list
         else:
             return []
 
     async def update_yearly_stats(self, user_id, guild_dict, iracing_id, guild_id):
         yearly_stats_list = await self.pyracing.yearly_stats(iracing_id)
         if yearly_stats_list:
-            guild_dict[user_id]['yearly_stats'] = list(map(lambda x: x.__dict__, yearly_stats_list))
+            try:
+                guild_dict[user_id]['yearly_stats'] = list(map(lambda x: x.__dict__, yearly_stats_list))
 
-            for stat in yearly_stats_list:
-                await create_or_update_stats(user_id, guild_id, stat, StatsType.yearly)
-            return yearly_stats_list
+                for stat in yearly_stats_list:
+                    await create_or_update_stats(user_id, guild_id, stat, StatsType.yearly)
+                return yearly_stats_list
+            except:
+                self.log.info('skipping saving for yearly stats')
+                return yearly_stats_list
         else:
             return []
 
