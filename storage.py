@@ -74,7 +74,10 @@ def set_guild_favorites(guild_id, favorites):
 
 def get_guild_favorites(guild_id):
     guild_dict = get_guild_dict(guild_id)
-    return guild_dict['favorites'] or {}
+    if 'favorites' in guild_dict.keys():
+        return guild_dict['favorites']
+    else:
+        return {}
 
 
 def set_user_data(user_id, guild_id, user_data):
