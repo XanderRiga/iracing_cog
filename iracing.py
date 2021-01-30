@@ -73,7 +73,7 @@ class Iracing(commands.Cog):
     @tasks.loop(hours=4, reconnect=False)
     async def migrate_fav_series(self):
         """Moves fav series from json to DB, should be one time use"""
-        print('migrating fav series')
+        log.info('migrating fav series')
         guilds = []
         for file in os.scandir(folder):
             if file.path.endswith('.json'):
