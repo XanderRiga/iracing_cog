@@ -52,13 +52,12 @@ class Iracing(commands.Cog):
         # self.iratings = Iratings(log)
         self.all_series_command = AllSeries(log)
         self.all_series_db = AllSeriesDb(log)
-        self.current_series = CurrentSeries(log)
         self.current_series_db = CurrentSeriesDb(log)
         self.set_fav_series = SetFavSeries(log)
         self.add_fav_series = AddFavSeries(log)
         self.remove_fav_series = RemoveFavSeries(log)
         self.update_all_servers.start()
-        # self.migrate_fav_series.start()
+        self.migrate_fav_series.start()
 
     @tasks.loop(hours=4, reconnect=False)
     async def update_all_servers(self):
@@ -208,10 +207,7 @@ class Iracing(commands.Cog):
                            'Try `!careerstats` or `!yearlystats` with your customer ID to test '
                            'or go to #invite-link to bring the bot to your discord for all functionality')
             return
-        if is_home_guild(str(ctx.guild.id)):
-            await self.current_series_db.call(ctx)
-        else:
-            await self.current_series.call(ctx, self.all_series)
+        await self.current_series_db.call(ctx)
 
     @commands.command(name='addfavseries')
     async def addfavseries(self, ctx, series_id=None):
