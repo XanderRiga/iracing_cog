@@ -40,7 +40,6 @@ class Iracing(commands.Cog):
             os.getenv("IRACING_USERNAME"),
             os.getenv("IRACING_PASSWORD")
         )
-        self.migrate_fav_series.start()
         self.all_series = []
         self.update_user = UpdateUser(self.pyracing, log)
         self.updater = Update(self.pyracing, log, self.update_user)
@@ -69,29 +68,6 @@ class Iracing(commands.Cog):
         log.info('Successfully got all current season data')
         await self.updater.update_all_servers(self.all_series)
         await Tortoise.close_connections()
-
-    @tasks.loop(hours=4, reconnect=False)
-    async def migrate_fav_series(self):
-        """Moves fav series from json to DB, should be one time use"""
-        log.info('migrating fav series')
-        guilds = []
-        for file in os.scandir(folder):
-            if file.path.endswith('.json'):
-                guilds.append(os.path.basename(file.path)[:-5])
-
-        await init_tortoise()
-        for guild_id in guilds:
-            try:
-                favs = get_guild_favorites(guild_id)
-                parsed_ids = list(map(int, favs))
-                await set_all_fav_series(guild_id, parsed_ids)
-            except Exception as e:
-                traceback.print_exc()
-                log.info(f'failed updating {guild_id}')
-                log.info(str(e))
-        await Tortoise.close_connections()
-        print('finished migrating fav series')
-        log.info('finished migrating fav series')
 
     @commands.command(name='update')
     async def update(self, ctx):
