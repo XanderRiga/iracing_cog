@@ -4,6 +4,7 @@ from ..helpers import *
 from ..errors.name_not_found import NameNotFound
 from ..db_helpers import *
 from tortoise import Tortoise
+import traceback
 
 
 class UpdateUser:
@@ -144,4 +145,5 @@ class UpdateUser:
         return license_class
 
     def handle_exceptions(self, method_name, e):
+        traceback.print_exc()
         self.log.warning(f'update failed in method {method_name}. Exception: {str(e)}')
