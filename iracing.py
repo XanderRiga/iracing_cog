@@ -40,6 +40,7 @@ class Iracing(commands.Cog):
             os.getenv("IRACING_USERNAME"),
             os.getenv("IRACING_PASSWORD")
         )
+        self.migrate_fav_series.start()
         self.all_series = []
         self.update_user = UpdateUser(self.pyracing, log)
         self.updater = Update(self.pyracing, log, self.update_user)
@@ -57,7 +58,6 @@ class Iracing(commands.Cog):
         self.add_fav_series = AddFavSeries(log)
         self.remove_fav_series = RemoveFavSeries(log)
         self.update_all_servers.start()
-        self.migrate_fav_series.start()
 
     @tasks.loop(hours=4, reconnect=False)
     async def update_all_servers(self):
