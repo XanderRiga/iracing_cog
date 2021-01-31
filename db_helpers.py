@@ -90,18 +90,16 @@ async def get_or_create_car(car):
 
 async def get_or_create_driver(discord_id, guild_id, iracing_id, name=None):
     guild_model = await get_or_create_guild(guild_id)
-    driver_model = await Driver.get_or_create(discord_id=discord_id)
-
-    # if we didn't just create it, return it
-    if driver_model[1]:
-        return driver_model[0]
+    driver_model = await Driver.get_or_create(
+        discord_id=discord_id,
+        defaults={'iracing_id': iracing_id}
+    )
 
     driver = driver_model[0]
-    driver.iracing_id = iracing_id
     if name:
         driver.iracing_name = name
+        await driver.save()
 
-    await driver.save()
     await driver.guilds.add(guild_model)
     return driver
 
@@ -110,6 +108,7 @@ async def create_or_update_driver(iracing_id, discord_id, guild_id, name=None):
     guild_model = await get_or_create_guild(guild_id)
     driver = await get_or_create_driver(discord_id, guild_id, iracing_id, name)
 
+    # Not sure if we need this, but we don't want to accidentally drop this value
     driver.iracing_id = iracing_id
     if name:
         driver.iracing_name = name
