@@ -59,7 +59,7 @@ class Iracing(commands.Cog):
         # self.migrate_fav_series.start()
         self.update_all_servers.start()
 
-    @tasks.loop(hours=4, reconnect=False)
+    @tasks.loop(hours=3, reconnect=False)
     async def update_all_servers(self):
         """Update all users career stats and iratings for building a current leaderboard"""
         log.info('loading all series')
