@@ -88,46 +88,39 @@ async def get_or_create_car(car):
     return car_model[0]
 
 
-async def get_or_create_driver(discord_id, guild_id, iracing_id=None, name=None):
+async def get_or_create_driver(discord_id, guild_id, iracing_id, name=None):
     guild_model = await get_or_create_guild(guild_id)
     driver_model = await Driver.get_or_create(discord_id=discord_id)
 
-    update_params = {}
-    if iracing_id:
-        update_params['iracing_id'] = iracing_id
+    # if we didn't just create it, return it
+    if driver_model[1]:
+        return driver_model[0]
+
+    driver = driver_model[0]
+    driver.iracing_id = iracing_id
     if name:
-        update_params['iracing_name'] = name
+        driver.iracing_name = name
 
-    if update_params:
-        await driver_model[0].update_from_dict(update_params)
-        await driver_model[0].save()
-
-    await driver_model[0].guilds.add(guild_model)
-
-    return driver_model[0]
+    await driver.save()
+    await driver.guilds.add(guild_model)
+    return driver
 
 
 async def create_or_update_driver(iracing_id, discord_id, guild_id, name=None):
     guild_model = await get_or_create_guild(guild_id)
-    driver_model = await Driver.get_or_create(discord_id=discord_id)
+    driver = await get_or_create_driver(discord_id, guild_id, iracing_id, name)
 
+    driver.iracing_id = iracing_id
     if name:
-        await driver_model[0].update_from_dict({
-            'iracing_id': iracing_id,
-            'iracing_name': name
-        })
-    else:
-        await driver_model[0].update_from_dict({
-            'iracing_id': iracing_id
-        })
+        driver.iracing_name = name
 
-    await driver_model[0].save()
-
-    await driver_model[0].guilds.add(guild_model)
+    await driver.save()
+    await driver.guilds.add(guild_model)
+    return driver
 
 
-async def create_or_update_stats(driver_discord_id, guild_id, stat, stat_type):
-    driver_model = await get_or_create_driver(driver_discord_id, guild_id)
+async def create_or_update_stats(driver_discord_id, guild_id, stat, stat_type, driver_iracing_id):
+    driver_model = await get_or_create_driver(driver_discord_id, guild_id, driver_iracing_id)
     if stat_type == StatsType.career:
         stat_model_tuple = await Stat.get_or_create(
             driver=driver_model,
@@ -175,17 +168,18 @@ async def get_or_create_guild(guild_id):
     return guild_model[0]
 
 
-async def update_driver_name(discord_id, guild_id, name):
+async def update_driver_name(discord_id, guild_id, name, iracing_id):
     guild_model = await get_or_create_guild(guild_id)
-    driver_model = await Driver.get_or_create(discord_id=discord_id)
+    driver_model = await get_or_create_driver(discord_id, guild_id, iracing_id)
 
-    await driver_model[0].update_from_dict({'iracing_name': name})
-    await driver_model[0].save()
-    await driver_model[0].guilds.add(guild_model)
+    driver_model.iracing_name = name
+    await driver_model.save()
+    await driver_model.guilds.add(guild_model)
+    return driver_model
 
 
-async def get_or_create_irating(guild_id, driver_discord_id, irating, category):
-    driver_model = await get_or_create_driver(driver_discord_id, guild_id)
+async def get_or_create_irating(guild_id, driver_discord_id, irating, category, driver_iracing_id):
+    driver_model = await get_or_create_driver(driver_discord_id, guild_id, driver_iracing_id)
 
     irating_timestamp = datetime.fromtimestamp((irating.timestamp / 1000))
 
@@ -201,8 +195,8 @@ async def get_or_create_irating(guild_id, driver_discord_id, irating, category):
     return irating_model[0]
 
 
-async def get_or_create_license(guild_id, driver_discord_id, license_class, category):
-    driver_model = await get_or_create_driver(driver_discord_id, guild_id)
+async def get_or_create_license(guild_id, driver_discord_id, license_class, category, driver_iracing_id):
+    driver_model = await get_or_create_driver(driver_discord_id, guild_id, driver_iracing_id)
 
     license_timestamp = datetime.fromtimestamp((license_class.timestamp / 1000))
 

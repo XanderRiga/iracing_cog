@@ -83,7 +83,7 @@ class UpdateUser:
             name = parse_encoded_string(response.name)
             guild_dict[user_id]['name'] = name
 
-            await update_driver_name(user_id, guild_id, name)
+            await update_driver_name(user_id, guild_id, name, cust_id)
             return name
         except:
             self.log.warning(f'Name not found for {cust_id}')
@@ -96,7 +96,7 @@ class UpdateUser:
                 guild_dict[user_id]['career_stats'] = list(map(lambda x: x.__dict__, career_stats_list))
 
                 for stat in career_stats_list:
-                    await create_or_update_stats(user_id, guild_id, stat, StatsType.career)
+                    await create_or_update_stats(user_id, guild_id, stat, StatsType.career, iracing_id)
                 return career_stats_list
             except:
                 self.log.info('skipping saving for career stats')
@@ -111,7 +111,7 @@ class UpdateUser:
                 guild_dict[user_id]['yearly_stats'] = list(map(lambda x: x.__dict__, yearly_stats_list))
 
                 for stat in yearly_stats_list:
-                    await create_or_update_stats(user_id, guild_id, stat, StatsType.yearly)
+                    await create_or_update_stats(user_id, guild_id, stat, StatsType.yearly, iracing_id)
                 return yearly_stats_list
             except:
                 self.log.info('skipping saving for yearly stats')
@@ -127,7 +127,7 @@ class UpdateUser:
         json_iratings = []
         for irating in chart_data.content:
             json_iratings.append([irating.datetime().strftime(datetime_format), irating.value])
-            await get_or_create_irating(guild_id, user_id, irating, category)
+            await get_or_create_irating(guild_id, user_id, irating, category, iracing_id)
 
         guild_dict[user_id][f'{category.name}_irating'] = json_iratings
 
@@ -139,7 +139,7 @@ class UpdateUser:
             return 'N/A'
 
         license_class = str(chart_data.current().class_letter()) + ' ' + str(chart_data.current().safety_rating())
-        await get_or_create_license(guild_id, user_id, chart_data.current(), category)
+        await get_or_create_license(guild_id, user_id, chart_data.current(), category, iracing_id)
 
         guild_dict[user_id][f'{category.name}_license_class'] = license_class
         return license_class
