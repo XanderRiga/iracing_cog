@@ -175,10 +175,7 @@ class Iracing(commands.Cog):
     async def allseries(self, ctx):
         """Show all series currently in iRacing to help with choosing your favorites for
         `!setfavseries`"""
-        if is_home_guild(str(ctx.guild.id)):
-            await self.all_series_db.call(ctx)
-        else:
-            await self.all_series_command.call(ctx, self.all_series)
+        await self.all_series_db.call(ctx)
 
     @commands.command(name='setfavseries')
     async def setfavseries(self, ctx, *, ids=''):
