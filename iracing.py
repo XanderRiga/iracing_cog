@@ -10,6 +10,7 @@ from .commands.recent_races import RecentRaces
 # from .commands.last_series import LastSeries
 from .commands.yearly_stats import YearlyStats
 from .commands.career_stats import CareerStats
+from .commands.career_stats_db import CareerStatsDb
 from .commands.save_id import SaveId
 from .commands.leaderboard import Leaderboard
 # from .commands.iratings import Iratings
@@ -45,6 +46,7 @@ class Iracing(commands.Cog):
         # self.last_series = LastSeries(self.pyracing, log)
         self.yearly_stats = YearlyStats(self.pyracing, log, self.update_user)
         self.career_stats = CareerStats(self.pyracing, log, self.update_user)
+        self.career_stats_db = CareerStatsDb(self.pyracing, log)
         self.save_id = SaveId(log)
         self.leaderboard = Leaderboard(log)
         # self.iratings = Iratings(log)
@@ -135,7 +137,10 @@ class Iracing(commands.Cog):
     async def careerstats(self, ctx, *, iracing_id=None):
         """Shows the career stats for the given iracing id. If no iracing id is provided it will attempt
         to use the stored iracing id for the user who called the command."""
-        await self.career_stats.call(ctx, iracing_id)
+        if is_home_guild(ctx.guild.id):
+            await self.career_stats_db.call(ctx, iracing_id)
+        else:
+            await self.career_stats.call(ctx, iracing_id)
 
     @commands.command(name='saveid')
     async def saveid(self, ctx, *, iracing_id):

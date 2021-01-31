@@ -61,6 +61,33 @@ def get_career_stats_html(career_stats, iracing_id):
     return css + header_html_string + "\n" + html_string
 
 
+def get_career_stats_html_db(career_stats, iracing_id):
+    table = PrettyTable()
+    table.field_names = [
+        'Category', 'Starts', 'Top 5s', 'Wins', 'Avg Start', 'Avg Finish', 'Avg Incidents', 'Top 5 %', 'Win %'
+    ]
+    for career_stat in career_stats:
+        table.add_row(
+            [
+                career_stat.category,
+                str(career_stat.total_starts),
+                str(career_stat.total_top_fives),
+                str(career_stat.total_wins),
+                str(career_stat.avg_start_pos),
+                str(career_stat.avg_finish_pos),
+                str(career_stat.avg_incidents),
+                str(career_stat.top_five_percentage) + '%',
+                str(career_stat.win_percentage) + '%'
+            ]
+        )
+
+    header_html_string = build_html_header_string(f'Career Stats for user: {iracing_id}')
+    html_string = table.get_html_string(attributes={"id": "iracing_table"})
+    css = wrap_in_style_tag(iracing_table_css + header_css)
+
+    return css + header_html_string + "\n" + html_string
+
+
 def get_last_series_html_string(last_series, iracing_id):
     table = PrettyTable()
     table.field_names = ['Series', 'Position', 'Division', 'Weeks', 'Starts',
