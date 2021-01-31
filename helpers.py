@@ -4,6 +4,8 @@ from pyracing.constants import Category
 from .storage import *
 import os
 import copy
+from .models import Series
+from .db_helpers import init_tortoise
 
 
 iracing_table_css = """#iracing_table {
@@ -181,14 +183,26 @@ def build_embeds(discord, series, name):
     return embeds
 
 
-def ids_valid_series(series, ids):
+async def are_valid_series(series_ids_to_check):
     """takes in a list of ids and returns true if they are
         all in the series list"""
-    for series_id in ids:
-        if not any(x.series_id == series_id for x in series):
+    await init_tortoise()
+    all_series = await Series.all()
+    all_series_ids = list(map(lambda x: x.iracing_id, all_series))
+
+    for entered_id in series_ids_to_check:
+        if not await is_valid_series(entered_id, all_series_ids):
             return False
 
     return True
+
+
+async def is_valid_series(series_id, all_series_ids):
+    for existing_series_id in all_series_ids:
+        if str(existing_series_id) == str(series_id):
+            return True
+
+    return False
 
 
 def series_from_ids(ids, all_series):

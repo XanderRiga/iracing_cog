@@ -155,10 +155,13 @@ class Season(Base):
     async def offset_combo(self, offset):
         """offset is how far off the current week we want a combo for.
             so 1 would be 1 week after current, -1 would be the week before current"""
-        return await SeasonCombo.get(
-            season=self,
-            race_week=(self.current_week() + offset)
-        )
+        try:
+            return await SeasonCombo.get(
+                season=self,
+                race_week=(self.current_week() + offset)
+            )
+        except:
+            return None
 
 
 class Car(Base):

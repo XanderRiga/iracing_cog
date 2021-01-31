@@ -22,14 +22,20 @@ class CurrentSeriesDb:
             this_week_string = await build_race_week_string_db(favorite_series, 'This Week', self.log, 0)
             next_week_string = await build_race_week_string_db(favorite_series, 'Next Week', self.log, 1)
 
-            this_week_filename = f'{ctx.guild.id}_this_week.jpg'
-            next_week_filename = f'{ctx.guild.id}_next_week.jpg'
-            imgkit.from_string(this_week_string, this_week_filename)
-            imgkit.from_string(next_week_string, next_week_filename)
-            await ctx.send(file=discord.File(this_week_filename))
-            await ctx.send(file=discord.File(next_week_filename))
-            cleanup_file(this_week_filename)
-            cleanup_file(next_week_filename)
+            if not this_week_string and not next_week_string:
+                await ctx.send('Looks like there are no combos right now. Tr')
+
+            if this_week_string:
+                this_week_filename = f'{ctx.guild.id}_this_week.jpg'
+                imgkit.from_string(this_week_string, this_week_filename)
+                await ctx.send(file=discord.File(this_week_filename))
+                cleanup_file(this_week_filename)
+
+            if next_week_string:
+                next_week_filename = f'{ctx.guild.id}_next_week.jpg'
+                imgkit.from_string(next_week_string, next_week_filename)
+                await ctx.send(file=discord.File(next_week_filename))
+                cleanup_file(next_week_filename)
             await Tortoise.close_connections()
         except Exception as e:
             self.log.warning(f'Current series failed: {e}')

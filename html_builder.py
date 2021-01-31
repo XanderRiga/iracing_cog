@@ -166,12 +166,16 @@ def build_race_week_string(race_week, series, title, log):
 async def build_race_week_string_db(series, title, log, offset):
     table = PrettyTable()
     table.field_names = ['ID', 'Series', 'Track']
+    added_rows = 0
 
     await init_tortoise()
     for serie in series:
         season = await serie.current_season()
         combo = await season.offset_combo(offset)
+        if not combo:
+            continue
         track = await combo.track
+
         try:
             track_name = track.name
 
@@ -184,10 +188,14 @@ async def build_race_week_string_db(series, title, log, offset):
                     track_name
                 ]
             )
+            added_rows += 1
         except:
             log.info(f'failed to print series: {serie}')
             continue
 
+    # If we couldn't find any combos to print, lets give back an empty response
+    if added_rows == 0:
+        return ''
     html_string = table.get_html_string(attributes={"id": "iracing_table"})
     header_string = build_html_header_string(title)
     css = wrap_in_style_tag(iracing_table_css + header_css)

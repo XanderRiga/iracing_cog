@@ -1,19 +1,20 @@
 from ..helpers import *
 from ..db_helpers import set_all_fav_series, init_tortoise, Tortoise
 import traceback
+from ..models import Series
 
 
 class SetFavSeries:
     def __init__(self, log):
         self.log = log
 
-    async def call(self, ctx, ids, all_series):
+    async def call(self, ctx, ids):
         try:
             id_list = ids.replace(' ', '').split(',')
             id_list = [x for x in id_list if x]
             try:
                 parsed_ids = list(map(int, id_list))
-                if not ids_valid_series(all_series, parsed_ids):
+                if not await are_valid_series(parsed_ids):
                     await ctx.send('Please enter a comma separated list of numbers which correspond to'
                                    'series IDs from the `!allseries` command')
                     return
