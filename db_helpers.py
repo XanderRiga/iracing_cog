@@ -90,6 +90,7 @@ async def get_or_create_car(car):
 
 async def get_or_create_driver(discord_id, guild_id, iracing_id, name=None):
     guild_model = await get_or_create_guild(guild_id)
+    print(f'saving/creating driver {iracing_id} with name {name}')
     driver_model = await Driver.get_or_create(
         discord_id=discord_id,
         defaults={'iracing_id': iracing_id}
