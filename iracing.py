@@ -56,7 +56,7 @@ class Iracing(commands.Cog):
         self.set_fav_series = SetFavSeries(log)
         self.add_fav_series = AddFavSeries(log)
         self.remove_fav_series = RemoveFavSeries(log)
-        self.migrate_fav_series.start()
+        # self.migrate_fav_series.start()
         self.update_all_servers.start()
 
     @tasks.loop(hours=4, reconnect=False)
