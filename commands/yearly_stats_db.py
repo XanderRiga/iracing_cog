@@ -3,7 +3,7 @@ from ..html_builder import *
 import imgkit
 from ..db_helpers import init_tortoise
 from tortoise import Tortoise
-from ..models import Stat, Driver, StatsType
+from ..models import Stat, Driver, StatsType, Category
 
 
 class YearlyStatsDb:
@@ -37,6 +37,7 @@ class YearlyStatsDb:
                 await Tortoise.close_connections()
 
                 if yearly_stats:
+                    yearly_stats.sort(key=lambda x: x.year, reverse=True)
                     yearly_stats_html = get_yearly_stats_html_db(yearly_stats, iracing_id)
                     filename = f'{iracing_id}_yearly_stats.jpg'
                     imgkit.from_string(yearly_stats_html, filename)
@@ -51,9 +52,10 @@ class YearlyStatsDb:
         """When we get a query for a user not in our DB, we have to do an API request"""
         yearly_stats_list = await self.pyracing.yearly_stats(iracing_id)
         stat_model_list = []
+        await init_tortoise()
         for stat in yearly_stats_list:
             stat_model_list.append(Stat(
-                category=stat.category,
+                category=Category.from_name(stat.category),
                 stat_type=StatsType.yearly,
                 avg_incidents=stat.incidents_avg,
                 total_laps=stat.laps,
