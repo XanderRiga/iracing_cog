@@ -20,6 +20,18 @@ class Category(IntEnum):
     dirt_road = 3
     dirt_oval = 4
 
+    def friendly_name(self):
+        if self.value == 1:
+            return 'Oval'
+        elif self.value == 2:
+            return 'Road'
+        elif self.value == 3:
+            return 'Dirt Road'
+        elif self.value == 4:
+            return 'Dirt Oval'
+        else:
+            return ''
+
     @staticmethod
     def from_name(name):
         lower_name = name.lower()

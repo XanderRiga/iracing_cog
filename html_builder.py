@@ -4,6 +4,34 @@ import discord
 from .db_helpers import init_tortoise
 
 
+def get_yearly_stats_html_db(yearly_stats, iracing_id):
+    table = PrettyTable()
+    table.field_names = [
+        'Year', 'Category', 'Starts', 'Top 5s', 'Wins', 'Avg Start', 'Avg Finish', 'Avg Incidents', 'Top 5 %', 'Win %'
+    ]
+    for yearly_stat in yearly_stats:
+        table.add_row(
+            [
+                str(yearly_stat.year),
+                yearly_stat.category.friendly_name(),
+                str(yearly_stat.total_starts),
+                str(yearly_stat.total_top_fives),
+                str(yearly_stat.total_wins),
+                str(yearly_stat.avg_start_pos),
+                str(yearly_stat.avg_finish_pos),
+                str(yearly_stat.avg_incidents),
+                str(yearly_stat.top_five_percentage) + '%',
+                str(yearly_stat.win_percentage) + '%'
+            ]
+        )
+
+    header_html_string = build_html_header_string(f'Yearly Stats for user: {iracing_id}')
+    html_string = table.get_html_string(attributes={"id": "iracing_table"})
+    css = wrap_in_style_tag(iracing_table_css + header_css)
+
+    return css + header_html_string + "\n" + html_string
+
+
 def get_yearly_stats_html(yearly_stats, iracing_id):
     table = PrettyTable()
     table.field_names = [
@@ -69,7 +97,7 @@ def get_career_stats_html_db(career_stats, iracing_id):
     for career_stat in career_stats:
         table.add_row(
             [
-                career_stat.category,
+                career_stat.category.friendly_name(),
                 str(career_stat.total_starts),
                 str(career_stat.total_top_fives),
                 str(career_stat.total_wins),
