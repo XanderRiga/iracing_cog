@@ -53,9 +53,10 @@ class Update:
             (finish_time - start_time).total_seconds()) + ' seconds ===============')
         await ctx.send("Successfully updated this server")
 
-    async def update_all_servers(self, all_series):
+    async def update_all_servers(self):
         start_time = time.monotonic()
         self.log.info('=============== Updating all servers stats ======================')
+        all_series = await self.pyracing.current_seasons(series_id=True)
 
         try:
             await generate_schemas()

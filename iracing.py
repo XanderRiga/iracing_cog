@@ -38,7 +38,6 @@ class Iracing(commands.Cog):
             os.getenv("IRACING_USERNAME"),
             os.getenv("IRACING_PASSWORD")
         )
-        self.all_series = []
         self.update_user = UpdateUser(self.pyracing, log)
         self.updater = Update(self.pyracing, log, self.update_user)
         self.recent_races = RecentRaces(self.pyracing, log)
@@ -60,11 +59,8 @@ class Iracing(commands.Cog):
     async def update_all_servers(self):
         """Update all users career stats and iratings for building a current leaderboard"""
         log.info('loading all series')
-        self.all_series = await self.pyracing.current_seasons(series_id=True)
-        self.all_series.sort(key=lambda x: x.series_id)
-
         log.info('Successfully got all current season data')
-        await self.updater.update_all_servers(self.all_series)
+        await self.updater.update_all_servers()
         await Tortoise.close_connections()
 
     @tasks.loop(hours=4, reconnect=False)
