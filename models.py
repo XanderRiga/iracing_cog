@@ -103,6 +103,10 @@ class Driver(Base):
     iracing_name = fields.TextField(null=True)
     iracing_id = fields.TextField(null=True)
 
+    async def peak_irating(self, category):
+        relevant_iratings = await self.iratings.filter(category=category)
+        return max(irating.value for irating in relevant_iratings)
+
     def __str__(self):
         return self.iracing_name
 
