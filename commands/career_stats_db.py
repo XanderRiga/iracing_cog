@@ -3,7 +3,7 @@ from ..html_builder import *
 import imgkit
 from ..db_helpers import init_tortoise
 from tortoise import Tortoise
-from ..models import Stat, Driver, StatsType
+from ..models import Stat, Driver, StatsType, Category
 
 
 class CareerStatsDb:
@@ -53,7 +53,7 @@ class CareerStatsDb:
         stat_model_list = []
         for stat in career_stats_list:
             stat_model_list.append(Stat(
-                category=stat.category,
+                category=Category.from_name(stat.category),
                 stat_type=StatsType.career,
                 avg_incidents=stat.incidents_avg,
                 total_laps=stat.laps,
