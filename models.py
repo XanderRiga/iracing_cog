@@ -103,9 +103,16 @@ class Driver(Base):
     iracing_name = fields.TextField(null=True)
     iracing_id = fields.TextField(null=True)
 
+    async def iratings_by_category(self, category):
+        return await self.iratings.filter(category=category)
+
     async def peak_irating(self, category):
-        relevant_iratings = await self.iratings.filter(category=category)
+        relevant_iratings = await self.iratings_by_category(category)
         return max(irating.value for irating in relevant_iratings)
+
+    async def current_irating(self, category):
+        relevant_iratings = await self.iratings_by_category(category)
+        return max(irating.timestamp for irating in relevant_iratings)
 
     def __str__(self):
         return self.iracing_name
