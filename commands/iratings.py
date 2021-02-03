@@ -2,10 +2,10 @@ from ..storage import *
 from ..html_builder import *
 from ..helpers import *
 import imgkit
-# from bokeh.plotting import figure, output_file, save
-# from bokeh.io import export_png
-# from bokeh.palettes import Category20
-# from bokeh.models import Legend
+from bokeh.plotting import figure, output_file, save
+from bokeh.io import export_png
+from bokeh.palettes import Category20
+from bokeh.models import Legend
 import itertools
 from selenium import webdriver
 from datetime import datetime

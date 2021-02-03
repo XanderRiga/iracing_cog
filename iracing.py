@@ -12,7 +12,7 @@ from .commands.career_stats_db import CareerStatsDb
 from .commands.yearly_stats_db import YearlyStatsDb
 from .commands.save_id import SaveId
 from .commands.leaderboard import Leaderboard
-# from .commands.iratings import Iratings
+from .commands.iratings import Iratings
 from .commands.all_series import AllSeries
 from .commands.all_series_db import AllSeriesDb
 from .commands.set_fav_series import SetFavSeries
@@ -46,7 +46,7 @@ class Iracing(commands.Cog):
         self.career_stats_db = CareerStatsDb(self.pyracing, log)
         self.save_id = SaveId(log)
         self.leaderboard = Leaderboard(log)
-        # self.iratings = Iratings(log)
+        self.iratings = Iratings(log)
         self.all_series_command = AllSeries(log)
         self.all_series_db = AllSeriesDb(log)
         self.current_series_db = CurrentSeriesDb(log)
@@ -160,9 +160,9 @@ class Iracing(commands.Cog):
             return
         await self.leaderboard.call(ctx, category, type)
 
-    # @commands.command()
-    # async def iratings(self, ctx, category='road'):
-    #     await self.iratings.call(ctx, category)
+    @commands.command()
+    async def iratings(self, ctx, category='road'):
+        await self.iratings.call(ctx, category)
 
     @commands.command(name='allseries')
     async def allseries(self, ctx):
