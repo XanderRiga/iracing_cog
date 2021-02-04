@@ -88,3 +88,7 @@ If the user has not saved their ID, they must provide an iRacing Client ID.
 This will give an overview of the yearly stats of the player with the given iRacing Client ID.
 If an iRacing Client ID is not provided, then it will use the saved ID for the user who called the command.
 If the user has not saved their ID, they must provide an iRacing Client ID.
+
+# Local Setup
+Want to run your own instance of this bot? Check out the instructions [here](https://github.com/XanderRiga/iracing_bot) 
+to get started. You will need this repo and the iracing bot repo for it all to work.
