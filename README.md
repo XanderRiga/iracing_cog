@@ -90,5 +90,5 @@ If an iRacing Client ID is not provided, then it will use the saved ID for the u
 If the user has not saved their ID, they must provide an iRacing Client ID.
 
 # Local Setup
-Want to run your own instance of this bot? Check out the instructions [here](https://github.com/XanderRiga/iracing_bot) 
+Want to run your own instance of this bot? Check out the instructions [here](https://github.com/XanderRiga/iracing_bot#local-setup) 
 to get started. You will need this repo and the iracing bot repo for it all to work.
