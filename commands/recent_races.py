@@ -9,7 +9,7 @@ class RecentRaces:
         self.pyracing = pyracing
         self.log = log
 
-    async def call(self, ctx, iracing_id, all_series):
+    async def call(self, ctx, iracing_id):
         async with ctx.typing():
             user_id = str(ctx.author.id)
             guild_id = str(ctx.guild.id)
@@ -23,7 +23,7 @@ class RecentRaces:
             races_stats_list = await get_last_races(self.pyracing, self.log, user_id, guild_id, iracing_id)
 
             if races_stats_list:
-                table_html_string = recent_races_table_string(races_stats_list, iracing_id, all_series)
+                table_html_string = await recent_races_table_db_string(races_stats_list, iracing_id)
                 filename = f'{guild_id}_{iracing_id}_recent_races.jpg'
                 imgkit.from_string(table_html_string, filename)
                 await ctx.send(file=discord.File(filename))

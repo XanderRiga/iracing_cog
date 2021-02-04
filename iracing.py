@@ -113,7 +113,7 @@ class Iracing(commands.Cog):
     async def recentraces(self, ctx, *, iracing_id=None):
         """Shows the recent race data for the given iracing id. If no iracing id is provided it will attempt
         to use the stored iracing id for the user who called the command."""
-        await self.recent_races.call(ctx, iracing_id, self.all_series)
+        await self.recent_races.call(ctx, iracing_id)
 
     # @commands.command(name='lastseries')
     # async def lastseries(self, ctx, *, iracing_id=None):

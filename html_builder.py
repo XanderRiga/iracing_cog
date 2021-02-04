@@ -2,6 +2,7 @@ from .helpers import *
 from prettytable import PrettyTable
 import discord
 from .db_helpers import init_tortoise
+from .models import Series
 
 
 def get_yearly_stats_html_db(yearly_stats, iracing_id):
@@ -178,6 +179,34 @@ def recent_races_table_string(recent_races, iracing_id, all_series):
                 str(recent_race.strength_of_field),
                 recent_race.date,
                 get_series_name(all_series, recent_race.series_id),
+                recent_race.track
+            ]
+        )
+    html_string = table.get_html_string(attributes={"id": "iracing_table"})
+    header_string = build_html_header_string(f'Recent Races for user: {iracing_id}')
+    css = wrap_in_style_tag(iracing_table_css + header_css)
+
+    return css + header_string + "\n" + html_string
+
+
+async def recent_races_table_db_string(recent_races, iracing_id):
+    table = PrettyTable()
+    table.field_names = ['Finish', 'Start', 'Incidents', 'Avg iRating', 'Race Date', 'Series', 'Track Name']
+
+    for recent_race in recent_races:
+        try:
+            series = await Series.get(iracing_id=recent_race.series_id)
+            series_name = series.name
+        except:
+            series_name = 'Unknown Series'
+        table.add_row(
+            [
+                'P' + str(recent_race.pos_finish),
+                'P' + str(recent_race.pos_start),
+                str(recent_race.incidents),
+                str(recent_race.strength_of_field),
+                recent_race.date,
+                series_name,
                 recent_race.track
             ]
         )
