@@ -114,6 +114,32 @@ class Driver(Base):
         relevant_iratings = await self.iratings_by_category(category)
         return max(irating.timestamp for irating in relevant_iratings)
 
+    async def current_license_class(self, category):
+        licenses = await self.iratings.filter(category=category)
+        return max(license.timestamp for license in licenses)
+
+    async def current_year_stat(self, category):
+        today = datetime.today()
+        try:
+            return await Stat.get(
+                category=category,
+                type=StatsType.yearly,
+                year=today.year,
+                driver=self
+            )
+        except:
+            return None
+
+    async def career_stat(self, category):
+        try:
+            return await Stat.get(
+                category=category,
+                type=StatsType.career,
+                driver=self
+            )
+        except:
+            return None
+
     def __str__(self):
         return self.iracing_name
 
