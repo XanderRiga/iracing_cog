@@ -18,6 +18,7 @@ from .commands.all_series_db import AllSeriesDb
 from .commands.set_fav_series import SetFavSeries
 from .commands.remove_fav_series import RemoveFavSeries
 from .commands.current_series_db import CurrentSeriesDb
+from .commands.leaderboard_db import LeaderboardDb
 from .db_helpers import *
 
 dotenv.load_dotenv()
@@ -52,14 +53,14 @@ class Iracing(commands.Cog):
         self.current_series_db = CurrentSeriesDb(log)
         self.set_fav_series = SetFavSeries(log)
         self.remove_fav_series = RemoveFavSeries(log)
+        self.leaderboard_db = LeaderboardDb(log)
         # self.migrate_fav_series.start()
         self.update_all_servers.start()
 
     @tasks.loop(hours=3, reconnect=False)
     async def update_all_servers(self):
         """Update all users career stats and iratings for building a current leaderboard"""
-        log.info('loading all series')
-        log.info('Successfully got all current season data')
+        await Tortoise.close_connections()
         await self.updater.update_all_servers()
         await Tortoise.close_connections()
 
@@ -158,7 +159,11 @@ class Iracing(commands.Cog):
                            'Try `!careerstats` or `!yearlystats` with your customer ID to test '
                            'or go to #invite-link to bring the bot to your discord for all functionality')
             return
-        await self.leaderboard.call(ctx, category, type)
+        if is_home_guild(ctx.guild.id):
+            await init_tortoise()
+            await self.leaderboard_db.call(ctx, category, type)
+        else:
+            await self.leaderboard.call(ctx, category, type)
 
     @commands.command()
     async def iratings(self, ctx, category='road'):
