@@ -2,6 +2,7 @@ from tortoise import fields
 from tortoise.models import Model
 from enum import IntEnum
 from datetime import datetime, timezone
+from typing import Optional
 
 
 class LicenseClass(IntEnum):
@@ -39,9 +40,9 @@ class Category(IntEnum):
             return Category.oval
         if lower_name == 'road':
             return Category.road
-        if lower_name == 'dirt road':
+        if lower_name == 'dirt road' or lower_name == 'dirtroad' or lower_name == 'dirt_road':
             return Category.dirt_road
-        if lower_name == 'dirt oval':
+        if lower_name == 'dirt oval' or lower_name == 'dirtoval' or lower_name == 'dirt_oval':
             return Category.dirt_oval
         else:
             return None
@@ -106,24 +107,50 @@ class Driver(Base):
     async def iratings_by_category(self, category):
         return await self.iratings.filter(category=category)
 
-    async def peak_irating(self, category):
-        relevant_iratings = await self.iratings_by_category(category)
-        return max(irating.value for irating in relevant_iratings)
+    async def peak_irating(self, category) -> Optional[Irating]:
+        try:
+            relevant_iratings = await self.iratings_by_category(category)
+            return await max(relevant_iratings, key=lambda irating: irating.value)
+        except:
+            return None
 
-    async def current_irating(self, category):
-        relevant_iratings = await self.iratings_by_category(category)
-        return max(irating.timestamp for irating in relevant_iratings)
+    async def peak_irating_value(self, category) -> int:
+        try:
+            peak_irating_model = await self.peak_irating(category)
+            if peak_irating_model:
+                return peak_irating_model.value
+            else:
+                return 1350
+        except:
+            return 1350
+
+    async def current_irating(self, category) -> Optional[Irating]:
+        try:
+            relevant_iratings = await self.iratings_by_category(category)
+            return await max(relevant_iratings, key=lambda irating: irating.timestamp)
+        except:
+            return None
+
+    async def current_irating_value(self, category) -> int:
+        try:
+            current_irating_model = await self.current_irating(category)
+            return current_irating_model.value
+        except:
+            return 1350
 
     async def current_license_class(self, category):
-        licenses = await self.iratings.filter(category=category)
-        return max(license.timestamp for license in licenses)
+        try:
+            licenses = await self.licenses.filter(category=category)
+            return await max(licenses, key=lambda license: license.timestamp)
+        except:
+            return None
 
     async def current_year_stat(self, category):
         today = datetime.today()
         try:
             return await Stat.get(
                 category=category,
-                type=StatsType.yearly,
+                stat_type=StatsType.yearly,
                 year=today.year,
                 driver=self
             )
@@ -134,7 +161,7 @@ class Driver(Base):
         try:
             return await Stat.get(
                 category=category,
-                type=StatsType.career,
+                stat_type=StatsType.career,
                 driver=self
             )
         except:

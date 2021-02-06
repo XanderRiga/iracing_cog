@@ -57,9 +57,8 @@ class Update:
         start_time = time.monotonic()
         self.log.info('=============== Updating all servers stats ======================')
         all_series = await self.pyracing.current_seasons(series_id=True)
-
+        await generate_schemas()
         try:
-            await generate_schemas()
             for series in all_series:
                 try:
                     await get_or_create_series(series)
