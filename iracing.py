@@ -159,11 +159,8 @@ class Iracing(commands.Cog):
                            'Try `!careerstats` or `!yearlystats` with your customer ID to test '
                            'or go to #invite-link to bring the bot to your discord for all functionality')
             return
-        if is_home_guild(ctx.guild.id):
-            await init_tortoise()
-            await self.leaderboard_db.call(ctx, category, type)
-        else:
-            await self.leaderboard.call(ctx, category, type)
+        await init_tortoise()
+        await self.leaderboard_db.call(ctx, category, type)
 
     @commands.command()
     async def iratings(self, ctx, category='road'):
