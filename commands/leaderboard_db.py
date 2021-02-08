@@ -52,6 +52,11 @@ class LeaderboardDb:
             '#', 'Discord Name', 'iRacing Name', 'Starts', 'Current iRating', 'Peak iRating', 'License', 'Wins',
             'Top 5s', 'Laps Led', 'Win %', 'Top 5 %', 'Laps Led %', 'Avg Incidents'
         ]
+        # TODO REMOVE THIS BULLSHIT DEBUGGING
+        for driver in drivers:
+            self.log.info(f'driver: {driver}')
+            irating = await driver.current_irating_value(category)
+            self.log.info(f'irating: {irating}')
 
         drivers_with_ir = [(await x.current_irating_value(category), x) for x in drivers]
         drivers_with_ir.sort(reverse=True)
