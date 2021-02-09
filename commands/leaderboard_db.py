@@ -26,10 +26,11 @@ class LeaderboardDb:
             is_yearly = (type != 'career')
 
             try:
-                guild = await Guild.get(discord_id=ctx.guild.id)
+                guild = await Guild.get(discord_id=str(ctx.guild.id))
             except:
                 await ctx.send('Looks like no one in this discord has data yet. '
                                'Try `!saveid` and `!update` to make sure at least one person is saved.')
+                return
 
             drivers = await guild.drivers.all()
             table_html_string = await self.get_leaderboard_html_string(drivers, ctx.guild, Category.from_name(category),
