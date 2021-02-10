@@ -110,6 +110,7 @@ async def get_or_create_driver(discord_id, guild_id, iracing_id, name=None):
     return driver
 
 
+# This also deletes all previous data from this driver
 async def create_or_update_driver(iracing_id, discord_id, guild_id, name=None):
     await init_tortoise()
     guild_model = await get_or_create_guild(guild_id)
@@ -122,7 +123,25 @@ async def create_or_update_driver(iracing_id, discord_id, guild_id, name=None):
 
     await driver.save()
     await driver.guilds.add(guild_model)
+
+    await remove_driver_data(driver)
     return driver
+
+
+async def remove_driver_data(driver):
+    await init_tortoise()
+    try:
+        await Irating.filter(driver=driver).delete()
+    except:
+        pass
+    try:
+        await License.filter(driver=driver).delete()
+    except:
+        pass
+    try:
+        await Stat.filter(driver=driver).delete()
+    except:
+        pass
 
 
 async def create_or_update_stats(driver_discord_id, guild_id, stat, stat_type, driver_iracing_id):
