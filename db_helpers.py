@@ -129,16 +129,18 @@ async def create_or_update_driver(iracing_id, discord_id, guild_id, name=None):
 
 
 async def remove_driver_data(driver):
-    await init_tortoise()
     try:
+        await init_tortoise()
         await Irating.filter(driver=driver).delete()
     except:
         pass
     try:
+        await init_tortoise()
         await License.filter(driver=driver).delete()
     except:
         pass
     try:
+        await init_tortoise()
         await Stat.filter(driver=driver).delete()
     except:
         pass

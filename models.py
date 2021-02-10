@@ -65,6 +65,12 @@ class Irating(Base):
     driver = fields.ForeignKeyField('models.Driver', related_name='iratings')
     category: Category = fields.IntEnumField(Category)
 
+    def datetime(self):
+        try:
+            return datetime.strptime(self.timestamp, '%Y-%m-%d %H:%M:%S')
+        except Exception:
+            return None
+
     def __str__(self):
         return f'{self.driver.discord_id} irating for {self.category} at {self.timestamp}'
 
