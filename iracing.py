@@ -161,6 +161,7 @@ class Iracing(commands.Cog):
             return
         await init_tortoise()
         await self.leaderboard_db.call(ctx, category, type)
+        await Tortoise.close_connections()
 
     @commands.command()
     async def iratings(self, ctx, category='road'):

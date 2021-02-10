@@ -99,7 +99,7 @@ class LeaderboardDb:
         html_string = table.get_html_string(attributes={"id": "iracing_table"})
         css = wrap_in_style_tag(leaderboard_table_css + header_css)
 
-        return css + header_html_string + "\n" + html_string
+        return css + charset() + header_html_string + "\n" + html_string
 
     def member_name(self, member_id, guild):
         member = discord.utils.find(lambda m: m.id == int(member_id), guild.members)

@@ -214,7 +214,7 @@ async def recent_races_table_db_string(recent_races, iracing_id):
     header_string = build_html_header_string(f'Recent Races for user: {iracing_id}')
     css = wrap_in_style_tag(iracing_table_css + header_css)
 
-    return css + header_string + "\n" + html_string
+    return css + charset() + header_string + "\n" + html_string
 
 
 def build_race_week_string(race_week, series, title, log):

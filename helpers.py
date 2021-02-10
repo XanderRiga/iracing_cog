@@ -62,6 +62,10 @@ header_css = """
 """
 
 
+def charset():
+    return '<meta charset="UTF-8">\n'
+
+
 def build_html_header_string(header_string):
     return f"<h2 id=\"header\" style=\"text-align:center\">{header_string}</h2>"
 
