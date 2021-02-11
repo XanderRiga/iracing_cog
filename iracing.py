@@ -240,6 +240,11 @@ class Iracing(commands.Cog):
         await self.remove_fav_series.call(ctx, series_id)
         await Tortoise.close_connections()
 
+    @commands.command(name='support')
+    async def support(self, ctx):
+        """Having issues with the bot? This will give you a link to the support server so you can ask for help"""
+        await ctx.send('Join the support server here: https://discord.gg/bAq8Ec5JPQ')
+
 
 def setup(bot):
     bot.add_cog(Iracing(bot))
