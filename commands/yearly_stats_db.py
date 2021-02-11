@@ -15,9 +15,9 @@ class YearlyStatsDb:
         try:
             async with ctx.typing():
                 user_id = str(ctx.author.id)
-                await init_tortoise()
                 if not iracing_id:
                     try:
+                        await init_tortoise()
                         driver = await Driver.get(discord_id=user_id)
                         iracing_id = driver.iracing_id
                         if not iracing_id:
@@ -30,11 +30,12 @@ class YearlyStatsDb:
                         return
 
                 try:
+                    await init_tortoise()
                     driver = await Driver.get(iracing_id=iracing_id)
                     yearly_stats = await Stat.filter(driver=driver, stat_type=StatsType.yearly)
                 except:
+                    await init_tortoise()
                     yearly_stats = await self.build_stats(iracing_id)
-                await Tortoise.close_connections()
 
                 if yearly_stats:
                     yearly_stats.sort(key=lambda x: x.year, reverse=True)
@@ -43,10 +44,13 @@ class YearlyStatsDb:
                     imgkit.from_string(yearly_stats_html, filename)
                     await ctx.send(file=discord.File(filename))
                     cleanup_file(filename)
+                    await Tortoise.close_connections()
                 else:
                     await ctx.send('No yearly stats found for user: ' + str(iracing_id))
+                    await Tortoise.close_connections()
         except Exception as e:
             self.log.info(f'Failed yearly stats(db) for {ctx}, exception: {e}')
+            await Tortoise.close_connections()
 
     async def build_stats(self, iracing_id):
         """When we get a query for a user not in our DB, we have to do an API request"""

@@ -61,12 +61,17 @@ class LeaderboardDb:
         for index, driver in enumerate(sorted_drivers, start=1):
             try:
                 if yearly:
+                    await init_tortoise()
                     stat = await driver.current_year_stat(category)
                 else:
+                    await init_tortoise()
                     stat = await driver.career_stat(category)
 
+                await init_tortoise()
                 current_ir = await driver.current_irating(category)
+                await init_tortoise()
                 peak_ir = await driver.peak_irating(category)
+                await init_tortoise()
                 license_class = await driver.current_license_class(category)
 
                 if stat:
@@ -111,8 +116,10 @@ class LeaderboardDb:
 
     async def delete_user_guild_relationships(self, guild):
         current_member_ids = list(map(lambda x: str(x.id), guild.members))
+        await init_tortoise()
         db_guild = await Guild.get(discord_id=guild.id)
         guild_drivers = await Driver.filter(guilds=db_guild)
         for driver in guild_drivers:
             if str(driver.discord_id) not in current_member_ids:
+                await init_tortoise()
                 await db_guild.drivers.remove(driver)

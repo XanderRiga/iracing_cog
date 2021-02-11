@@ -15,9 +15,9 @@ class CareerStatsDb:
         try:
             async with ctx.typing():
                 user_id = str(ctx.author.id)
-                await init_tortoise()
                 if not iracing_id:
                     try:
+                        await init_tortoise()
                         driver = await Driver.get(discord_id=user_id)
                         iracing_id = driver.iracing_id
                         if not iracing_id:
@@ -30,6 +30,7 @@ class CareerStatsDb:
                         return
 
                 try:
+                    await init_tortoise()
                     driver = await Driver.get(iracing_id=iracing_id)
                     career_stats = await Stat.filter(driver=driver, stat_type=StatsType.career)
                 except:
