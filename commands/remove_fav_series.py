@@ -1,4 +1,3 @@
-from ..storage import *
 from ..db_helpers import remove_fav_series, init_tortoise, Tortoise
 import traceback
 from ..models import Guild

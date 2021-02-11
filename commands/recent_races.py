@@ -1,7 +1,7 @@
-from ..storage import *
 from ..html_builder import *
 from ..helpers import *
 import imgkit
+from ..db_helpers import Driver
 
 
 class RecentRaces:
@@ -14,14 +14,18 @@ class RecentRaces:
             user_id = str(ctx.author.id)
             guild_id = str(ctx.guild.id)
             if not iracing_id:
-                iracing_id = get_user_iracing_id(user_id, guild_id)
+                try:
+                    await init_tortoise()
+                    driver = await Driver.get(discord_id=user_id)
+                    iracing_id = driver.iracing_id
+                except:
+                    pass
                 if not iracing_id:
                     await ctx.send('Please send an iRacing ID with the command or link your own with `!saveid <iRacing '
                                    'ID>`')
                     return
 
-            races_stats_list = await get_last_races(self.pyracing, self.log, user_id, guild_id, iracing_id)
-
+            races_stats_list = await self.pyracing.last_races_stats(iracing_id)
             if races_stats_list:
                 table_html_string = await recent_races_table_db_string(races_stats_list, iracing_id)
                 filename = f'{guild_id}_{iracing_id}_recent_races.jpg'

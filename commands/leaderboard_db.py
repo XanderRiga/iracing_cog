@@ -1,6 +1,4 @@
-from ..storage import *
 from ..html_builder import *
-from ..helpers import delete_missing_users, get_relevant_leaderboard_data
 import imgkit
 from ..db_helpers import init_tortoise, Tortoise
 from ..models import Driver, Guild, Category

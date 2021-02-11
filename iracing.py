@@ -11,10 +11,7 @@ from .commands.recent_races import RecentRaces
 from .commands.career_stats_db import CareerStatsDb
 from .commands.yearly_stats_db import YearlyStatsDb
 from .commands.save_id import SaveId
-from .commands.leaderboard import Leaderboard
-from .commands.iratings import Iratings
 from .commands.iratings_db import IratingsDb
-from .commands.all_series import AllSeries
 from .commands.all_series_db import AllSeriesDb
 from .commands.set_fav_series import SetFavSeries
 from .commands.remove_fav_series import RemoveFavSeries
@@ -47,7 +44,6 @@ class Iracing(commands.Cog):
         self.yearly_stats_db = YearlyStatsDb(self.pyracing, log)
         self.career_stats_db = CareerStatsDb(self.pyracing, log)
         self.save_id = SaveId(log)
-        self.leaderboard = Leaderboard(log)
         self.iratings_db = IratingsDb(log)
         self.all_series_db = AllSeriesDb(log)
         self.current_series_db = CurrentSeriesDb(log)

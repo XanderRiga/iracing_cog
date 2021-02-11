@@ -1,7 +1,6 @@
 import urllib.parse
 from datetime import datetime
 from pyracing.constants import Category
-from .storage import *
 import os
 import copy
 from .models import Series
@@ -111,18 +110,6 @@ def get_current_year_stats(yearly_stats_list):
     return filter(lambda x: x['year'] == current_year, yearly_stats_list)
 
 
-def minutes_since_last_update(guild_id, log):
-    try:
-        last_update = get_last_update_datetime(guild_id)
-        if not last_update:
-            return None
-        return round((datetime.now() - last_update).seconds / 60, 1)
-    except Exception as e:
-        log.warning('datetime parsing exploded')
-        log.warning(e)
-        return None
-
-
 def get_relevant_leaderboard_data(guild_dict, category):
     if category == 'road':
         valid_guild_dict = dict(filter(
@@ -150,16 +137,6 @@ def get_relevant_leaderboard_data(guild_dict, category):
         return sorted(valid_guild_dict.items(), key=lambda x: int(x[1]['dirt_oval_irating'][-1][1]), reverse=True)
 
     return []
-
-
-def delete_missing_users(guild):
-    guild_dict = get_guild_dict(guild.id)
-    current_member_ids = list(map(lambda x: x.id, guild.members))
-    for user_id in get_user_ids(guild.id):
-        if int(user_id) not in current_member_ids:
-            guild_dict.pop(user_id, None)
-
-    set_guild_data(guild.id, guild_dict)
 
 
 def get_series_name(all_series, series_id):
@@ -228,14 +205,6 @@ def serie_from_id(id, all_series):
 def cleanup_file(file_name):
     if os.path.exists(file_name):
         os.remove(file_name)
-
-
-async def get_last_races(pyracing, log, user_id, guild_id, iracing_id):
-    races_stats_list = await pyracing.last_races_stats(iracing_id)
-    if races_stats_list:
-        log.info('found a races stats list for user: ' + str(iracing_id))
-        update_user(user_id, guild_id, None, None, copy.deepcopy(races_stats_list))
-        return races_stats_list
 
 
 def six_months_before(date):
