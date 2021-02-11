@@ -48,7 +48,6 @@ class Iracing(commands.Cog):
         self.career_stats_db = CareerStatsDb(self.pyracing, log)
         self.save_id = SaveId(log)
         self.leaderboard = Leaderboard(log)
-        self.iratings = Iratings(log)
         self.iratings_db = IratingsDb(log)
         self.all_series_db = AllSeriesDb(log)
         self.current_series_db = CurrentSeriesDb(log)
@@ -165,11 +164,8 @@ class Iracing(commands.Cog):
 
     @commands.command()
     async def iratings(self, ctx, category='road'):
-        if is_home_guild(ctx.guild.id):
-            await init_tortoise()
-            await self.iratings_db.call(ctx, category)
-        else:
-            await self.iratings.call(ctx, category)
+        await init_tortoise()
+        await self.iratings_db.call(ctx, category)
         await Tortoise.close_connections()
 
     @commands.command(name='allseries')
