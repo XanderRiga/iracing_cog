@@ -95,7 +95,9 @@ class Iracing(commands.Cog):
                            'Try `!careerstats` or `!yearlystats` with your customer ID to test '
                            'or go to #invite-link to bring the bot to your discord for all functionality')
             return
+        await ctx.send(f'Updating user: {ctx.author.name}, this may take a minute')
         await self.updater.update_member(ctx)
+        await ctx.send(f'Successfully updated {ctx.author.name}')
 
     @commands.command(name='updateserver')
     async def updateserver(self, ctx):
@@ -107,7 +109,16 @@ class Iracing(commands.Cog):
                            'Try `!careerstats` or `!yearlystats` with your customer ID to test '
                            'or go to #invite-link to bring the bot to your discord for all functionality')
             return
-        await self.updater.update_server(ctx)
+
+        await ctx.send(f'Updating server data. This may take a while')
+        await init_tortoise()
+        try:
+            guild = await Guild.get(discord_id=str(ctx.guild.id))
+            await self.updater.update_server_background(guild)
+            await ctx.send(f'Server update complete!')
+        except:
+            await ctx.send('Make sure at least 1 user has set their ID with `!saveid` before calling this command')
+
 
     @commands.command(name='recentraces')
     async def recentraces(self, ctx, *, iracing_id=None):

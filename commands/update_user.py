@@ -12,91 +12,87 @@ class UpdateUser:
         self.pyracing = pyracing
         self.log = log
 
-    async def update_user_in_dict(self, user_id, guild_dict, guild_id):
+    async def update_fields(self, driver):
         """This updates a user inside the dict without saving to any files"""
-        self.log.info(f'Updating user: {user_id}')
-        iracing_id = guild_dict[user_id]['iracing_id']
+        self.log.info(f'Updating user: {driver}')
 
         await init_tortoise()
         try:
-            await self.update_driver_name(user_id, guild_dict, iracing_id, guild_id)
+            await self.update_driver_name(driver)
         except Exception as e:
             self.handle_exceptions(self.update_driver_name.__name__, e)
 
         try:
-            await self.update_career_stats(user_id, guild_dict, iracing_id, guild_id)
+            await self.update_career_stats(driver)
         except Exception as e:
             self.handle_exceptions(self.update_career_stats.__name__, e)
 
         try:
-            await self.update_yearly_stats(user_id, guild_dict, iracing_id, guild_id)
+            await self.update_yearly_stats(driver)
         except Exception as e:
             self.handle_exceptions(self.update_yearly_stats.__name__, e)
 
         try:
-            await self.update_iratings(user_id, guild_dict, iracing_id, Category.oval, guild_id)
+            await self.update_iratings(driver, Category.oval)
         except Exception as e:
             self.handle_exceptions(self.update_iratings.__name__, e)
 
         try:
-            await self.update_iratings(user_id, guild_dict, iracing_id, Category.road, guild_id)
+            await self.update_iratings(driver, Category.road)
         except Exception as e:
             self.handle_exceptions(self.update_iratings.__name__, e)
 
         try:
-            await self.update_iratings(user_id, guild_dict, iracing_id, Category.dirt_road, guild_id)
+            await self.update_iratings(driver, Category.dirt_road)
         except Exception as e:
             self.handle_exceptions(self.update_iratings.__name__, e)
 
         try:
-            await self.update_iratings(user_id, guild_dict, iracing_id, Category.dirt_oval, guild_id)
+            await self.update_iratings(driver, Category.dirt_oval)
         except Exception as e:
             self.handle_exceptions(self.update_iratings.__name__, e)
 
         try:
-            await self.update_license_class(user_id, guild_dict, iracing_id, Category.oval, guild_id)
+            await self.update_license_class(driver, Category.oval)
         except Exception as e:
             self.handle_exceptions(self.update_license_class.__name__, e)
 
         try:
-            await self.update_license_class(user_id, guild_dict, iracing_id, Category.road, guild_id)
+            await self.update_license_class(driver, Category.road)
         except Exception as e:
             self.handle_exceptions(self.update_license_class.__name__, e)
 
         try:
-            await self.update_license_class(user_id, guild_dict, iracing_id, Category.dirt_road, guild_id)
+            await self.update_license_class(driver, Category.dirt_road)
         except Exception as e:
             self.handle_exceptions(self.update_license_class.__name__, e)
 
         try:
-            await self.update_license_class(user_id, guild_dict, iracing_id, Category.dirt_oval, guild_id)
+            await self.update_license_class(driver, Category.dirt_oval)
         except Exception as e:
             self.handle_exceptions(self.update_license_class.__name__, e)
 
         await Tortoise.close_connections()
-        self.log.info(f'Finished updating user: {user_id}')
-        return guild_dict
+        self.log.info(f'Finished updating user: {driver}')
 
-    async def update_driver_name(self, user_id, guild_dict, cust_id, guild_id):
+    async def update_driver_name(self, driver):
         try:
-            response = await self.pyracing.driver_status(cust_id=cust_id)
+            response = await self.pyracing.driver_status(cust_id=driver.iracing_id)
             name = parse_encoded_string(response.name)
-            guild_dict[user_id]['name'] = name
-
-            await update_driver_name(user_id, guild_id, name, cust_id)
+            driver.name = name
+            await init_tortoise()
+            await driver.save()
             return name
         except:
-            self.log.warning(f'Name not found for {cust_id}')
+            self.log.warning(f'Name not found for {driver}')
             raise NameNotFound
 
-    async def update_career_stats(self, user_id, guild_dict, iracing_id, guild_id):
-        career_stats_list = await self.pyracing.career_stats(iracing_id)
+    async def update_career_stats(self, driver):
+        career_stats_list = await self.pyracing.career_stats(driver.iracing_id)
         if career_stats_list:
             try:
-                guild_dict[user_id]['career_stats'] = list(map(lambda x: x.__dict__, career_stats_list))
-
                 for stat in career_stats_list:
-                    await create_or_update_stats(user_id, guild_id, stat, StatsType.career, iracing_id)
+                    await create_or_update_stat_from_driver(driver, stat, StatsType.career)
                 return career_stats_list
             except:
                 self.log.info('skipping saving for career stats')
@@ -104,14 +100,12 @@ class UpdateUser:
         else:
             return []
 
-    async def update_yearly_stats(self, user_id, guild_dict, iracing_id, guild_id):
-        yearly_stats_list = await self.pyracing.yearly_stats(iracing_id)
+    async def update_yearly_stats(self, driver):
+        yearly_stats_list = await self.pyracing.yearly_stats(driver.iracing_id)
         if yearly_stats_list:
             try:
-                guild_dict[user_id]['yearly_stats'] = list(map(lambda x: x.__dict__, yearly_stats_list))
-
                 for stat in yearly_stats_list:
-                    await create_or_update_stats(user_id, guild_id, stat, StatsType.yearly, iracing_id)
+                    await create_or_update_stat_from_driver(driver, stat, StatsType.yearly)
                 return yearly_stats_list
             except:
                 self.log.info('skipping saving for yearly stats')
@@ -119,30 +113,22 @@ class UpdateUser:
         else:
             return []
 
-    async def update_iratings(self, user_id, guild_dict, iracing_id, category, guild_id):
-        chart_data = await self.pyracing.irating(iracing_id, category.value)
+    async def update_iratings(self, driver, category):
+        chart_data = await self.pyracing.irating(driver.iracing_id, category.value)
         if not chart_data.current():
             return []
 
-        json_iratings = []
         for irating in chart_data.content:
-            json_iratings.append([irating.datetime().strftime(datetime_format), irating.value])
-            await get_or_create_irating(guild_id, user_id, irating, category, iracing_id)
+            await get_or_create_irating_for_driver(driver, irating, category)
 
-        guild_dict[user_id][f'{category.name}_irating'] = json_iratings
+        return chart_data
 
-        return json_iratings
-
-    async def update_license_class(self, user_id, guild_dict, iracing_id, category, guild_id):
-        chart_data = await self.pyracing.license_class(iracing_id, category.value)
+    async def update_license_class(self, driver, category):
+        chart_data = await self.pyracing.license_class(driver.iracing_id, category.value)
         if not chart_data.current():
             return 'N/A'
 
-        license_class = str(chart_data.current().class_letter()) + ' ' + str(chart_data.current().safety_rating())
-        await get_or_create_license(guild_id, user_id, chart_data.current(), category, iracing_id)
-
-        guild_dict[user_id][f'{category.name}_license_class'] = license_class
-        return license_class
+        await get_or_create_license_for_driver(driver, chart_data.current(), category)
 
     def handle_exceptions(self, method_name, e):
         traceback.print_exc()

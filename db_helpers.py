@@ -114,6 +114,7 @@ async def get_or_create_driver(discord_id, guild_id, iracing_id, name=None):
 async def create_or_update_driver(iracing_id, discord_id, guild_id, name=None):
     await init_tortoise()
     guild_model = await get_or_create_guild(guild_id)
+    await init_tortoise()
     driver = await get_or_create_driver(discord_id, guild_id, iracing_id, name)
 
     # Not sure if we need this, but we don't want to accidentally drop this value
@@ -121,7 +122,9 @@ async def create_or_update_driver(iracing_id, discord_id, guild_id, name=None):
     if name:
         driver.iracing_name = name
 
+    await init_tortoise()
     await driver.save()
+    await init_tortoise()
     await driver.guilds.add(guild_model)
 
     await remove_driver_data(driver)
@@ -144,6 +147,47 @@ async def remove_driver_data(driver):
         await Stat.filter(driver=driver).delete()
     except:
         pass
+
+
+async def create_or_update_stat_from_driver(driver, stat, stat_type):
+    await init_tortoise()
+    if stat_type == StatsType.career:
+        stat_model_tuple = await Stat.get_or_create(
+            driver=driver,
+            category=Category.from_name(stat.category),
+            stat_type=StatsType.career
+        )
+
+        stat_model = stat_model_tuple[0]
+    else:
+        stat_model_tuple = await Stat.get_or_create(
+            driver=driver,
+            category=Category.from_name(stat.category),
+            stat_type=StatsType.yearly,
+            year=stat.year
+        )
+
+        stat_model = stat_model_tuple[0]
+
+    await stat_model.update_from_dict({
+        'avg_incidents': stat.incidents_avg,
+        'total_laps': stat.laps,
+        'laps_led': stat.laps_led,
+        'laps_led_percentage': stat.laps_led_pcnt,
+        'points_avg': stat.points_avg,
+        'points_club': stat.points_club,
+        'poles': stat.poles,
+        'avg_start_pos': stat.pos_start_avg,
+        'avg_finish_pos': stat.pos_finish_avg,
+        'total_starts': stat.starts,
+        'top_five_percentage': stat.top_5_pcnt,
+        'total_top_fives': stat.top_5s,
+        'win_percentage': stat.win_pcnt,
+        'total_wins': stat.wins,
+    })
+
+    await stat_model.save()
+    return stat_model
 
 
 async def create_or_update_stats(driver_discord_id, guild_id, stat, stat_type, driver_iracing_id):
@@ -208,6 +252,22 @@ async def update_driver_name(discord_id, guild_id, name, iracing_id):
     return driver_model
 
 
+async def get_or_create_irating_for_driver(driver, irating, category):
+    await init_tortoise()
+    irating_timestamp = datetime.fromtimestamp((irating.timestamp / 1000))
+
+    irating_model = await Irating.get_or_create(
+        timestamp=irating_timestamp,
+        driver=driver,
+        category=Category(category),
+        defaults={
+            'value': irating.value
+        }
+    )
+
+    return irating_model[0]
+
+
 async def get_or_create_irating(guild_id, driver_discord_id, irating, category, driver_iracing_id):
     await init_tortoise()
     driver_model = await get_or_create_driver(driver_discord_id, guild_id, driver_iracing_id)
@@ -224,6 +284,22 @@ async def get_or_create_irating(guild_id, driver_discord_id, irating, category, 
     )
 
     return irating_model[0]
+
+
+async def get_or_create_license_for_driver(driver, license_class, category):
+    await init_tortoise()
+    license_timestamp = datetime.fromtimestamp((license_class.timestamp / 1000))
+
+    license_model = await License.get_or_create(
+        timestamp=license_timestamp,
+        driver=driver,
+        category=Category(category),
+        defaults={
+            'license_number': license_class.license_number
+        }
+    )
+
+    return license_model[0]
 
 
 async def get_or_create_license(guild_id, driver_discord_id, license_class, category, driver_iracing_id):
