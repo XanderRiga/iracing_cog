@@ -254,6 +254,7 @@ async def build_race_week_string_db(series, title, log, offset):
 
     await init_tortoise()
     for serie in series:
+        await init_tortoise()
         season = await serie.current_season()
         combo = await season.offset_combo(offset)
         if not combo:
@@ -284,7 +285,7 @@ async def build_race_week_string_db(series, title, log, offset):
     header_string = build_html_header_string(title)
     css = wrap_in_style_tag(iracing_table_css + header_css)
 
-    return css + header_string + "\n" + html_string
+    return css + charset() + header_string + "\n" + html_string
 
 
 def build_series_html_string(series, title):

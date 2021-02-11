@@ -13,6 +13,7 @@ class CurrentSeriesDb:
         try:
             await init_tortoise()
             guild = await Guild.get(discord_id=ctx.guild.id)
+            await init_tortoise()
             favorite_series = await guild.favorite_series.all()
             if not favorite_series:
                 await ctx.send('Follow the directions by calling `!setfavseries` to set favorite'
