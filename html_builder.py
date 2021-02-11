@@ -195,6 +195,7 @@ async def recent_races_table_db_string(recent_races, iracing_id):
 
     for recent_race in recent_races:
         try:
+            await init_tortoise()
             series = await Series.get(iracing_id=recent_race.series_id)
             series_name = series.name
         except:

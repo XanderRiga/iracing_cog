@@ -50,7 +50,6 @@ class Iracing(commands.Cog):
         self.leaderboard = Leaderboard(log)
         self.iratings = Iratings(log)
         self.iratings_db = IratingsDb(log)
-        self.all_series_command = AllSeries(log)
         self.all_series_db = AllSeriesDb(log)
         self.current_series_db = CurrentSeriesDb(log)
         self.set_fav_series = SetFavSeries(log)
