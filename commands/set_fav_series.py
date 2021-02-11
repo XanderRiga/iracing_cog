@@ -20,7 +20,6 @@ class SetFavSeries:
                     return
                 await init_tortoise()
                 await set_all_fav_series(ctx.guild.id, parsed_ids)
-                set_guild_favorites(ctx.guild.id, parsed_ids)
                 await ctx.send(f'Successfully saved favorite series: {parsed_ids}')
                 await Tortoise.close_connections()
             except ValueError:
