@@ -178,10 +178,13 @@ class Iracing(commands.Cog):
 
     @commands.command(name='addfavseries')
     async def addfavseries(self, ctx, series_id=None):
-        """Add a series to your favorites, use `!currentseries` to see
-        what your current favorites are"""
+        """Use command `!allseries` to get a list of all series and ids.
+            Then use this command `!addfavseries` with a list of comma
+            separated ids to add your favorite series. This is identical
+            to `setfavseries`"""
         if not series_id:
-            await ctx.send('You must pass a series ID with this command. Use `!help addfavseries` for more info.')
+            await ctx.send('You must pass at least one series ID with this command. '
+                           'Use `!help addfavseries` for more info.')
 
         await self.setfavseries(ctx, ids=str(series_id))
 
@@ -189,7 +192,8 @@ class Iracing(commands.Cog):
     async def setfavseries(self, ctx, *, ids=''):
         """Use command `!allseries` to get a list of all series and ids.
             Then use this command `!setfavseries` with a list of comma
-            separated ids to set your favorite series"""
+            separated ids to add your favorite series. This is identical
+            to `addfavseries`"""
         await init_tortoise()
         if is_support_guild(ctx.guild.id):
             await ctx.send('Sorry, this discord does not allow update, saveid, '
