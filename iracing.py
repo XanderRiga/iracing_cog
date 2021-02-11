@@ -13,6 +13,7 @@ from .commands.yearly_stats_db import YearlyStatsDb
 from .commands.save_id import SaveId
 from .commands.leaderboard import Leaderboard
 from .commands.iratings import Iratings
+from .commands.iratings_db import IratingsDb
 from .commands.all_series import AllSeries
 from .commands.all_series_db import AllSeriesDb
 from .commands.set_fav_series import SetFavSeries
@@ -48,6 +49,7 @@ class Iracing(commands.Cog):
         self.save_id = SaveId(log)
         self.leaderboard = Leaderboard(log)
         self.iratings = Iratings(log)
+        self.iratings_db = IratingsDb(log)
         self.all_series_command = AllSeries(log)
         self.all_series_db = AllSeriesDb(log)
         self.current_series_db = CurrentSeriesDb(log)
@@ -84,7 +86,6 @@ class Iracing(commands.Cog):
                 log.info(f'failed updating {guild_id}')
                 log.info(str(e))
         await Tortoise.close_connections()
-        print('finished migrating fav series')
         log.info('finished migrating fav series')
 
     @commands.command(name='update')
@@ -165,7 +166,12 @@ class Iracing(commands.Cog):
 
     @commands.command()
     async def iratings(self, ctx, category='road'):
-        await self.iratings.call(ctx, category)
+        if is_home_guild(ctx.guild.id):
+            await init_tortoise()
+            await self.iratings_db.call(ctx, category)
+        else:
+            await self.iratings.call(ctx, category)
+        await Tortoise.close_connections()
 
     @commands.command(name='allseries')
     async def allseries(self, ctx):
