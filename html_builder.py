@@ -144,31 +144,9 @@ def get_last_series_html_string(last_series, iracing_id):
     return css + header_string + "\n" + html_string
 
 
-async def saved_users_irating_charts(guild_id, category):
-    guild_dict = get_guild_dict(guild_id)
-    category_string = Category(category).name
-
-    iratings = []
-    for user_id in guild_dict:
-        if f'{category_string}_irating' in guild_dict[user_id]:
-            iratings_list = guild_dict[user_id][f'{category_string}_irating']
-            iratings_list_datetimes = []
-            for irating_tuple in iratings_list:
-                iratings_list_datetimes.append([
-                    datetime.strptime(irating_tuple[0], datetime_format),
-                    irating_tuple[1]
-                ])
-
-            iratings.append({
-                user_id: iratings_list_datetimes
-            })
-
-    return iratings
-
-
 def recent_races_table_string(recent_races, iracing_id, all_series):
     table = PrettyTable()
-    table.field_names = ['Finish', 'Start', 'Incidents', 'Avg iRating', 'Race Date', 'Series', 'Track Name']
+    table.field_names = ['Finish', 'Start', 'Incidents', 'SoF', 'Race Date', 'Series', 'Track Name']
 
     for recent_race in recent_races:
         table.add_row(
@@ -191,7 +169,7 @@ def recent_races_table_string(recent_races, iracing_id, all_series):
 
 async def recent_races_table_db_string(recent_races, iracing_id):
     table = PrettyTable()
-    table.field_names = ['Finish', 'Start', 'Incidents', 'Avg iRating', 'Race Date', 'Series', 'Track Name']
+    table.field_names = ['Finish', 'Start', 'Incidents', 'SoF', 'Race Date', 'Series', 'Track Name']
 
     for recent_race in recent_races:
         try:
