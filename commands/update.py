@@ -45,6 +45,7 @@ class Update:
 
     async def update_series(self):
         await generate_schemas()
+        await init_tortoise()
         all_series = await self.pyracing.current_seasons(series_id=True)
         try:
             for series in all_series:
