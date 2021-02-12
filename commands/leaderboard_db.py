@@ -49,7 +49,7 @@ class LeaderboardDb:
         table = PrettyTable()
         table.field_names = [
             '#', 'Discord Name', 'iRacing Name', 'Starts', 'Current iRating', 'Peak iRating', 'License', 'Wins',
-            'Top 5s', 'Laps Led', 'Win %', 'Top 5 %', 'Laps Led %', 'Avg Incidents'
+            'Poles', 'Top 5s', 'Laps Led', 'Win %', 'Top 5 %', 'Laps Led %', 'Avg Incidents'
         ]
 
         drivers_with_ir = [(await x.current_irating_value(category), x) for x in drivers]
@@ -85,6 +85,7 @@ class LeaderboardDb:
                             str(license_class.class_letter()) + ' ' + str(license_class.safety_rating()) if
                             license_class else '',
                             str(stat.total_wins),
+                            str(stat.poles),
                             str(stat.total_top_fives),
                             str(stat.laps_led),
                             str(stat.win_percentage) + '%',
