@@ -52,6 +52,7 @@ class Iracing(commands.Cog):
         self.leaderboard_db = LeaderboardDb(log)
         # self.migrate_fav_series.start()
         self.update_all_servers.start()
+        self.update_series.start()
 
     @tasks.loop(hours=3, reconnect=False)
     async def update_all_servers(self):
@@ -60,27 +61,13 @@ class Iracing(commands.Cog):
         await self.updater.update_all_servers()
         await Tortoise.close_connections()
 
-    @tasks.loop(hours=4, reconnect=False)
-    async def migrate_fav_series(self):
-        """Moves fav series from json to DB, should be one time use"""
-        log.info('migrating fav series')
-        guilds = []
-        for file in os.scandir(folder):
-            if file.path.endswith('.json'):
-                guilds.append(os.path.basename(file.path)[:-5])
-
-        await init_tortoise()
-        for guild_id in guilds:
-            try:
-                favs = get_guild_favorites(guild_id)
-                parsed_ids = list(map(int, favs))
-                await set_all_fav_series(guild_id, parsed_ids)
-            except Exception as e:
-                traceback.print_exc()
-                log.info(f'failed updating {guild_id}')
-                log.info(str(e))
-        await Tortoise.close_connections()
-        log.info('finished migrating fav series')
+    @tasks.loop(hours=12, reconnect=False)
+    async def update_series(self):
+        """Update all series data, this does nothing 99% of the time,
+        but when a new season start it gets the new stuff"""
+        log.info('Updating all series')
+        await self.updater.update_series()
+        log.info('Done updating all series')
 
     @commands.command(name='update')
     async def update(self, ctx):

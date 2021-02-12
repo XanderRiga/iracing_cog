@@ -32,8 +32,19 @@ class Update:
     async def update_all_servers(self):
         start_time = time.monotonic()
         self.log.info('=============== Updating all servers stats ======================')
-        all_series = await self.pyracing.current_seasons(series_id=True)
         await generate_schemas()
+        await init_tortoise()
+        guilds = await Guild.all()
+
+        self.log.info(f'Updating {len(guilds)} total guilds')
+        for guild in guilds:
+            await self.update_server_background(guild)
+
+        self.log.info('=============== Auto update for all servers took ' + str(
+            (time.monotonic() - start_time)) + ' seconds =================')
+
+    async def update_series(self):
+        all_series = await self.pyracing.current_seasons(series_id=True)
         try:
             for series in all_series:
                 try:
@@ -44,16 +55,6 @@ class Update:
                     self.log.warning(f'Failed saving season/series: {series}, exception: {e}')
         except Exception as e:
             self.log.warning(f'Failed loading all series {str(e)}')
-
-        await init_tortoise()
-        guilds = await Guild.all()
-
-        self.log.info(f'Updating {len(guilds)} total guilds')
-        for guild in guilds:
-            await self.update_server_background(guild)
-
-        self.log.info('=============== Auto update for all servers took ' + str(
-            (time.monotonic() - start_time)) + ' seconds =================')
 
     async def update_server_background(self, guild):
         start_time = datetime.now()
