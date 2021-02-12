@@ -93,7 +93,7 @@ class LeaderboardDb:
                             str(stat.avg_incidents),
                         ]
                     )
-                index += 1
+                    index += 1
             except Exception as e:
                 traceback.print_exc()
                 self.log.error(e)
