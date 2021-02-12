@@ -56,7 +56,8 @@ class LeaderboardDb:
         drivers_with_ir.sort(reverse=True, key=lambda tup: tup[0])
         sorted_drivers = [x for key, x in drivers_with_ir]
 
-        for index, driver in enumerate(sorted_drivers, start=1):
+        index = 1
+        for driver in sorted_drivers:
             try:
                 if yearly:
                     await init_tortoise()
@@ -92,6 +93,7 @@ class LeaderboardDb:
                             str(stat.avg_incidents),
                         ]
                     )
+                index += 1
             except Exception as e:
                 traceback.print_exc()
                 self.log.error(e)
