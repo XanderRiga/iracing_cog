@@ -44,6 +44,7 @@ class Update:
             (time.monotonic() - start_time)) + ' seconds =================')
 
     async def update_series(self):
+        await generate_schemas()
         all_series = await self.pyracing.current_seasons(series_id=True)
         try:
             for series in all_series:
