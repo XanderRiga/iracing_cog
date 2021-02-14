@@ -18,8 +18,8 @@ class LicenseClass(IntEnum):
 class Category(IntEnum):
     oval = 1
     road = 2
-    dirt_road = 3
-    dirt_oval = 4
+    dirt_oval = 3
+    dirt_road = 4
 
     def friendly_name(self):
         if self.value == 1:
@@ -27,9 +27,9 @@ class Category(IntEnum):
         elif self.value == 2:
             return 'Road'
         elif self.value == 3:
-            return 'Dirt Road'
-        elif self.value == 4:
             return 'Dirt Oval'
+        elif self.value == 4:
+            return 'Dirt Road'
         else:
             return ''
 
