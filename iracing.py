@@ -80,7 +80,6 @@ class Iracing(commands.Cog):
             return
         await ctx.send(f'Updating user: {ctx.author.name}, this may take a minute')
         await self.updater.update_member(ctx)
-        await ctx.send(f'Successfully updated {ctx.author.name}')
 
     @commands.command(name='updateserver')
     async def updateserver(self, ctx):

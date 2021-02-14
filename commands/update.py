@@ -19,6 +19,7 @@ class Update:
             self.log.info(f'=============== Manual update for {ctx.author.name} update started at: ' +
                           dt_string + ' ======================')
             await self.update_user.update_fields(driver)
+            await ctx.send(f'Successfully updated {ctx.author.name}')
         except:
             await ctx.send('Save your id with `!saveid` before calling this method')
             return
