@@ -57,7 +57,6 @@ class Iracing(commands.Cog):
     @tasks.loop(hours=3, reconnect=False)
     async def update_all_servers(self):
         """Update all users career stats and iratings for building a current leaderboard"""
-        await Tortoise.close_connections()
         await self.updater.update_all_servers()
         await Tortoise.close_connections()
 
@@ -79,6 +78,7 @@ class Iracing(commands.Cog):
                            'or go to #invite-link to bring the bot to your discord for all functionality')
             return
         await ctx.send(f'Updating user: {ctx.author.name}, this may take a minute')
+        log.info(f'Updating user: {ctx.author.name}')
         await self.updater.update_member(ctx)
 
     @commands.command(name='updateserver')

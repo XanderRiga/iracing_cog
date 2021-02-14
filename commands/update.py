@@ -11,18 +11,18 @@ class Update:
         self.log = log
 
     async def update_member(self, ctx):
-        try:
-            await init_tortoise()
-            driver = await Driver.get(discord_id=ctx.author.id)
-            start_time = datetime.now()
-            dt_string = start_time.strftime("%d/%m/%Y %H:%M:%S")
-            self.log.info(f'=============== Manual update for {ctx.author.name} update started at: ' +
-                          dt_string + ' ======================')
-            await self.update_user.update_fields(driver)
-            await ctx.send(f'Successfully updated {ctx.author.name}')
-        except:
+        await init_tortoise()
+        driver = await Driver.get_or_none(discord_id=ctx.author.id)
+        if not driver:
             await ctx.send('Save your id with `!saveid` before calling this method')
             return
+
+        start_time = datetime.now()
+        dt_string = start_time.strftime("%d/%m/%Y %H:%M:%S")
+        self.log.info(f'=============== Manual update for {ctx.author.name} update started at: ' +
+                      dt_string + ' ======================')
+        await self.update_user.update_fields(driver)
+        await ctx.send(f'Successfully updated {ctx.author.name}')
 
         self.log.info(f'=============== Manual update for {ctx.author.name} finished that started at: ' +
                       dt_string + ' ======================')

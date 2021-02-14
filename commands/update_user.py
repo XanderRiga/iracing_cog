@@ -14,8 +14,6 @@ class UpdateUser:
 
     async def update_fields(self, driver):
         """This updates a user inside the dict without saving to any files"""
-        self.log.info(f'Updating user: {driver}')
-
         await init_tortoise()
         try:
             await self.update_driver_name(driver)
@@ -73,19 +71,17 @@ class UpdateUser:
             self.handle_exceptions(self.update_license_class.__name__, e)
 
         await Tortoise.close_connections()
-        self.log.info(f'Finished updating user: {driver}')
 
     async def update_driver_name(self, driver):
         try:
             response = await self.pyracing.driver_status(cust_id=driver.iracing_id)
             name = parse_encoded_string(response.name)
-            driver.name = name
             await init_tortoise()
+            driver.update_from_dict({'iracing_name': name})
             await driver.save()
             return name
         except:
             self.log.warning(f'Name not found for {driver}')
-            raise NameNotFound
 
     async def update_career_stats(self, driver):
         career_stats_list = await self.pyracing.career_stats(driver.iracing_id)
