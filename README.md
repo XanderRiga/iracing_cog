@@ -36,20 +36,18 @@ Come to the discord [here](https://discord.gg/bAq8Ec5JPQ) for support
 ### !allseries
 This will give a list of all current active series names and IDs(which are used for the favorite series commands).
 
-### !setfavseries <Series IDs\>
-This will set the favorite series for your server. Server IDs in this case is a list of comma separated
+### !setfavseries <Series IDs\> OR !addfavseries <Series IDs\>
+This will set the favorite series for your discord server. Series IDs in this case is a list of comma separated
 Series IDs that can be found from the `!allseries` command. Setting favorite series is necessary to
 use the `!currentseries` command.
 
 ### !currentseries
 Once favorite series have been set through `!setfavseries` this command prints images
-showing the current tracks for each of the favorite series for this race week and the next race week.
-
-### !addfavseries
-This is similar to `!setfavseries` except it just adds a single series to the favorites list.
+showing the current tracks for each of the favorite series for this discord server 
+for this race week and the next race week.
 
 ### !removefavseries
-This removes a single favorite from the saved favorite series
+This removes a single favorite from the saved favorite series for the discord server you are in.
 
 ## Leaderboard/Statistics Related
 ### !saveid <iRacing Client ID\>
