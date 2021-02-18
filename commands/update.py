@@ -39,7 +39,10 @@ class Update:
 
         self.log.info(f'Updating {len(guilds)} total guilds')
         for guild in guilds:
-            await self.update_server_background(guild)
+            try:
+                await self.update_server_background(guild)
+            except Exception as e:
+                self.log.warning(f'Guild failed update: {guild.id} skipping')
 
         self.log.info('=============== Auto update for all servers took ' + str(
             (time.monotonic() - start_time)) + ' seconds =================')
@@ -66,9 +69,11 @@ class Update:
         self.log.info(f'=============== background update for guild: {guild_id} started at: ' +
                       dt_string + ' ======================')
 
-
         async for driver in guild.drivers:
-            await self.update_user.update_fields(driver)
+            try:
+                await self.update_user.update_fields(driver)
+            except:
+                self.log.warning(f'Driver failed update: {driver.id} skipping')
 
         finish_time = datetime.now()
         self.log.info(f'=============== Auto update for guild: {guild_id} took ' + str(
