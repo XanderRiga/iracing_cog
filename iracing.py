@@ -54,12 +54,12 @@ class Iracing(commands.Cog):
         self.update_all_servers.start()
         self.update_series.start()
 
-    @tasks.loop(hours=3, reconnect=False)
+    @tasks.loop(hours=3)
     async def update_all_servers(self):
         """Update all users career stats and iratings for building a current leaderboard"""
         await self.updater.update_all_servers()
 
-    @tasks.loop(hours=12, reconnect=False)
+    @tasks.loop(hours=12)
     async def update_series(self):
         """Update all series data, this does nothing 99% of the time,
         but when a new season start it gets the new stuff"""
