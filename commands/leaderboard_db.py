@@ -10,7 +10,7 @@ class LeaderboardDb:
         self.log = log
 
     async def call(self, ctx, category, type):
-        await init_tortoise()
+
         await self.delete_user_guild_relationships(ctx.guild)
         async with ctx.typing():
             if type not in ['career', 'yearly']:
@@ -38,10 +38,9 @@ class LeaderboardDb:
             await ctx.send(file=discord.File(filename))
 
         cleanup_file(filename)
-        await Tortoise.close_connections()
 
     async def get_leaderboard_html_string(self, drivers, guild, category, yearly=False):
-        await init_tortoise()
+
         type_string = 'Yearly' if yearly else 'Career'
         header_string = 'iRacing ' + category.friendly_name() + ' ' + \
                         type_string + ' Leaderboard'
@@ -60,17 +59,17 @@ class LeaderboardDb:
         for driver in sorted_drivers:
             try:
                 if yearly:
-                    await init_tortoise()
+
                     stat = await driver.current_year_stat(category)
                 else:
-                    await init_tortoise()
+
                     stat = await driver.career_stat(category)
 
-                await init_tortoise()
+
                 current_ir = await driver.current_irating(category)
-                await init_tortoise()
+
                 peak_ir = await driver.peak_irating(category)
-                await init_tortoise()
+
                 license_class = await driver.current_license_class(category)
 
                 if stat:
@@ -117,10 +116,10 @@ class LeaderboardDb:
 
     async def delete_user_guild_relationships(self, guild):
         current_member_ids = list(map(lambda x: str(x.id), guild.members))
-        await init_tortoise()
+
         db_guild = await Guild.get(discord_id=guild.id)
         guild_drivers = await Driver.filter(guilds=db_guild)
         for driver in guild_drivers:
             if str(driver.discord_id) not in current_member_ids:
-                await init_tortoise()
+
                 await db_guild.drivers.remove(driver)

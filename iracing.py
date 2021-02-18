@@ -58,7 +58,6 @@ class Iracing(commands.Cog):
     async def update_all_servers(self):
         """Update all users career stats and iratings for building a current leaderboard"""
         await self.updater.update_all_servers()
-        await Tortoise.close_connections()
 
     @tasks.loop(hours=12, reconnect=False)
     async def update_series(self):
@@ -93,7 +92,7 @@ class Iracing(commands.Cog):
             return
 
         await ctx.send(f'Updating server data. This may take a while')
-        await init_tortoise()
+
         try:
             guild = await Guild.get(discord_id=str(ctx.guild.id))
             await self.updater.update_server_background(guild)
@@ -137,7 +136,6 @@ class Iracing(commands.Cog):
                            'or go to #invite-link to bring the bot to your discord for all functionality')
             return
         await self.save_id.call(ctx, iracing_id)
-        await Tortoise.close_connections()
 
     @commands.command(name='leaderboard')
     async def leaderboard(self, ctx, category='road', type='career'):
@@ -151,23 +149,20 @@ class Iracing(commands.Cog):
                            'Try `!careerstats` or `!yearlystats` with your customer ID to test '
                            'or go to #invite-link to bring the bot to your discord for all functionality')
             return
-        await init_tortoise()
+
         await self.leaderboard_db.call(ctx, category, type)
-        await Tortoise.close_connections()
 
     @commands.command()
     async def iratings(self, ctx, category='road'):
-        await init_tortoise()
+
         await self.iratings_db.call(ctx, category)
-        await Tortoise.close_connections()
 
     @commands.command(name='allseries')
     async def allseries(self, ctx):
         """Show all series currently in iRacing to help with choosing your favorites for
         `!setfavseries`"""
-        await init_tortoise()
+
         await self.all_series_db.call(ctx)
-        await Tortoise.close_connections()
 
     @commands.command(name='addfavseries')
     async def addfavseries(self, ctx, series_id=None):
@@ -187,7 +182,7 @@ class Iracing(commands.Cog):
             Then use this command `!setfavseries` with a list of comma
             separated ids to add your favorite series. This is identical
             to `addfavseries`"""
-        await init_tortoise()
+
         if is_support_guild(ctx.guild.id):
             await ctx.send('Sorry, this discord does not allow update, saveid, '
                            'leaderboard, and series commands so as not to overload me. '
@@ -199,13 +194,12 @@ class Iracing(commands.Cog):
             return
 
         await self.set_fav_series.call(ctx, ids)
-        await Tortoise.close_connections()
 
     @commands.command(name='currentseries')
     async def currentseries(self, ctx):
         """Once you set favorites with `!setfavseries` or `!addfavseries` this command will
         show this and next week tracks for your favorite series"""
-        await init_tortoise()
+
         if is_support_guild(ctx.guild.id):
             await ctx.send('Sorry, this discord does not allow update, saveid, '
                            'leaderboard, and series commands so as not to overload me. '
@@ -213,7 +207,6 @@ class Iracing(commands.Cog):
                            'or go to #invite-link to bring the bot to your discord for all functionality')
             return
         await self.current_series_db.call(ctx)
-        await Tortoise.close_connections()
 
     @commands.command(name='removefavseries')
     async def removefavseries(self, ctx, series_id=None):
@@ -222,7 +215,7 @@ class Iracing(commands.Cog):
         if not series_id:
             await ctx.send('You must pass a series ID with this command. Use `!help removefavseries` for more info.')
 
-        await init_tortoise()
+
         if is_support_guild(ctx.guild.id):
             await ctx.send('Sorry, this discord does not allow update, saveid, '
                            'leaderboard, and series commands so as not to overload me. '
@@ -231,7 +224,6 @@ class Iracing(commands.Cog):
             return
 
         await self.remove_fav_series.call(ctx, series_id)
-        await Tortoise.close_connections()
 
     @commands.command(name='support')
     async def support(self, ctx):

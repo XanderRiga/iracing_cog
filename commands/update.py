@@ -11,7 +11,7 @@ class Update:
         self.log = log
 
     async def update_member(self, ctx):
-        await init_tortoise()
+
         driver = await Driver.get_or_none(discord_id=ctx.author.id)
         if not driver:
             await ctx.send('Save your id with `!saveid` before calling this method')
@@ -34,7 +34,7 @@ class Update:
         start_time = time.monotonic()
         self.log.info('=============== Updating all servers stats ======================')
         await generate_schemas()
-        await init_tortoise()
+
         guilds = await Guild.all()
 
         self.log.info(f'Updating {len(guilds)} total guilds')
@@ -46,7 +46,7 @@ class Update:
 
     async def update_series(self):
         await generate_schemas()
-        await init_tortoise()
+
         all_series = await self.pyracing.current_seasons(series_id=True)
         try:
             for series in all_series:
@@ -66,7 +66,7 @@ class Update:
         self.log.info(f'=============== background update for guild: {guild_id} started at: ' +
                       dt_string + ' ======================')
 
-        await init_tortoise()
+
         async for driver in guild.drivers:
             await self.update_user.update_fields(driver)
 

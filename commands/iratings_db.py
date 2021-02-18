@@ -24,7 +24,7 @@ class IratingsDb:
                 return
 
             try:
-                await init_tortoise()
+
                 guild = await Guild.get(discord_id=str(ctx.guild.id))
             except:
                 await ctx.send('Looks like no one in this discord has data yet. '

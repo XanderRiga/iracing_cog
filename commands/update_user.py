@@ -14,7 +14,7 @@ class UpdateUser:
 
     async def update_fields(self, driver):
         """This updates a user inside the dict without saving to any files"""
-        await init_tortoise()
+
         try:
             await self.update_driver_name(driver)
         except Exception as e:
@@ -70,13 +70,11 @@ class UpdateUser:
         except Exception as e:
             self.handle_exceptions(self.update_license_class.__name__, e)
 
-        await Tortoise.close_connections()
-
     async def update_driver_name(self, driver):
         try:
             response = await self.pyracing.driver_status(cust_id=driver.iracing_id)
             name = parse_encoded_string(response.name)
-            await init_tortoise()
+
             driver.update_from_dict({'iracing_name': name})
             await driver.save()
             return name

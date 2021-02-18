@@ -13,7 +13,7 @@ class SaveId:
             self.log.info(f'Failed to save iracing id: {iracing_id}')
             return
 
-        await init_tortoise()
+
         user_id = str(ctx.author.id)
         guild_id = str(ctx.guild.id)
 

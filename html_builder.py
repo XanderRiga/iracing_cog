@@ -173,7 +173,7 @@ async def recent_races_table_db_string(recent_races, iracing_id):
 
     for recent_race in recent_races:
         try:
-            await init_tortoise()
+
             series = await Series.get(iracing_id=recent_race.series_id)
             series_name = series.name
         except:
@@ -231,9 +231,9 @@ async def build_race_week_string_db(series, title, log, offset):
     table.field_names = ['ID', 'Series', 'Track']
     added_rows = 0
 
-    await init_tortoise()
+
     for serie in series:
-        await init_tortoise()
+
         season = await serie.current_season()
         combo = await season.offset_combo(offset)
         if not combo:

@@ -15,7 +15,7 @@ class RecentRaces:
             guild_id = str(ctx.guild.id)
             if not iracing_id:
                 try:
-                    await init_tortoise()
+
                     driver = await Driver.get(discord_id=user_id)
                     iracing_id = driver.iracing_id
                 except:

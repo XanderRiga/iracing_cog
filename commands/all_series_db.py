@@ -10,7 +10,6 @@ class AllSeriesDb:
         self.log = log
 
     async def call(self, ctx):
-        await init_tortoise()
         road_series = await Series.filter(category=Category.road)
         oval_series = await Series.filter(category=Category.oval)
         dirt_road_series = await Series.filter(category=Category.dirt_road)
@@ -28,5 +27,3 @@ class AllSeriesDb:
             imgkit.from_string(string, filename)
             await ctx.send(file=discord.File(filename))
             cleanup_file(filename)
-
-        await Tortoise.close_connections()

@@ -167,7 +167,7 @@ def build_embeds(discord, series, name):
 async def are_valid_series(series_ids_to_check):
     """takes in a list of ids and returns true if they are
         all in the series list"""
-    await init_tortoise()
+
     all_series = await Series.all()
     all_series_ids = list(map(lambda x: x.iracing_id, all_series))
 

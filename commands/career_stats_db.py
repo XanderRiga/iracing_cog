@@ -16,7 +16,7 @@ class CareerStatsDb:
                 user_id = str(ctx.author.id)
                 if not iracing_id:
                     try:
-                        await init_tortoise()
+
                         driver = await Driver.get(discord_id=user_id)
                         iracing_id = driver.iracing_id
                         if not iracing_id:
@@ -29,12 +29,11 @@ class CareerStatsDb:
                         return
 
                 try:
-                    await init_tortoise()
+
                     driver = await Driver.get(iracing_id=iracing_id)
                     career_stats = await Stat.filter(driver=driver, stat_type=StatsType.career)
                 except:
                     career_stats = await self.build_stats(iracing_id)
-                await Tortoise.close_connections()
 
                 if career_stats:
                     career_stats_html = get_career_stats_html_db(career_stats, iracing_id)

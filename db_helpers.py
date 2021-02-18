@@ -17,7 +17,6 @@ async def generate_schemas():
 
 
 async def get_or_create_series(series):
-    await init_tortoise()
     series_model = await Series.get_or_create(
         iracing_id=series.series_id,
         defaults={
@@ -30,7 +29,7 @@ async def get_or_create_series(series):
 
 
 async def get_or_create_season(series):
-    await init_tortoise()
+
     series_model = await Series.get(iracing_id=series.series_id)
     cars = [await get_or_create_car(x) for x in series.cars]
 
@@ -56,7 +55,7 @@ async def get_or_create_season(series):
 
 
 async def get_or_create_season_combo(track, season):
-    await init_tortoise()
+
     track_model = await get_or_create_track(track)
     season_combo = await SeasonCombo.get_or_create(
         season=season,
@@ -71,7 +70,7 @@ async def get_or_create_season_combo(track, season):
 
 
 async def get_or_create_track(track):
-    await init_tortoise()
+
     track_model = await Track.get_or_create(
         iracing_id=track.id,
         defaults={'name': track.name}
@@ -81,7 +80,7 @@ async def get_or_create_track(track):
 
 
 async def get_or_create_car(car):
-    await init_tortoise()
+
     car_model = await Car.get_or_create(
         iracing_id=car.id,
         defaults={
@@ -94,7 +93,7 @@ async def get_or_create_car(car):
 
 
 async def get_or_create_driver(discord_id, guild_id, iracing_id, name=None):
-    await init_tortoise()
+
     guild_model = await get_or_create_guild(guild_id)
     driver_model = await Driver.get_or_create(
         discord_id=discord_id,
@@ -112,9 +111,9 @@ async def get_or_create_driver(discord_id, guild_id, iracing_id, name=None):
 
 # This also deletes all previous data from this driver
 async def create_or_update_driver(iracing_id, discord_id, guild_id, name=None):
-    await init_tortoise()
+
     guild_model = await get_or_create_guild(guild_id)
-    await init_tortoise()
+
     driver = await get_or_create_driver(discord_id, guild_id, iracing_id, name)
 
     # Not sure if we need this, but we don't want to accidentally drop this value
@@ -122,9 +121,9 @@ async def create_or_update_driver(iracing_id, discord_id, guild_id, name=None):
     if name:
         driver.iracing_name = name
 
-    await init_tortoise()
+
     await driver.save()
-    await init_tortoise()
+
     await driver.guilds.add(guild_model)
 
     await remove_driver_data(driver)
@@ -133,24 +132,24 @@ async def create_or_update_driver(iracing_id, discord_id, guild_id, name=None):
 
 async def remove_driver_data(driver):
     try:
-        await init_tortoise()
+
         await Irating.filter(driver=driver).delete()
     except:
         pass
     try:
-        await init_tortoise()
+
         await License.filter(driver=driver).delete()
     except:
         pass
     try:
-        await init_tortoise()
+
         await Stat.filter(driver=driver).delete()
     except:
         pass
 
 
 async def create_or_update_stat_from_driver(driver, stat, stat_type):
-    await init_tortoise()
+
     if stat_type == StatsType.career:
         stat_model_tuple = await Stat.get_or_create(
             driver=driver,
@@ -191,7 +190,7 @@ async def create_or_update_stat_from_driver(driver, stat, stat_type):
 
 
 async def create_or_update_stats(driver_discord_id, guild_id, stat, stat_type, driver_iracing_id):
-    await init_tortoise()
+
     driver_model = await get_or_create_driver(driver_discord_id, guild_id, driver_iracing_id)
     if stat_type == StatsType.career:
         stat_model_tuple = await Stat.get_or_create(
@@ -233,7 +232,7 @@ async def create_or_update_stats(driver_discord_id, guild_id, stat, stat_type, d
 
 
 async def get_or_create_guild(guild_id):
-    await init_tortoise()
+
     guild_model = await Guild.get_or_create(
         discord_id=guild_id
     )
@@ -242,7 +241,7 @@ async def get_or_create_guild(guild_id):
 
 
 async def update_driver_name(discord_id, guild_id, name, iracing_id):
-    await init_tortoise()
+
     guild_model = await get_or_create_guild(guild_id)
     driver_model = await get_or_create_driver(discord_id, guild_id, iracing_id)
 
@@ -253,7 +252,7 @@ async def update_driver_name(discord_id, guild_id, name, iracing_id):
 
 
 async def get_or_create_irating_for_driver(driver, irating, category):
-    await init_tortoise()
+
     irating_timestamp = datetime.fromtimestamp((irating.timestamp / 1000))
 
     irating_model = await Irating.get_or_create(
@@ -269,7 +268,7 @@ async def get_or_create_irating_for_driver(driver, irating, category):
 
 
 async def get_or_create_irating(guild_id, driver_discord_id, irating, category, driver_iracing_id):
-    await init_tortoise()
+
     driver_model = await get_or_create_driver(driver_discord_id, guild_id, driver_iracing_id)
 
     irating_timestamp = datetime.fromtimestamp((irating.timestamp / 1000))
@@ -287,7 +286,7 @@ async def get_or_create_irating(guild_id, driver_discord_id, irating, category, 
 
 
 async def get_or_create_license_for_driver(driver, license_class, category):
-    await init_tortoise()
+
     license_timestamp = datetime.fromtimestamp((license_class.timestamp / 1000))
 
     license_model = await License.get_or_create(
@@ -303,7 +302,7 @@ async def get_or_create_license_for_driver(driver, license_class, category):
 
 
 async def get_or_create_license(guild_id, driver_discord_id, license_class, category, driver_iracing_id):
-    await init_tortoise()
+
     driver_model = await get_or_create_driver(driver_discord_id, guild_id, driver_iracing_id)
 
     license_timestamp = datetime.fromtimestamp((license_class.timestamp / 1000))
@@ -326,7 +325,7 @@ async def set_all_fav_series(guild_id, series_ids):
 
 
 async def add_fav_series(guild_id, series_id):
-    await init_tortoise()
+
     guild = await get_or_create_guild(guild_id)
     series = await Series.get(iracing_id=series_id)
 
@@ -334,9 +333,9 @@ async def add_fav_series(guild_id, series_id):
 
 
 async def remove_fav_series(guild_id, series_id):
-    await init_tortoise()
+
     guild = await get_or_create_guild(guild_id)
-    await init_tortoise()
+
     series = await Series.get(iracing_id=series_id)
-    await init_tortoise()
+
     await guild.favorite_series.remove(series)
