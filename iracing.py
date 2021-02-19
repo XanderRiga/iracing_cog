@@ -100,7 +100,6 @@ class Iracing(commands.Cog):
         except:
             await ctx.send('Make sure at least 1 user has set their ID with `!saveid` before calling this command')
 
-
     @commands.command(name='recentraces')
     async def recentraces(self, ctx, *, iracing_id=None):
         """Shows the recent race data for the given iracing id. If no iracing id is provided it will attempt
@@ -214,7 +213,6 @@ class Iracing(commands.Cog):
         what your current favorites are"""
         if not series_id:
             await ctx.send('You must pass a series ID with this command. Use `!help removefavseries` for more info.')
-
 
         if is_support_guild(ctx.guild.id):
             await ctx.send('Sorry, this discord does not allow update, saveid, '
