@@ -54,8 +54,9 @@ This removes a single favorite from the saved favorite series for the discord se
 Use this command to save your iRacing ID to your discord ID.
 If you already have one saved this will overwrite it
 
-### !savename <iRacing Client ID\>
+### !savename <iRacing Name\>
 Use this command to save your name and iRacing ID to your discord ID.
+The name you submit must be exactly the same as your name on iRacing, including any numbers
 If you already have one saved this will overwrite it
 
 ### !recentraces <iRacing Client ID \>
