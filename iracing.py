@@ -11,6 +11,7 @@ from .commands.recent_races import RecentRaces
 from .commands.career_stats_db import CareerStatsDb
 from .commands.yearly_stats_db import YearlyStatsDb
 from .commands.save_id import SaveId
+from .commands.save_name import SaveName
 from .commands.iratings_db import IratingsDb
 from .commands.all_series_db import AllSeriesDb
 from .commands.set_fav_series import SetFavSeries
@@ -44,6 +45,7 @@ class Iracing(commands.Cog):
         self.yearly_stats_db = YearlyStatsDb(self.pyracing, log)
         self.career_stats_db = CareerStatsDb(self.pyracing, log)
         self.save_id = SaveId(log)
+        self.save_name = SaveName(self.pyracing, log)
         self.iratings_db = IratingsDb(log)
         self.all_series_db = AllSeriesDb(log)
         self.current_series_db = CurrentSeriesDb(log)
@@ -135,6 +137,18 @@ class Iracing(commands.Cog):
                            'or go to #invite-link to bring the bot to your discord for all functionality')
             return
         await self.save_id.call(ctx, iracing_id)
+
+    @commands.command(name='savename')
+    async def savename(self, ctx, *, iracing_name):
+        """Save your iRacing name with this command.
+        The name must be exactly as you see it on the site including the numbers if there are any"""
+        if is_support_guild(ctx.guild.id):
+            await ctx.send('Sorry, this discord does not allow update, saveid, savename, '
+                           'leaderboard, and series commands so as not to overload me. '
+                           'Try `!careerstats` or `!yearlystats` with your customer ID to test '
+                           'or go to #invite-link to bring the bot to your discord for all functionality')
+            return
+        await self.save_name.call(ctx, iracing_name)
 
     @commands.command(name='leaderboard')
     async def leaderboard(self, ctx, category='road', type='career'):
