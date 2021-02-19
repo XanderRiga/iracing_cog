@@ -93,7 +93,6 @@ async def get_or_create_car(car):
 
 
 async def get_or_create_driver(discord_id, guild_id, iracing_id, name=None):
-
     guild_model = await get_or_create_guild(guild_id)
     driver_model = await Driver.get_or_create(
         discord_id=discord_id,
@@ -111,21 +110,21 @@ async def get_or_create_driver(discord_id, guild_id, iracing_id, name=None):
 
 # This also deletes all previous data from this driver
 async def create_or_update_driver(iracing_id, discord_id, guild_id, name=None):
-
     guild_model = await get_or_create_guild(guild_id)
+    driver = await Driver.get_or_none(discord_id=discord_id)
+
+    if driver:
+        await driver.update_from_dict({'iracing_name': name, 'iracing_id': iracing_id})
+        await driver.save()
+    else:
+        driver = await Driver.create(
+            discord_id=discord_id,
+            iracing_name=name,
+            iracing_id=iracing_id
+        )
 
     driver = await get_or_create_driver(discord_id, guild_id, iracing_id, name)
-
-    # Not sure if we need this, but we don't want to accidentally drop this value
-    driver.iracing_id = iracing_id
-    if name:
-        driver.iracing_name = name
-
-
-    await driver.save()
-
     await driver.guilds.add(guild_model)
-
     await remove_driver_data(driver)
     return driver
 
