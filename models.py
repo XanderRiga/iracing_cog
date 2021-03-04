@@ -182,6 +182,9 @@ class Guild(Base):
     favorite_series: fields.ManyToManyRelation["Series"] = fields.ManyToManyField(
         "models.Series", related_name="guilds", through="favorite_series"
     )
+    # leagues: fields.ManyToManyRelation["League"] = fields.ManyToManyField(
+    #     "models.League", related_name="guilds", through="guild_leagues"
+    # )
     drivers: fields.ManyToManyRelation[Driver]
 
 
@@ -280,3 +283,19 @@ class Stat(Base):
     win_percentage = fields.IntField(null=True)
     total_wins = fields.IntField(null=True)
     year = fields.TextField(null=True)
+
+
+class League(Base):
+    iracing_id = fields.CharField(max_length=30)
+    seasons: fields.ReverseRelation["LeagueSeason"]
+    # guilds: fields.ManyToManyRelation[Guild]
+
+
+class LeagueSeason(Base):
+    league = fields.ForeignKeyField('models.League', related_name='seasons')
+    iracing_id = fields.CharField(max_length=30)
+    name = fields.TextField()
+    active = fields.IntField()
+    league_points_system_description = fields.TextField(null=True)
+    league_points_system_name = fields.TextField(null=True)
+    league_points_system_id = fields.CharField(max_length=30, null=True)
