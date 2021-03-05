@@ -18,6 +18,7 @@ from .commands.set_fav_series import SetFavSeries
 from .commands.remove_fav_series import RemoveFavSeries
 from .commands.current_series_db import CurrentSeriesDb
 from .commands.leaderboard_db import LeaderboardDb
+from .commands.save_league import SaveLeague
 from .db_helpers import *
 
 dotenv.load_dotenv()
@@ -52,6 +53,7 @@ class Iracing(commands.Cog):
         self.set_fav_series = SetFavSeries(log)
         self.remove_fav_series = RemoveFavSeries(log)
         self.leaderboard_db = LeaderboardDb(log)
+        self.save_league = SaveLeague(self.pyracing, log)
         # self.migrate_fav_series.start()
         self.update_all_servers.start()
         self.update_series.start()
@@ -149,6 +151,19 @@ class Iracing(commands.Cog):
                            'or go to #invite-link to bring the bot to your discord for all functionality')
             return
         await self.save_name.call(ctx, iracing_name)
+
+    @commands.command(name='saveleague')
+    async def saveleague(self, ctx, *, league_id):
+        """Save a league to this discord. The league ID can be found by navigating to the league home page on iRacing,
+        the URL will have `league=ID` where ID is the league ID you can enter"""
+        if is_support_guild(ctx.guild.id):
+            await ctx.send('Sorry, this discord does not allow update, saveid, '
+                           'leaderboard, and series commands so as not to overload me. '
+                           'Try `!careerstats` or `!yearlystats` with your customer ID to test '
+                           'or go to #invite-link to bring the bot to your discord for all functionality')
+            return
+
+        await self.save_league.call(ctx, league_id)
 
     @commands.command(name='leaderboard')
     async def leaderboard(self, ctx, category='road', type='career'):
