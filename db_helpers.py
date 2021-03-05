@@ -3,11 +3,21 @@ from tortoise import Tortoise
 from datetime import datetime
 import traceback
 
+TORTOISE_ORM = {
+    "connections": {"default": 'sqlite://db.sqlite3'},
+    "apps": {
+        "models": {
+            'models': ['iracing_cog.models', 'aerich.models'],
+            "default_connection": "default",
+        },
+    },
+}
+
 
 async def init_tortoise():
     await Tortoise.init(
         db_url='sqlite://db.sqlite3',
-        modules={'models': ['iracing_cog.models']}
+        modules={'models': ['iracing_cog.models', 'aerich.models']}
     )
 
 
