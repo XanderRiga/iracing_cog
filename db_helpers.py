@@ -39,7 +39,6 @@ async def get_or_create_series(series):
 
 
 async def get_or_create_season(series):
-
     series_model = await Series.get(iracing_id=series.series_id)
     cars = [await get_or_create_car(x) for x in series.cars]
 
@@ -65,7 +64,6 @@ async def get_or_create_season(series):
 
 
 async def get_or_create_season_combo(track, season):
-
     track_model = await get_or_create_track(track)
     season_combo = await SeasonCombo.get_or_create(
         season=season,
@@ -80,7 +78,6 @@ async def get_or_create_season_combo(track, season):
 
 
 async def get_or_create_track(track):
-
     track_model = await Track.get_or_create(
         iracing_id=track.id,
         defaults={'name': track.name}
@@ -90,7 +87,6 @@ async def get_or_create_track(track):
 
 
 async def get_or_create_car(car):
-
     car_model = await Car.get_or_create(
         iracing_id=car.id,
         defaults={
@@ -141,24 +137,20 @@ async def create_or_update_driver(iracing_id, discord_id, guild_id, name=None):
 
 async def remove_driver_data(driver):
     try:
-
         await Irating.filter(driver=driver).delete()
     except:
         pass
     try:
-
         await License.filter(driver=driver).delete()
     except:
         pass
     try:
-
         await Stat.filter(driver=driver).delete()
     except:
         pass
 
 
 async def create_or_update_stat_from_driver(driver, stat, stat_type):
-
     if stat_type == StatsType.career:
         stat_model_tuple = await Stat.get_or_create(
             driver=driver,
@@ -199,7 +191,6 @@ async def create_or_update_stat_from_driver(driver, stat, stat_type):
 
 
 async def create_or_update_stats(driver_discord_id, guild_id, stat, stat_type, driver_iracing_id):
-
     driver_model = await get_or_create_driver(driver_discord_id, guild_id, driver_iracing_id)
     if stat_type == StatsType.career:
         stat_model_tuple = await Stat.get_or_create(
@@ -207,7 +198,6 @@ async def create_or_update_stats(driver_discord_id, guild_id, stat, stat_type, d
             category=Category.from_name(stat.category),
             stat_type=StatsType.career
         )
-
         stat_model = stat_model_tuple[0]
     else:
         stat_model_tuple = await Stat.get_or_create(
@@ -216,7 +206,6 @@ async def create_or_update_stats(driver_discord_id, guild_id, stat, stat_type, d
             stat_type=StatsType.yearly,
             year=stat.year
         )
-
         stat_model = stat_model_tuple[0]
 
     await stat_model.update_from_dict({
@@ -241,7 +230,6 @@ async def create_or_update_stats(driver_discord_id, guild_id, stat, stat_type, d
 
 
 async def get_or_create_guild(guild_id):
-
     guild_model = await Guild.get_or_create(
         discord_id=guild_id
     )
@@ -250,20 +238,17 @@ async def get_or_create_guild(guild_id):
 
 
 async def update_driver_name(discord_id, guild_id, name, iracing_id):
-
     guild_model = await get_or_create_guild(guild_id)
     driver_model = await get_or_create_driver(discord_id, guild_id, iracing_id)
-
     driver_model.iracing_name = name
+
     await driver_model.save()
     await driver_model.guilds.add(guild_model)
     return driver_model
 
 
 async def get_or_create_irating_for_driver(driver, irating, category):
-
     irating_timestamp = datetime.fromtimestamp((irating.timestamp / 1000))
-
     irating_model = await Irating.get_or_create(
         timestamp=irating_timestamp,
         driver=driver,
@@ -277,9 +262,7 @@ async def get_or_create_irating_for_driver(driver, irating, category):
 
 
 async def get_or_create_irating(guild_id, driver_discord_id, irating, category, driver_iracing_id):
-
     driver_model = await get_or_create_driver(driver_discord_id, guild_id, driver_iracing_id)
-
     irating_timestamp = datetime.fromtimestamp((irating.timestamp / 1000))
 
     irating_model = await Irating.get_or_create(
@@ -295,9 +278,7 @@ async def get_or_create_irating(guild_id, driver_discord_id, irating, category, 
 
 
 async def get_or_create_license_for_driver(driver, license_class, category):
-
     license_timestamp = datetime.fromtimestamp((license_class.timestamp / 1000))
-
     license_model = await License.get_or_create(
         timestamp=license_timestamp,
         driver=driver,
@@ -311,9 +292,7 @@ async def get_or_create_license_for_driver(driver, license_class, category):
 
 
 async def get_or_create_license(guild_id, driver_discord_id, license_class, category, driver_iracing_id):
-
     driver_model = await get_or_create_driver(driver_discord_id, guild_id, driver_iracing_id)
-
     license_timestamp = datetime.fromtimestamp((license_class.timestamp / 1000))
 
     license_model = await License.get_or_create(
@@ -334,17 +313,12 @@ async def set_all_fav_series(guild_id, series_ids):
 
 
 async def add_fav_series(guild_id, series_id):
-
     guild = await get_or_create_guild(guild_id)
     series = await Series.get(iracing_id=series_id)
-
     await guild.favorite_series.add(series)
 
 
 async def remove_fav_series(guild_id, series_id):
-
     guild = await get_or_create_guild(guild_id)
-
     series = await Series.get(iracing_id=series_id)
-
     await guild.favorite_series.remove(series)
