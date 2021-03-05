@@ -182,9 +182,7 @@ class Guild(Base):
     favorite_series: fields.ManyToManyRelation["Series"] = fields.ManyToManyField(
         "models.Series", related_name="guilds", through="favorite_series"
     )
-    # leagues: fields.ManyToManyRelation["League"] = fields.ManyToManyField(
-    #     "models.League", related_name="guilds", through="guild_leagues"
-    # )
+    leagues: fields.ManyToManyRelation["League"]
     drivers: fields.ManyToManyRelation[Driver]
 
 
@@ -288,7 +286,9 @@ class Stat(Base):
 class League(Base):
     iracing_id = fields.CharField(max_length=30)
     seasons: fields.ReverseRelation["LeagueSeason"]
-    # guilds: fields.ManyToManyRelation[Guild]
+    guilds: fields.ManyToManyRelation[Guild] = fields.ManyToManyField(
+        "models.Guild", related_name="leagues", through="guild_leagues"
+    )
 
 
 class LeagueSeason(Base):
