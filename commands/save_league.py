@@ -8,31 +8,32 @@ class SaveLeague:
         self.log = log
 
     async def call(self, ctx, league_id):
-        try:
-            league = await self.pyracing.league(league_id)
-        except:
-            await self.send_error_message(ctx)
-            return
+        async with ctx.typing():
+            try:
+                league = await self.pyracing.league(league_id)
+            except:
+                await self.send_error_message(ctx)
+                return
 
-        if not league:
-            await self.send_error_message(ctx)
-            return
+            if not league:
+                await self.send_error_message(ctx)
+                return
 
-        try:
-            league_seasons = await self.pyracing.league_seasons(league_id)
-        except:
-            await self.send_error_message(ctx)
-            return
+            try:
+                league_seasons = await self.pyracing.league_seasons(league_id)
+            except:
+                await self.send_error_message(ctx)
+                return
 
-        if not league_seasons:
-            await self.send_error_message(ctx)
-            return
+            if not league_seasons:
+                await self.send_error_message(ctx)
+                return
 
-        guild = await get_or_create_guild(ctx.guild.id)
+            guild = await get_or_create_guild(ctx.guild.id)
 
-        league_model = await self.build_league(guild, league_id, league.name)
-        await self.build_league_seasons(league_model, league_seasons)
-        await ctx.send('Successfully saved league')
+            league_model = await self.build_league(guild, league_id, league.name)
+            await self.build_league_seasons(league_model, league_seasons)
+            await ctx.send('Successfully saved league!')
 
     async def build_league_seasons(self, league, league_seasons):
         for season in league_seasons:

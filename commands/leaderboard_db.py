@@ -10,7 +10,6 @@ class LeaderboardDb:
         self.log = log
 
     async def call(self, ctx, category, type):
-
         await self.delete_user_guild_relationships(ctx.guild)
         async with ctx.typing():
             if type not in ['career', 'yearly']:
