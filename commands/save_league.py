@@ -9,6 +9,16 @@ class SaveLeague:
 
     async def call(self, ctx, league_id):
         try:
+            league = await self.pyracing.league(league_id)
+        except:
+            await self.send_error_message(ctx)
+            return
+
+        if not league:
+            await self.send_error_message(ctx)
+            return
+
+        try:
             league_seasons = await self.pyracing.league_seasons(league_id)
         except:
             await self.send_error_message(ctx)
@@ -20,8 +30,8 @@ class SaveLeague:
 
         guild = await get_or_create_guild(ctx.guild.id)
 
-        league = await self.build_league(guild, league_id)
-        await self.build_league_seasons(league, league_seasons)
+        league_model = await self.build_league(guild, league_id, league.name)
+        await self.build_league_seasons(league_model, league_seasons)
         await ctx.send('Successfully saved league')
 
     async def build_league_seasons(self, league, league_seasons):
@@ -37,8 +47,13 @@ class SaveLeague:
                 }
             )
 
-    async def build_league(self, guild, league_id):
-        league_tuple = await League.get_or_create(iracing_id=league_id)
+    async def build_league(self, guild, league_id, name):
+        league_tuple = await League.get_or_create(
+            iracing_id=league_id,
+            defaults={
+                'name': name
+            }
+        )
         league = league_tuple[0]
 
         await league.guilds.add(guild)
