@@ -23,7 +23,10 @@ class CurrentSeriesDb:
             next_week_string = await build_race_week_string_db(favorite_series, 'Next Week', self.log, 1)
 
             if not this_week_string and not next_week_string:
-                await ctx.send('Looks like there are no combos right now. Tr')
+                await ctx.send('Looks like there are no combos right now. '
+                               'It might be week 13 or iRacing might be down. '
+                               'If neither of those are the issue, try again soon')
+                return
 
             if this_week_string:
                 this_week_filename = f'{ctx.guild.id}_this_week.jpg'
