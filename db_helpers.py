@@ -322,3 +322,9 @@ async def remove_fav_series(guild_id, series_id):
     guild = await get_or_create_guild(guild_id)
     series = await Series.get(iracing_id=series_id)
     await guild.favorite_series.remove(series)
+
+
+async def remove_league(guild_id, league_id):
+    guild = await get_or_create_guild(guild_id)
+    league = await League.get(iracing_id=league_id)
+    await guild.leagues.remove(league)

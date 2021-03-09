@@ -57,7 +57,7 @@ class LeagueStandings:
             return
 
         league_name = league.name
-        title = f'{league_name} - {season.name} Standings'
+        title = f'{league.iracing_id} - {league_name} - {season.name} Standings'
 
         if self.empty_standings(standings):
             await ctx.send(f'{title} has empty standings')

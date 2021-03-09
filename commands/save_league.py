@@ -33,7 +33,7 @@ class SaveLeague:
 
             league_model = await self.build_league(guild, league_id, league.name)
             await self.build_league_seasons(league_model, league_seasons)
-            await ctx.send('Successfully saved league!')
+            await ctx.send('Successfully saved league! Check the standings with `!leaguestandings`')
 
     async def build_league_seasons(self, league, league_seasons):
         for season in league_seasons:
