@@ -68,7 +68,8 @@ class LeagueStandings:
             '#', 'Driver', 'Nickname', 'Base Points', 'Total Points'
         ]
 
-        for driver in standings.drivers:
+        drivers = sorted(standings.drivers, key=lambda x: x.position)
+        for driver in drivers:
             table.add_row([
                 str(driver.position),
                 driver.display_name,
