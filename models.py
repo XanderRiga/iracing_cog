@@ -285,6 +285,7 @@ class Stat(Base):
 
 class League(Base):
     iracing_id = fields.CharField(max_length=30)
+    name = fields.TextField()
     seasons: fields.ReverseRelation["LeagueSeason"]
     guilds: fields.ManyToManyRelation[Guild] = fields.ManyToManyField(
         "models.Guild", related_name="leagues", through="guild_leagues"
