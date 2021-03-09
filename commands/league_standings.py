@@ -36,6 +36,13 @@ class LeagueStandings:
         await ctx.send('Looks like something went wrong. '
                        'Make sure you have saved a league with `!saveleague`')
 
+    def empty_standings(self, standings):
+        for driver in standings.drivers:
+            if driver.base_points > 0 or driver.total_points > 0:
+                return False
+
+        return True
+
     async def generate_and_send_season_images(self, ctx, seasons):
         for season in seasons:
             await self.build_season_table(ctx, season)
@@ -51,6 +58,10 @@ class LeagueStandings:
 
         league_name = league.name
         title = f'{league_name} - {season.name} Standings'
+
+        if self.empty_standings(standings):
+            await ctx.send(f'{title} has empty standings')
+            return
 
         table = PrettyTable()
         table.field_names = [
