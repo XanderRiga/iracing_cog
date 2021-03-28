@@ -11,7 +11,6 @@ class Update:
         self.log = log
 
     async def update_member(self, ctx):
-
         driver = await Driver.get_or_none(discord_id=ctx.author.id)
         if not driver:
             await ctx.send('Save your id with `!saveid` before calling this method')

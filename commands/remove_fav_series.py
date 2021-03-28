@@ -9,7 +9,6 @@ class RemoveFavSeries:
 
     async def call(self, ctx, series_id):
         try:
-
             guild = await Guild.get(discord_id=str(ctx.guild.id))
 
             current_favorites = await guild.favorite_series.all()
@@ -18,7 +17,6 @@ class RemoveFavSeries:
                 await ctx.send('Series ID must be a current favorite series. '
                                'Your current favorites can be found with `!currentseries`')
                 return
-
 
             await remove_fav_series(ctx.guild.id, series_id)
             await ctx.send(f'Successfully removed series: {series_id}')
